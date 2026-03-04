@@ -40,19 +40,26 @@ VERCEL_TOKEN=your_vercel_token
 **Per-app (public):** add to `apps/<your-app>/.env`:
 
 ```env
-VERCEL_ORG_ID=your_team_id
 VERCEL_PROJECT_ID=your_project_id
 ```
 
+**Team/Pro accounts only** — add to `apps/<your-app>/.env`:
+
+```env
+VERCEL_ORG_ID=your_team_id
+```
+
+> **Hobby/free accounts: Do NOT set `VERCEL_ORG_ID`.** Setting it on a hobby account causes 403 Forbidden errors. If you're unsure, run `dndev setup` — it detects your account type automatically.
+
 **Where to find them:**
 
-| Variable | Where | File |
-|----------|-------|------|
-| `VERCEL_TOKEN` | [vercel.com/account/tokens](https://vercel.com/account/tokens) — scope to your team | `.dndev.secrets` |
-| `VERCEL_ORG_ID` | Vercel Dashboard → Settings → General → **Team ID** | `apps/<app>/.env` |
-| `VERCEL_PROJECT_ID` | Vercel Dashboard → Your Project → Settings → General → **Project ID** | `apps/<app>/.env` |
+| Variable | Where | File | Required? |
+|----------|-------|------|-----------|
+| `VERCEL_TOKEN` | [vercel.com/account/tokens](https://vercel.com/account/tokens) — scope to your team | `.dndev.secrets` | Always |
+| `VERCEL_PROJECT_ID` | Vercel Dashboard → Your Project → Settings → General → **Project ID** | `apps/<app>/.env` | Always |
+| `VERCEL_ORG_ID` | Vercel Dashboard → Settings → General → **Team ID** | `apps/<app>/.env` | Team/Pro only |
 
-That's it. No `vercel login`, no `vercel link`, no interactive prompts.
+That's it. No `vercel login`, no `vercel link`, no interactive prompts. Run `dndev setup` to validate everything.
 
 ---
 
@@ -90,7 +97,7 @@ For Next.js apps, replace the `VITE_` prefix with `NEXT_PUBLIC_` (same var names
 dndev deploy
 ```
 
-That's it. The CLI reads your credentials from `.env.local` and deploys to production.
+That's it. The CLI reads your credentials from `.dndev.secrets` and `.env` and deploys to production.
 
 **Option B — Git push (auto-deploy)**
 
@@ -198,8 +205,18 @@ dndev emu start
 
 **"Missing Vercel credentials"**
 → Check `VERCEL_TOKEN` is in `.dndev.secrets` at project root
-→ Check `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` are in `apps/<app>/.env`
+→ Check `VERCEL_PROJECT_ID` is in `apps/<app>/.env`
 → Run `dndev setup` to validate
+
+**"403 Forbidden" / "token does not have access"**
+→ Hobby/free account? Remove `VERCEL_ORG_ID` from `apps/<app>/.env` — hobby accounts don't use team IDs
+→ Team account? Ensure the token is scoped to the correct team at https://vercel.com/account/tokens
+
+**"401 Unauthorized" / "token is invalid or expired"**
+→ Generate a new token at https://vercel.com/account/tokens and update `.dndev.secrets`
+
+**"404 project not found"**
+→ Check `VERCEL_PROJECT_ID` matches the Project ID in Vercel Dashboard → Project → Settings → General
 
 **"Build fails on Vercel"**
 → Check Root Directory is set to your app directory
