@@ -1,0 +1,41 @@
+// apps/demo/src/pages/PricingPage.tsx
+
+import { CreditCard } from 'lucide-react';
+
+import { SubscriptionTemplate } from '@donotdev/templates';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const meta: PageMeta = {
+  icon: <CreditCard />,
+  hideFromMenu: true,
+};
+
+export default function PricingPage() {
+  return (
+    <SubscriptionTemplate
+      namespace="demo"
+      plans={[
+        {
+          id: 'free',
+          name: 'Free',
+          price: '0€',
+          currency: 'eur',
+          priceId: 'price_free',
+          interval: 'month',
+          features: ['1 project', 'Community support'],
+        },
+        {
+          id: 'pro',
+          name: 'Pro',
+          price: '29€',
+          currency: 'eur',
+          priceId: 'price_pro',
+          interval: 'month',
+          popular: true,
+          features: ['Unlimited projects', 'Priority support', 'Custom domain'],
+        },
+      ]}
+    />
+  );
+}

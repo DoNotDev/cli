@@ -1,0 +1,347 @@
+/**
+ * @fileoverview Project Hub — 5-second read, zero noise
+ *
+ * Section 1: "DoNotDev — WAI-WAY Cockpit"
+ *   Left column: 5 phase cards (shared PhaseCardList)
+ *   Right column: Agent status + Grill + Board columns
+ *
+ * Section 2: Actions grid (all commands)
+ */
+
+import { useState, useEffect } from 'react';
+import {
+  LayoutDashboard,
+  Flame,
+  Inbox,
+  Clock,
+  Eye,
+  CheckCircle2,
+  RefreshCw,
+  Terminal,
+} from 'lucide-react';
+
+import {
+  Badge,
+  Card,
+  Grid,
+  Section,
+  Stack,
+  Text,
+} from '@donotdev/components';
+import type { PageMeta } from '@donotdev/core';
+import { PageContainer, useNavigate } from '@donotdev/ui';
+
+import { useDndevFile } from '../hooks/useDndevFile';
+import { useDoNotDashStore, COLUMNS } from '../stores/dndevStore';
+import { getActions } from '../config/commands';
+import { PhaseCardList } from '../components/phases/PhaseCard';
+import { DEFAULT_PROTOCOL } from '../components/phases/phaseData';
+
+import type { ProtocolData } from '../components/phases/phaseData';
+import type { TabMode, CardColumn } from '../stores/dndevStore';
+
+export const meta: PageMeta = {
+  icon: <LayoutDashboard />,
+  title: 'Dashboard',
+};
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+interface GrillItem {
+  severity?: 'blocker' | 'warn' | 'note';
+  status?: string;
+}
+
+interface GrillReport {
+  generated?: string;
+  gitSha?: string;
+  verdict?: string;
+  target?: string;
+  items?: GrillItem[];
+}
+
+interface GrillHistoryEntry {
+  date?: string;
+  gitSha?: string;
+  verdict?: string;
+  blockers?: number;
+  warnings?: number;
+  notes?: number;
+  total?: number;
+  resolved?: number;
+  carried?: number;
+}
+
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+const VERDICT_VARIANT: Record<string, 'success' | 'destructive' | 'warning' | 'muted'> = {
+  SHIP: 'success',
+  READY: 'success',
+  'DO NOT SHIP': 'destructive',
+  CONDITIONAL: 'warning',
+};
+
+const COLUMN_ICON: Record<CardColumn, typeof Inbox> = {
+  backlog: Inbox,
+  in_progress: Clock,
+  review: Eye,
+  done: CheckCircle2,
+};
+
+const COLUMN_VARIANT: Record<CardColumn, 'muted' | 'warning' | 'accent' | 'success'> = {
+  backlog: 'muted',
+  in_progress: 'warning',
+  review: 'accent',
+  done: 'success',
+};
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+
+function formatDaysAgo(days: number | null): string {
+  if (days === null) return '';
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+  return `${days}d ago`;
+}
+
+// ============================================================================
+// PAGE
+// ============================================================================
+
+export default function HomePage() {
+  const navigate = useNavigate();
+
+  // --- Data ---
+  const { data: protocol } = useDndevFile<ProtocolData>(
+    '.dndev/protocol.json',
+    (raw) => raw as ProtocolData,
+    { fallback: DEFAULT_PROTOCOL },
+  );
+  const { data: grill } = useDndevFile<GrillReport>(
+    '.dndev/grill-report.json',
+    (raw) => raw as GrillReport,
+    { fallback: {} },
+  );
+  const { data: grillHistory } = useDndevFile<GrillHistoryEntry[]>(
+    '.dndev/grill-history.json',
+    (raw) => raw as GrillHistoryEntry[],
+    { fallback: [] },
+  );
+
+  const proto = protocol ?? DEFAULT_PROTOCOL;
+  const cards = useDoNotDashStore((s) => s.cards);
+  const sessions = useDoNotDashStore((s) => s.sessions);
+  const actions = getActions();
+
+  // --- Git HEAD for staleness detection ---
+  const [currentSha, setCurrentSha] = useState<string | null>(null);
+  useEffect(() => {
+    fetch('/api/dndev/git/head')
+      .then((r) => r.json())
+      .then((d: { commit?: string }) => setCurrentSha(d.commit ?? null))
+      .catch(() => setCurrentSha(null));
+  }, []);
+
+  // --- Grill stats ---
+  const grillHasRun = !!grill?.generated;
+  const grillItems = grill?.items ?? [];
+  const grillVerdict = grill?.verdict ?? null;
+  const grillTotal = grillItems.length;
+  const grillFixed = grillItems.filter((i) => i.status === 'fixed' || i.status === 'resolved').length;
+  const grillPending = grillItems.filter((i) => !i.status || i.status === 'pending').length;
+
+  // --- Grill staleness ---
+  const grillDaysAgo = grillHasRun
+    ? Math.floor((Date.now() - new Date(grill!.generated!).getTime()) / 86_400_000)
+    : null;
+  const grillCodeChanged = grillHasRun && currentSha && grill?.gitSha
+    ? currentSha !== grill.gitSha
+    : false;
+  const grillIsStale = (grillDaysAgo !== null && grillDaysAgo > 7) || grillCodeChanged;
+
+  // --- Grill history (last 5, newest first) ---
+  const history = (grillHistory ?? []).slice(-5).reverse();
+
+  // --- Board counts ---
+  const columnCounts: Record<CardColumn, number> = {
+    backlog: 0,
+    in_progress: 0,
+    review: 0,
+    done: 0,
+  };
+  for (const card of cards) {
+    if (card.column in columnCounts) columnCounts[card.column]++;
+  }
+
+  // --- Agent detection ---
+  const agentConnected = sessions['ai-cli']?.isConnected ?? false;
+
+  function runAction(command: string, target: TabMode) {
+    useDoNotDashStore.getState().injectPrompt(command, { mode: target });
+  }
+
+  return (
+    <PageContainer>
+      {/* ================================================================ */}
+      {/* SECTION 1: WAI-WAY Cockpit                                      */}
+      {/* ================================================================ */}
+      <Section title="DoNotDev — WAI-WAY Cockpit" gridCols={[1, 1, 2, 2]} gridGap="medium">
+        {/* Left: 5 phase cards */}
+        <PhaseCardList
+          protocol={proto}
+          onSelectPhase={() => navigate('/phases')}
+        />
+
+        {/* Right: Agent status + Grill + Board */}
+        <Stack gap="tight">
+
+          {/* Agent Status */}
+          {!agentConnected && (
+            <Card variant="warning">
+              <Stack direction="row" align="center" gap="tight">
+                <Terminal size={16} />
+                <Stack gap="none" flex="1">
+                  <Text level="small" weight="semibold">No AI Agent detected</Text>
+                  <Text level="caption" variant="muted">
+                    Start Claude, Gemini, or any CLI agent in the terminal to unlock AI-powered workflows.
+                  </Text>
+                </Stack>
+              </Stack>
+            </Card>
+          )}
+
+          {/* Grill Card */}
+          <Card onClick={() => navigate('/grill')} clickable>
+            <Stack gap="tight">
+              {/* Header */}
+              <Stack direction="row" align="center" justify="between" nowrap>
+                <Stack direction="row" align="center" gap="tight">
+                  <Flame size={16} />
+                  <Text level="small" weight="semibold">Grill</Text>
+                </Stack>
+                {grillHasRun && (
+                  <Badge variant={VERDICT_VARIANT[grillVerdict!] ?? 'muted'}>{grillVerdict}</Badge>
+                )}
+              </Stack>
+
+              {grillHasRun ? (
+                <Stack gap="tight">
+                  {/* Current report summary */}
+                  <Stack direction="row" align="center" gap="tight" wrap="wrap">
+                    <Text as="span" level="caption" weight="semibold">{grillTotal} items</Text>
+                    {grillFixed > 0 && (
+                      <Badge variant="success">
+                        <CheckCircle2 size={10} /> {grillFixed} fixed
+                      </Badge>
+                    )}
+                    {grillPending > 0 && (
+                      <Badge variant="muted">{grillPending} pending</Badge>
+                    )}
+                    <Text as="span" level="caption" variant="muted">
+                      · {formatDaysAgo(grillDaysAgo)} · {grill?.gitSha ?? ''}
+                    </Text>
+                  </Stack>
+
+                  {/* Staleness nudge */}
+                  {grillIsStale && (
+                    <Badge variant="warning">
+                      <RefreshCw size={10} />
+                      {grillCodeChanged ? 'Code changed since last grill' : 'Stale — re-grill recommended'}
+                    </Badge>
+                  )}
+
+                  {/* History timeline (last 5 runs) */}
+                  {history.length > 0 && (
+                    <Stack gap="none">
+                      {history.map((h, i) => (
+                        <Stack key={i} direction="row" align="center" gap="tight">
+                          <Text as="span" level="caption" variant="muted">
+                            {formatDaysAgo(h.date ? Math.floor((Date.now() - new Date(h.date).getTime()) / 86_400_000) : null)}
+                          </Text>
+                          <Text as="span" level="caption" variant="muted">·</Text>
+                          <Text as="span" level="caption">{h.total ?? 0} items</Text>
+                          {(h.resolved ?? 0) > 0 && (
+                            <Badge variant="success">
+                              <CheckCircle2 size={10} /> {h.resolved} fixed
+                            </Badge>
+                          )}
+                          {(h.carried ?? 0) > 0 && (
+                            <Text as="span" level="caption" variant="muted">{h.carried} carried</Text>
+                          )}
+                          <Text as="span" level="caption" variant="muted">
+                            · {h.gitSha ?? ''}
+                          </Text>
+                        </Stack>
+                      ))}
+                    </Stack>
+                  )}
+                </Stack>
+              ) : (
+                <Text level="caption" variant="muted">
+                  Staff-engineer code review with security depth. Run /grill to analyze.
+                </Text>
+              )}
+            </Stack>
+          </Card>
+
+          {/* Board — 4 column cards */}
+          <Stack gap="tight">
+            <Stack direction="row" align="center" gap="tight">
+              <Text level="small" weight="semibold">Board</Text>
+              <Text as="span" level="caption" variant="muted">
+                {cards.length === 0 ? 'No tickets yet' : `${cards.length} total`}
+              </Text>
+            </Stack>
+            <Grid cols={[2, 2, 4, 4]} gap="tight">
+              {COLUMNS.map((col) => {
+                const Icon = COLUMN_ICON[col.id];
+                const count = columnCounts[col.id];
+                return (
+                  <Card
+                    key={col.id}
+                    variant={count > 0 ? COLUMN_VARIANT[col.id] : 'muted'}
+                    onClick={() => navigate('/board')}
+                    clickable
+                  >
+                    <Stack align="center" gap="none">
+                      <Icon size={16} />
+                      <Text level="h4" weight="bold">{count}</Text>
+                      <Text level="caption" variant="muted">{col.label}</Text>
+                    </Stack>
+                  </Card>
+                );
+              })}
+            </Grid>
+          </Stack>
+
+        </Stack>
+      </Section>
+
+      {/* ================================================================ */}
+      {/* SECTION 2: Actions                                               */}
+      {/* ================================================================ */}
+      <Section title="Actions" gridCols={[2, 2, 4, 4]} gridGap="medium">
+        {actions.map((action) => {
+          const Icon = action.icon;
+          return (
+            <Card key={action.id} onClick={() => runAction(action.command, action.target)} clickable>
+              <Stack gap="tight">
+                <Stack direction="row" align="center" gap="tight">
+                  <Icon size={16} />
+                  <Text level="small" weight="semibold">{action.label}</Text>
+                </Stack>
+                <Text level="caption" variant="muted">{action.description}</Text>
+              </Stack>
+            </Card>
+          );
+        })}
+      </Section>
+    </PageContainer>
+  );
+}

@@ -1,0 +1,7 @@
+// supabase/functions/create-customer-portal/index.ts
+// Supabase Edge Function — Stripe Customer Portal
+// Deploy: supabase functions deploy create-customer-portal
+
+import { createCustomerPortal } from '@donotdev/functions/supabase';
+
+Deno.serve(createCustomerPortal());

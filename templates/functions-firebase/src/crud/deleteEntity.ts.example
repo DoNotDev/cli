@@ -1,0 +1,14 @@
+// functions/src/crud/deleteEntity.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Delete Entity Wrapper
+ * @description Wrapper for framework's deleteEntity with {{APP_NAME}}-specific configuration
+ */
+
+import { deleteEntity as frameworkDeleteEntity } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} entity deletion
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export const deleteEntity = frameworkDeleteEntity;

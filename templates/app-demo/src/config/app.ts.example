@@ -1,0 +1,33 @@
+// apps/demo/src/config/app.ts
+/**
+ * @fileoverview Application configuration
+ * @description Defines application metadata, layout preset, and feature flags
+ * @version 0.1.0
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import type { AppConfig } from '@donotdev/core';
+
+export const APP_NAME = 'DoNotDev';
+export const APP_SHORT_NAME = 'DoNotDev';
+export const APP_DESCRIPTION = 'DoNotDev SaaS Template';
+
+/**
+ * Application configuration
+ *
+ * - preset: 'landing' is the app default. Pages can override via PageMeta.preset.
+ * - auth: Configure auth routes and menu items.
+ */
+export const appConfig: AppConfig = {
+  app: {
+    name: APP_NAME,
+    shortName: APP_SHORT_NAME,
+    description: APP_DESCRIPTION,
+  },
+  preset: 'landing',
+  auth: {
+    authRoute: '/pricing',
+    profilePath: '/profile',
+  },
+};

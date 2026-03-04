@@ -1,0 +1,14 @@
+// functions/src/crud/updateEntity.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Update Entity Wrapper
+ * @description Wrapper for framework's updateEntity with {{APP_NAME}}-specific configuration
+ */
+
+import { updateEntity as frameworkUpdateEntity } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} entity update
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export const updateEntity = frameworkUpdateEntity;

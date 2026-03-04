@@ -1,0 +1,1001 @@
+// apps/demo/src/pages/components/componentConfig.ts
+// Single source of truth for all component metadata
+
+import { Rocket } from 'lucide-react';
+import { createElement } from 'react';
+
+import {
+  Accordion,
+  Alert,
+  ALERT_VARIANT,
+  AlertDialog,
+  Avatar,
+  Badge,
+  BADGE_VARIANT,
+  Blockquote,
+  Button,
+  BUTTON_VARIANT,
+  Calendar,
+  CallToAction,
+  Card,
+  CARD_VARIANT,
+  Checkbox,
+  Code,
+  Collapsible,
+  Combobox,
+  Command,
+  CommandDialog,
+  ContextMenu,
+  CopyToClipboard,
+  DataTable,
+  DescriptionList,
+  Dialog,
+  DIALOG_VARIANT,
+  DropdownMenu,
+  FeatureFallback,
+  FileButton,
+  Grid,
+  HeroSection,
+  HoverCard,
+  Stack,
+  InfiniteScroll,
+  Input,
+  Label,
+  List,
+  NavigationMenu,
+  Pagination,
+  PasswordInput,
+  Popover,
+  POPOVER_VARIANT,
+  FLOATING_VARIANT,
+  Portal,
+  Progress,
+  RadioGroup,
+  ScrollArea,
+  Section,
+  Select,
+  Separator,
+  Sheet,
+  SHEET_VARIANT,
+  Skeleton,
+  Slider,
+  Slot,
+  Spinner,
+  Stepper,
+  Switch,
+  Tabs,
+  Tag,
+  Text,
+  TEXT_VARIANT,
+  Textarea,
+  Toaster,
+  Toggle,
+  ToggleGroup,
+  Tooltip,
+  VideoPlayer,
+  VisuallyHidden,
+} from '@donotdev/components';
+
+import type { ComponentType, ReactNode } from 'react';
+import type { CSSFamily, PropType } from './ComponentsData';
+
+/**
+ * Extract variant values from VARIANT constant object
+ * Converts { DEFAULT: 'default', PRIMARY: 'primary' } to ['default', 'primary']
+ */
+function getVariantValues<T extends Record<string, string>>(
+  variantObj: T
+): string[] {
+  return Object.values(variantObj);
+}
+
+export interface ComponentConfig {
+  id: string;
+  name: string;
+  component: ComponentType<any>;
+  cssFamily: CSSFamily;
+  variants: {
+    variant?: string[];
+    size?: string[];
+    shadow?: string[];
+    radius?: string[];
+    tone?: string[];
+    type?: string[];
+    side?: string[];
+    mode?: string[];
+  };
+  propTypes?: PropType[];
+  stateType?:
+    | 'controlled-value'
+    | 'controlled-checked'
+    | 'controlled-pressed'
+    | 'controlled-range'
+    | 'controlled-date'
+    | 'controlled-dates'
+    | 'controlled-date-range'
+    | 'custom';
+  defaultStateValue?: any;
+  renderMode?: 'default' | 'overlay' | 'modal' | 'tabs-generator';
+  supportsCommonProps: {
+    title?: boolean;
+    description?: boolean;
+    content?: boolean;
+    tooltip?: boolean;
+    icon?: boolean;
+    label?: boolean;
+    placeholder?: boolean;
+  };
+  needsTrigger?: boolean;
+  triggerText?: string;
+  customProps?: Record<string, any>;
+  showStateLabel?: boolean;
+  layoutDescription?: string;
+  notes?: string;
+  demoContent?: (value: any, setValue: (val: any) => void) => ReactNode;
+}
+
+export function getCSSFamilies(): Array<{
+  id: CSSFamily | 'all';
+  label: string;
+}> {
+  const families = new Set<CSSFamily>();
+  COMPONENT_CONFIGS.forEach((config) => {
+    families.add(config.cssFamily);
+  });
+
+  const labels: Record<CSSFamily, string> = {
+    surface: 'Card-based',
+    floating: 'Floating',
+    interactive: 'Interactive',
+    layout: 'Layout',
+    input: 'Input',
+    other: 'Others',
+  };
+
+  const order: CSSFamily[] = [
+    'layout',
+    'surface',
+    'floating',
+    'interactive',
+    'input',
+    'other',
+  ];
+
+  return [
+    { id: 'all', label: 'All' },
+    ...order
+      .filter((id) => families.has(id))
+      .map((id) => ({ id, label: labels[id] || id })),
+  ];
+}
+
+export const COMPONENT_CONFIGS: ComponentConfig[] = [
+  {
+    id: 'blockquote',
+    name: 'Blockquote',
+    component: Blockquote,
+    cssFamily: 'other',
+    variants: {
+      variant: ['default', 'editorial', 'testimonial'],
+    },
+    supportsCommonProps: {},
+    customProps: {
+      children: 'The web is inclusive by default.',
+      author: 'Tim Berners-Lee',
+      source: 'W3C',
+    },
+  },
+  {
+    id: 'code',
+    name: 'Code',
+    component: Code,
+    cssFamily: 'surface',
+    variants: {},
+    supportsCommonProps: {},
+    customProps: {
+      children: 'npm install @donotdev/components',
+      language: 'bash',
+    },
+  },
+  {
+    id: 'progress',
+    name: 'Progress',
+    component: Progress,
+    cssFamily: 'other',
+    variants: {},
+    supportsCommonProps: {},
+    customProps: {
+      value: 60,
+    },
+  },
+  {
+    id: 'toaster',
+    name: 'Toaster',
+    component: Toaster,
+    cssFamily: 'other',
+    variants: {},
+    supportsCommonProps: {},
+    notes: 'Rendered at app root. Use useToast() hook to trigger.',
+  },
+  {
+    id: 'copy-to-clipboard',
+    name: 'CopyToClipboard',
+    component: CopyToClipboard,
+    cssFamily: 'interactive',
+    variants: {},
+    supportsCommonProps: {},
+    customProps: {
+      text: 'Copied text!',
+    },
+  },
+  {
+    id: 'button',
+    name: 'Button',
+    component: Button,
+    cssFamily: 'interactive',
+    variants: {
+      variant: getVariantValues(BUTTON_VARIANT),
+    },
+    supportsCommonProps: {
+      icon: true,
+      tooltip: true,
+      content: true,
+    },
+  },
+  {
+    id: 'file-button',
+    name: 'FileButton',
+    component: FileButton,
+    cssFamily: 'interactive',
+    variants: {},
+    supportsCommonProps: {
+      label: true,
+    },
+  },
+  {
+    id: 'calendar',
+    name: 'Calendar',
+    component: Calendar,
+    cssFamily: 'other',
+    variants: {
+      mode: ['single', 'multiple', 'range'],
+    },
+    stateType: 'custom',
+    supportsCommonProps: {},
+  },
+  {
+    id: 'infinite-scroll',
+    name: 'InfiniteScroll',
+    component: InfiniteScroll,
+    cssFamily: 'other',
+    variants: {},
+    supportsCommonProps: {},
+    customProps: {
+      items: ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo'],
+    },
+  },
+  {
+    id: 'stepper',
+    name: 'Stepper',
+    component: Stepper,
+    cssFamily: 'interactive',
+    variants: {},
+    supportsCommonProps: {},
+    customProps: {
+      steps: [
+        { number: 1, title: 'Step 1', content: 'First step content' },
+        { number: 2, title: 'Step 2', content: 'Second step content' },
+        { number: 3, title: 'Step 3', content: 'Third step content' },
+      ],
+    },
+  },
+  {
+    id: 'toggle',
+    name: 'Toggle',
+    component: Toggle,
+    cssFamily: 'interactive',
+    variants: {},
+    stateType: 'controlled-pressed',
+    defaultStateValue: false,
+    customProps: {
+      children: 'Toggle',
+    },
+    showStateLabel: true,
+    supportsCommonProps: {},
+  },
+  {
+    id: 'toggle-group',
+    name: 'ToggleGroup',
+    component: ToggleGroup,
+    cssFamily: 'interactive',
+    variants: {},
+    propTypes: ['toggleGroupItems'],
+    stateType: 'controlled-value',
+    defaultStateValue: 'left',
+    supportsCommonProps: {},
+    customProps: {
+      type: 'single',
+    },
+    demoContent: (alignment: string) =>
+      createElement(
+        Card,
+        {
+          title: 'Text Alignment Demo',
+          variant: 'muted',
+          style: { width: '100%', maxWidth: '600px' },
+        },
+        createElement(Text, {
+          style: {
+            textAlign:
+              alignment === 'left'
+                ? 'left'
+                : alignment === 'center'
+                  ? 'center'
+                  : 'right',
+          },
+          children:
+            'This text aligns based on your selection. ToggleGroup is a segmented control for selecting one option from a set (like text alignment, view mode, or filter).',
+        })
+      ),
+  },
+  {
+    id: 'avatar',
+    name: 'Avatar',
+    component: Avatar,
+    cssFamily: 'other',
+    variants: {},
+    propTypes: ['avatarSrc', 'avatarFallback'],
+    supportsCommonProps: {},
+  },
+  {
+    id: 'badge',
+    name: 'Badge',
+    component: Badge,
+    cssFamily: 'other',
+    variants: {
+      variant: getVariantValues(BADGE_VARIANT),
+    },
+    supportsCommonProps: {
+      tooltip: true,
+      content: true,
+    },
+  },
+  {
+    id: 'card',
+    name: 'Card',
+    component: Card,
+    cssFamily: 'surface',
+    variants: {
+      variant: getVariantValues(CARD_VARIANT),
+    },
+    propTypes: ['title', 'subtitle', 'icon', 'content'],
+    supportsCommonProps: {
+      icon: true,
+      title: true,
+      content: true,
+      tooltip: true,
+    },
+    customProps: {
+      title: 'Card Title',
+      content:
+        'This is a card with customizable variants. Each variant uses different brand colors.',
+    },
+  },
+  {
+    id: 'data-table',
+    name: 'DataTable',
+    component: DataTable,
+    cssFamily: 'other',
+    variants: {},
+    supportsCommonProps: {},
+    customProps: {
+      data: [
+        { id: 1, name: 'Alpha', status: 'Active' },
+        { id: 2, name: 'Beta', status: 'Pending' },
+        { id: 3, name: 'Gamma', status: 'Disabled' },
+      ],
+      columns: [
+        { key: 'id', title: 'ID', dataIndex: 'id' },
+        { key: 'name', title: 'Name', dataIndex: 'name' },
+        { key: 'status', title: 'Status', dataIndex: 'status' },
+      ],
+      searchable: true,
+      filterable: true,
+      pagination: false,
+    },
+  },
+  {
+    id: 'separator',
+    name: 'Separator',
+    component: Separator,
+    cssFamily: 'other',
+    variants: {
+      variant: ['default', 'primary', 'accent', 'muted'],
+    },
+    supportsCommonProps: {},
+  },
+  {
+    id: 'text',
+    name: 'Text',
+    component: Text,
+    cssFamily: 'other',
+    variants: {
+      variant: getVariantValues(TEXT_VARIANT),
+    },
+    supportsCommonProps: {
+      content: true,
+    },
+  },
+  {
+    id: 'alert',
+    name: 'Alert',
+    component: Alert,
+    cssFamily: 'surface',
+    variants: {
+      variant: ['default', 'error', 'warning', 'success', 'info'],
+    },
+    propTypes: ['title', 'description'],
+    supportsCommonProps: {
+      title: true,
+      description: true,
+      tooltip: true,
+    },
+  },
+  {
+    id: 'feature-fallback',
+    name: 'FeatureFallback',
+    component: FeatureFallback,
+    cssFamily: 'other',
+    variants: {},
+    supportsCommonProps: {
+      icon: true,
+    },
+  },
+  {
+    id: 'skeleton',
+    name: 'Skeleton',
+    component: Skeleton,
+    cssFamily: 'other',
+    variants: {
+      variant: ['pulse', 'wave', 'shimmer', 'none'],
+      size: ['text', 'heading', 'avatar', 'button', 'card', 'image', 'custom'],
+    },
+    supportsCommonProps: {},
+  },
+  {
+    id: 'spinner',
+    name: 'Spinner',
+    component: Spinner,
+    cssFamily: 'other',
+    variants: {
+      variant: [
+        'default',
+        'muted',
+        'primary',
+        'secondary',
+        'accent',
+        'success',
+        'warning',
+        'destructive',
+      ],
+    },
+    renderMode: 'overlay',
+    stateType: 'custom',
+    supportsCommonProps: {},
+  },
+  {
+    id: 'input',
+    name: 'Input',
+    component: Input,
+    cssFamily: 'input',
+    variants: {},
+    supportsCommonProps: {
+      placeholder: true,
+    },
+  },
+  {
+    id: 'label',
+    name: 'Label',
+    component: Label,
+    cssFamily: 'other',
+    variants: {},
+    supportsCommonProps: {
+      icon: true,
+      content: true,
+    },
+  },
+  {
+    id: 'password-input',
+    name: 'PasswordInput',
+    component: PasswordInput,
+    cssFamily: 'input',
+    variants: {},
+    supportsCommonProps: {
+      placeholder: true,
+    },
+  },
+  {
+    id: 'radio-group',
+    name: 'RadioGroup',
+    component: RadioGroup,
+    cssFamily: 'interactive',
+    variants: {
+      variant: [
+        'default',
+        'primary',
+        'secondary',
+        'muted',
+        'accent',
+        'success',
+        'warning',
+        'destructive',
+      ],
+    },
+    propTypes: ['radioGroupItems'],
+    stateType: 'controlled-value',
+    defaultStateValue: 'option1',
+    supportsCommonProps: {},
+  },
+  {
+    id: 'checkbox',
+    name: 'Checkbox',
+    component: Checkbox,
+    cssFamily: 'input',
+    variants: {
+      variant: [
+        'default',
+        'primary',
+        'secondary',
+        'muted',
+        'accent',
+        'success',
+        'warning',
+        'destructive',
+      ],
+    },
+    stateType: 'controlled-checked',
+    defaultStateValue: false,
+    showStateLabel: true,
+    supportsCommonProps: {
+      label: true,
+    },
+  },
+  {
+    id: 'switch',
+    name: 'Switch',
+    component: Switch,
+    cssFamily: 'input',
+    variants: {
+      variant: [
+        'default',
+        'primary',
+        'secondary',
+        'muted',
+        'accent',
+        'success',
+        'warning',
+        'destructive',
+      ],
+    },
+    stateType: 'controlled-checked',
+    defaultStateValue: true,
+    showStateLabel: true,
+    supportsCommonProps: {},
+  },
+  {
+    id: 'slider',
+    name: 'Slider',
+    component: Slider,
+    cssFamily: 'input',
+    variants: {
+      variant: [
+        'default',
+        'primary',
+        'secondary',
+        'muted',
+        'accent',
+        'success',
+        'warning',
+        'destructive',
+      ],
+    },
+    stateType: 'controlled-range',
+    defaultStateValue: [2],
+    supportsCommonProps: {},
+    customProps: {
+      min: 0,
+      max: 5,
+      step: 1,
+      showValue: true,
+    },
+  },
+  {
+    id: 'select',
+    name: 'Select',
+    component: Select,
+    cssFamily: 'input',
+    variants: {},
+    propTypes: ['selectOptions'],
+    stateType: 'controlled-value',
+    supportsCommonProps: {
+      placeholder: true,
+    },
+  },
+  {
+    id: 'combobox',
+    name: 'Combobox',
+    component: Combobox,
+    cssFamily: 'input',
+    variants: {},
+    propTypes: ['comboboxOptions'],
+    stateType: 'controlled-value',
+    supportsCommonProps: {
+      placeholder: true,
+    },
+    customProps: {
+      searchPlaceholder: 'Search...',
+      emptyMessage: 'No results found',
+    },
+  },
+  {
+    id: 'textarea',
+    name: 'Textarea',
+    component: Textarea,
+    cssFamily: 'input',
+    variants: {},
+    supportsCommonProps: {
+      placeholder: true,
+    },
+  },
+  {
+    id: 'alert-dialog',
+    name: 'AlertDialog',
+    component: AlertDialog,
+    cssFamily: 'surface',
+    variants: {},
+    propTypes: ['title', 'description', 'confirmLabel'],
+    needsTrigger: true,
+    triggerText: 'Trigger: Open AlertDialog',
+    supportsCommonProps: {
+      title: true,
+      description: true,
+    },
+    customProps: {
+      onConfirm: () => {},
+      onCancel: () => {},
+    },
+  },
+  {
+    id: 'context-menu',
+    name: 'ContextMenu',
+    component: ContextMenu,
+    cssFamily: 'floating',
+    variants: {},
+    needsTrigger: true,
+    triggerText: 'Trigger: Right click me',
+    supportsCommonProps: {},
+    customProps: {
+      items: [
+        { label: 'Item 1', onSelect: () => {} },
+        { label: 'Item 2', onSelect: () => {} },
+        { type: 'separator' },
+        { label: 'Item 3', onSelect: () => {} },
+      ],
+    },
+  },
+  {
+    id: 'dialog',
+    name: 'Dialog',
+    component: Dialog,
+    cssFamily: 'surface',
+    variants: {
+      variant: getVariantValues(DIALOG_VARIANT),
+    },
+    propTypes: ['title', 'description', 'content'],
+    needsTrigger: true,
+    triggerText: 'Open Dialog',
+    supportsCommonProps: {
+      title: true,
+      description: true,
+      content: true,
+    },
+  },
+  {
+    id: 'dropdown-menu',
+    name: 'DropdownMenu',
+    component: DropdownMenu,
+    cssFamily: 'floating',
+    variants: {},
+    needsTrigger: true,
+    triggerText: 'Trigger: Open DropdownMenu',
+    supportsCommonProps: {},
+    customProps: {
+      items: [
+        { label: 'Regular Item', onClick: () => {} },
+        { label: 'Separator below', onClick: () => {} },
+        { type: 'separator' },
+        {
+          label: 'Destructive Item',
+          variant: 'destructive',
+          onClick: () => {},
+        },
+      ],
+    },
+  },
+  {
+    id: 'hover-card',
+    name: 'HoverCard',
+    component: HoverCard,
+    cssFamily: 'floating',
+    variants: {},
+    propTypes: ['content'],
+    needsTrigger: true,
+    triggerText: 'Trigger: Hover me',
+    supportsCommonProps: {
+      content: true,
+    },
+  },
+  {
+    id: 'popover',
+    name: 'Popover',
+    component: Popover,
+    cssFamily: 'floating',
+    variants: {
+      side: ['top', 'right', 'bottom', 'left'],
+      variant: getVariantValues(POPOVER_VARIANT),
+    },
+    propTypes: ['content'],
+    needsTrigger: true,
+    triggerText: 'Open Popover',
+    supportsCommonProps: {
+      content: true,
+    },
+  },
+  {
+    id: 'sheet',
+    name: 'Sheet',
+    component: Sheet,
+    cssFamily: 'surface',
+    variants: {
+      side: ['top', 'bottom', 'left', 'right'],
+      variant: getVariantValues(SHEET_VARIANT),
+    },
+    propTypes: ['title', 'description', 'content'],
+    needsTrigger: true,
+    triggerText: 'Open Sheet',
+    supportsCommonProps: {
+      title: true,
+      description: true,
+      content: true,
+    },
+  },
+  {
+    id: 'tooltip',
+    name: 'Tooltip',
+    component: Tooltip,
+    cssFamily: 'floating',
+    variants: {
+      side: ['top', 'right', 'bottom', 'left'],
+      variant: getVariantValues(FLOATING_VARIANT),
+    },
+    needsTrigger: true,
+    triggerText: 'Trigger: Hover me',
+    supportsCommonProps: {
+      content: true,
+    },
+  },
+  {
+    id: 'call-to-action',
+    name: 'CallToAction',
+    component: CallToAction,
+    cssFamily: 'layout',
+    variants: {},
+    propTypes: ['title', 'subtitle', 'primaryAction', 'secondaryAction'],
+    supportsCommonProps: {
+      title: true,
+    },
+  },
+  {
+    id: 'hero-section',
+    name: 'HeroSection',
+    component: HeroSection,
+    cssFamily: 'layout',
+    variants: {},
+    supportsCommonProps: {
+      title: true,
+    },
+    customProps: {
+      subtitle: 'Premium defaults with gradient accent',
+      description: 'Swap content freely; supports CTA and secondary text.',
+      primaryActionLabel: 'Get started',
+      secondaryActionLabel: 'Learn more',
+      variant: 'accent',
+    },
+  },
+  {
+    id: 'scroll-area',
+    name: 'ScrollArea',
+    component: ScrollArea,
+    cssFamily: 'other',
+    variants: {},
+    supportsCommonProps: {},
+  },
+  {
+    id: 'section',
+    name: 'Section',
+    component: Section,
+    cssFamily: 'layout',
+    variants: {
+      tone: ['base', 'muted', 'elevated', 'contrast', 'accent'],
+    },
+    supportsCommonProps: {
+      title: true,
+    },
+    layoutDescription:
+      'Full-width container with padding, background, and optional separator. Use for page sections.',
+  },
+  {
+    id: 'accordion',
+    name: 'Accordion',
+    component: Accordion,
+    cssFamily: 'other',
+    variants: {
+      type: ['single', 'multiple'],
+    },
+    propTypes: ['accordionItems'],
+    supportsCommonProps: {
+      icon: true,
+    },
+  },
+  {
+    id: 'command',
+    name: 'Command',
+    component: Command,
+    cssFamily: 'floating',
+    variants: {},
+    propTypes: ['commandGroups', 'placeholder'],
+    supportsCommonProps: {
+      placeholder: true,
+    },
+  },
+  {
+    id: 'command-dialog',
+    name: 'CommandDialog',
+    component: CommandDialog,
+    cssFamily: 'floating',
+    variants: {},
+    propTypes: ['title', 'description', 'commandGroups', 'footer'],
+    needsTrigger: true,
+    triggerText: 'Open Command Palette',
+    supportsCommonProps: {
+      title: true,
+      description: true,
+    },
+  },
+  {
+    id: 'navigation-menu',
+    name: 'NavigationMenu',
+    component: NavigationMenu,
+    cssFamily: 'interactive',
+    variants: {},
+    supportsCommonProps: {},
+    customProps: {
+      items: [
+        { label: 'Home', path: '/home' },
+        {
+          label: 'Products',
+          children: [
+            {
+              label: 'Framework',
+              description: 'Core UI kit',
+              path: '/products/framework',
+            },
+            { label: 'CLI', description: 'Dev tooling', path: '/products/cli' },
+          ],
+        },
+        { label: 'Docs', path: '/docs' },
+      ],
+    },
+  },
+  {
+    id: 'pagination',
+    name: 'Pagination',
+    component: Pagination,
+    cssFamily: 'other',
+    variants: {},
+    stateType: 'custom',
+    supportsCommonProps: {},
+    customProps: {
+      totalPages: 10,
+    },
+  },
+  {
+    id: 'tabs',
+    name: 'Tabs',
+    component: Tabs,
+    cssFamily: 'other',
+    variants: {},
+    propTypes: ['tabsItems'],
+    supportsCommonProps: {},
+    customProps: {
+      defaultValue: 'tab1',
+    },
+  },
+  {
+    id: 'collapsible',
+    name: 'Collapsible',
+    component: Collapsible,
+    cssFamily: 'other',
+    variants: {},
+    propTypes: ['collapsibleContent'],
+    needsTrigger: true,
+    triggerText: 'View technical details',
+    supportsCommonProps: {
+      content: true,
+    },
+    customProps: {
+      defaultOpen: true,
+    },
+  },
+  {
+    id: 'description-list',
+    name: 'DescriptionList',
+    component: DescriptionList,
+    cssFamily: 'other',
+    variants: {},
+    propTypes: ['descriptionListItems'],
+    supportsCommonProps: {},
+    customProps: {
+      orientation: 'vertical',
+    },
+  },
+  {
+    id: 'grid',
+    name: 'Grid',
+    component: Grid,
+    cssFamily: 'layout',
+    variants: {},
+    supportsCommonProps: {},
+    layoutDescription:
+      'CSS Grid layout primitive for 2D layouts. Use for multi-column layouts or named areas.',
+  },
+  {
+    id: 'list',
+    name: 'List',
+    component: List,
+    cssFamily: 'other',
+    variants: {},
+    propTypes: ['listItems'],
+    supportsCommonProps: {},
+  },
+  {
+    id: 'video-player',
+    name: 'VideoPlayer',
+    component: VideoPlayer,
+    cssFamily: 'other',
+    variants: {},
+    supportsCommonProps: {
+      title: true,
+    },
+    customProps: {
+      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      modal: true,
+    },
+  },
+  {
+    id: 'visually-hidden',
+    name: 'VisuallyHidden',
+    component: VisuallyHidden,
+    cssFamily: 'other',
+    variants: {},
+    supportsCommonProps: {},
+  },
+  {
+    id: 'stack',
+    name: 'Stack',
+    component: Stack,
+    cssFamily: 'layout',
+    variants: {},
+    supportsCommonProps: {},
+  },
+];

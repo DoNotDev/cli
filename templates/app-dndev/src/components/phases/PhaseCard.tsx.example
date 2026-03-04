@@ -1,0 +1,126 @@
+/**
+ * @fileoverview Reusable phase card — Icon + Title + contextual subtitle
+ *
+ * Shared between HomePage (overview) and PhasesPage (roadmap).
+ * Subtitle adapts to phase status:
+ * - Pending: blueprint description (what will happen)
+ * - Active: module + time since started + progress
+ * - Completed: summary + when it finished
+ */
+
+import { Badge, Card, Label, Progress, Stack, Text } from '@donotdev/components';
+
+import { PHASE_BLUEPRINTS, getPhaseStatus } from './phaseData';
+
+import type { ProtocolData, ProgressSection } from './phaseData';
+import type { ReactNode } from 'react';
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+
+export function getProgressForPhase(
+  phaseId: number,
+  phaseName: string,
+  sections: ProgressSection[],
+): { done: number; total: number } {
+  for (const section of sections) {
+    const matchesPhase =
+      section.title.toLowerCase().includes(`phase ${phaseId}`) ||
+      section.title.toLowerCase().includes(phaseName.toLowerCase());
+    if (matchesPhase) {
+      const done = section.items.filter((i) => i.checked).length;
+      return { done, total: section.items.length };
+    }
+  }
+  return { done: 0, total: 0 };
+}
+
+const STATUS_BADGE_VARIANT = {
+  completed: 'success',
+  active: 'warning',
+  pending: 'muted',
+} as const;
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
+
+interface PhaseCardProps {
+  phaseId: number;
+  protocol: ProtocolData;
+  progressSections?: ProgressSection[];
+  selected?: boolean;
+  onClick?: () => void;
+}
+
+export function PhaseCard({
+  phaseId,
+  protocol,
+  progressSections,
+  selected,
+  onClick,
+}: PhaseCardProps): ReactNode {
+  const bp = PHASE_BLUEPRINTS[phaseId];
+  if (!bp) return null;
+
+  const status = getPhaseStatus(bp.id, protocol);
+  const Icon = bp.icon;
+
+  const progress = progressSections
+    ? getProgressForPhase(bp.id, bp.name, progressSections)
+    : { done: 0, total: 0 };
+  const pct = progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0;
+
+  return (
+    <Card
+      onClick={onClick}
+      style={{
+        cursor: onClick ? 'pointer' : undefined,
+        ...(selected ? { borderColor: 'var(--primary)', boxShadow: '0 0 0 1px var(--primary)' } : {}),
+      }}
+    >
+      <Stack gap="tight">
+        <Stack direction="row" align="center" justify="between">
+          <Label icon={Icon} plain>{bp.name}</Label>
+          <Badge variant={STATUS_BADGE_VARIANT[status]}>{status}</Badge>
+        </Stack>
+        <Text level="caption" variant="muted">{bp.blueprint.split('.')[0]}.</Text>
+        {progress.total > 0 && <Progress value={pct} />}
+      </Stack>
+    </Card>
+  );
+}
+
+// ============================================================================
+// LIST — renders all 5 phase cards
+// ============================================================================
+
+interface PhaseCardListProps {
+  protocol: ProtocolData;
+  progressSections?: ProgressSection[];
+  selectedPhase?: number;
+  onSelectPhase?: (phase: number) => void;
+}
+
+export function PhaseCardList({
+  protocol,
+  progressSections,
+  selectedPhase,
+  onSelectPhase,
+}: PhaseCardListProps): ReactNode {
+  return (
+    <Stack gap="tight">
+      {PHASE_BLUEPRINTS.map((bp) => (
+        <PhaseCard
+          key={bp.id}
+          phaseId={bp.id}
+          protocol={protocol}
+          progressSections={progressSections}
+          selected={selectedPhase === bp.id}
+          onClick={onSelectPhase ? () => onSelectPhase(bp.id) : undefined}
+        />
+      ))}
+    </Stack>
+  );
+}

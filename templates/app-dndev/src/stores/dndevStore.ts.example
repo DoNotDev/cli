@@ -1,0 +1,386 @@
+/**
+ * @fileoverview Unified dndev app store — dashboard mode, kanban cards, terminal state
+ *
+ * Single store, three domains. Use fine-grained selectors:
+ *   useDoNotDashStore(s => s.mode)
+ *   useDoNotDashStore(s => s.cards)
+ *   useDoNotDashStore(s => s.activeTab)
+ *
+ * Imperative actions via getState():
+ *   useDoNotDashStore.getState().addCard(...)
+ *   useDoNotDashStore.getState().injectPrompt(...)
+ */
+
+import { createDoNotDevStore } from '@donotdev/core';
+
+import { writeDndevFile } from '../hooks/useDndevFile';
+
+// ============================================================================
+// TYPES — Dashboard
+// ============================================================================
+
+export type DashboardMode = 'build' | 'run';
+
+// ============================================================================
+// TYPES — Kanban
+// ============================================================================
+
+export type CardColumn = 'backlog' | 'in_progress' | 'review' | 'done';
+export type CardPriority = 'low' | 'medium' | 'high' | 'critical';
+export type TicketType = 'task' | 'bug' | 'idea' | 'improvement';
+
+export interface KanbanCard {
+  id: string;
+  title: string;
+  description?: string;
+  column: CardColumn;
+  priority: CardPriority;
+  type?: TicketType;
+  filePath?: string;
+  lineNumber?: number;
+  route?: string;
+  screenshot?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const COLUMNS: { id: CardColumn; label: string }[] = [
+  { id: 'backlog', label: 'Backlog' },
+  { id: 'in_progress', label: 'In Progress' },
+  { id: 'review', label: 'Review' },
+  { id: 'done', label: 'Done' },
+];
+
+// ============================================================================
+// TYPES — Terminal
+// ============================================================================
+
+export type TabMode = 'ai-agent' | 'app' | 'shell';
+
+/** @deprecated Use TabMode instead */
+export type TerminalTab = string;
+
+export interface TabConfig {
+  id: string;
+  label: string;
+  icon: 'cpu' | 'terminal' | 'square-terminal';
+  mode: TabMode;
+  appName?: string;  // mode: 'app' only
+}
+
+export const DEFAULT_TABS: TabConfig[] = [
+  { id: 'ai-cli', label: 'AI Agent', icon: 'terminal', mode: 'ai-agent' },
+];
+
+interface TerminalSession {
+  isConnected: boolean;
+}
+
+// ============================================================================
+// COMBINED STATE + ACTIONS
+// ============================================================================
+
+interface DndevState {
+  // Dashboard
+  mode: DashboardMode;
+  lastView: string;
+  panelSizes: Record<string, number[]>;
+  // Docs
+  docsSelectedPath: string | null;
+  // Kanban
+  cards: KanbanCard[];
+  // Terminal
+  tabs: TabConfig[];
+  activeTab: string;
+  sessions: Record<string, TerminalSession>;
+  isExpanded: boolean;
+  isFullscreen: boolean;
+  pendingPrompt: string | null;
+  pendingTab: string;
+}
+
+interface DndevActions {
+  // Dashboard
+  setMode: (mode: DashboardMode) => void;
+  setLastView: (path: string) => void;
+  toggleMode: () => void;
+  setPanelSizes: (route: string, sizes: number[]) => void;
+  // Docs
+  setDocsSelectedPath: (path: string | null) => void;
+  // Kanban
+  addCard: (card: Partial<KanbanCard> & { title: string }) => void;
+  removeCard: (id: string) => void;
+  moveCard: (id: string, column: CardColumn, persist?: boolean) => void;
+  updateCard: (id: string, updates: Partial<KanbanCard>) => void;
+  reorderCards: (cards: KanbanCard[]) => void;
+  loadCards: (cards: KanbanCard[]) => void;
+  // Terminal
+  setActiveTab: (tab: string) => void;
+  setExpanded: (expanded: boolean) => void;
+  toggleExpanded: () => void;
+  setSessionConnected: (tab: string, connected: boolean) => void;
+  injectPrompt: (prompt: string, target?: string | { mode: TabMode }) => void;
+  consumePrompt: () => string | null;
+  addShellTab: () => string;
+  addAppTab: (appName: string) => void;
+  removeTab: (id: string) => void;
+  findTabByMode: (mode: TabMode) => TabConfig | undefined;
+  toggleFullscreen: () => void;
+}
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+
+function generateId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function now(): string {
+  return new Date().toISOString();
+}
+
+async function saveCards(cards: KanbanCard[]): Promise<void> {
+  await writeDndevFile('.dndev/kanban.json', cards);
+}
+
+function saveDashboard(mode: DashboardMode, lastView: string, panelSizes?: Record<string, number[]>): void {
+  const state = useDoNotDashStore.getState();
+  writeDndevFile('.dndev/dashboard.json', {
+    mode,
+    lastView,
+    panelSizes: panelSizes ?? state?.panelSizes ?? {},
+  }).catch((err) => console.error('[dndev] Failed to persist dashboard:', err));
+}
+
+// ============================================================================
+// STORE
+// ============================================================================
+
+export const useDoNotDashStore = createDoNotDevStore<DndevState & DndevActions>({
+  name: 'donotdash-store',
+
+  createStore: (set, get) => ({
+    // --- Dashboard state ---
+    mode: 'build',
+    lastView: '/',
+    panelSizes: {},
+
+    setMode: (mode) => {
+      set({ mode });
+      saveDashboard(mode, get().lastView);
+    },
+    setLastView: (lastView) => {
+      set({ lastView });
+      saveDashboard(get().mode, lastView);
+    },
+    toggleMode: () => {
+      const next = get().mode === 'build' ? 'run' : 'build';
+      set({ mode: next });
+      saveDashboard(next, get().lastView);
+    },
+    setPanelSizes: (route, sizes) => {
+      set((s) => {
+        const panelSizes = { ...s.panelSizes, [route]: sizes };
+        saveDashboard(s.mode, s.lastView, panelSizes);
+        return { panelSizes };
+      });
+    },
+
+    // --- Docs state ---
+    docsSelectedPath: null,
+    setDocsSelectedPath: (path) => set({ docsSelectedPath: path }),
+
+    // --- Kanban state ---
+    cards: [],
+
+    addCard: (card) => {
+      const newCard: KanbanCard = {
+        id: generateId(),
+        title: card.title,
+        description: card.description,
+        column: card.column ?? 'backlog',
+        priority: card.priority ?? 'medium',
+        type: card.type ?? 'task',
+        filePath: card.filePath,
+        route: card.route,
+        screenshot: card.screenshot,
+        lineNumber: card.lineNumber,
+        createdAt: now(),
+        updatedAt: now(),
+      };
+      set((state) => {
+        const cards = [...state.cards, newCard];
+        saveCards(cards);
+        return { cards };
+      });
+    },
+    removeCard: (id) => {
+      set((state) => {
+        const cards = state.cards.filter((c) => c.id !== id);
+        saveCards(cards);
+        return { cards };
+      });
+    },
+    moveCard: (id, column, persist = true) => {
+      set((state) => {
+        const cards = state.cards.map((c) =>
+          c.id === id ? { ...c, column, updatedAt: now() } : c
+        );
+        if (persist) saveCards(cards);
+        return { cards };
+      });
+    },
+    updateCard: (id, updates) => {
+      set((state) => {
+        const cards = state.cards.map((c) =>
+          c.id === id ? { ...c, ...updates, updatedAt: now() } : c
+        );
+        saveCards(cards);
+        return { cards };
+      });
+    },
+    reorderCards: (cards) => {
+      set({ cards });
+      saveCards(cards);
+    },
+    loadCards: (cards) => {
+      set({ cards });
+    },
+
+    // --- Terminal state ---
+    tabs: DEFAULT_TABS,
+    activeTab: 'ai-cli',
+    sessions: {},
+    isExpanded: true,
+    isFullscreen: false,
+    pendingPrompt: null,
+    pendingTab: 'ai-cli',
+
+    setActiveTab: (tab) => set({ activeTab: tab }),
+    setExpanded: (expanded) => set({ isExpanded: expanded }),
+    toggleExpanded: () => set((s) => ({ isExpanded: !s.isExpanded })),
+    setSessionConnected: (tab, connected) => {
+      set((s) => ({
+        sessions: {
+          ...s.sessions,
+          [tab]: { isConnected: connected },
+        },
+      }));
+    },
+    findTabByMode: (mode) => {
+      return get().tabs.find((t) => t.mode === mode);
+    },
+    injectPrompt: (prompt, target) => {
+      const state = get();
+      let tabId: string;
+
+      if (typeof target === 'string') {
+        // Backward compat: find tab by id
+        tabId = target;
+      } else {
+        const mode = target?.mode ?? 'ai-agent';
+        const found = state.tabs.find((t) => t.mode === mode);
+        if (found) {
+          tabId = found.id;
+        } else if (mode === 'shell') {
+          // Auto-spawn a shell tab
+          tabId = state.addShellTab();
+          // Re-read after addShellTab mutated state
+          set({ pendingPrompt: prompt, pendingTab: tabId, activeTab: tabId, isExpanded: true });
+          return;
+        } else {
+          tabId = state.tabs[0]?.id ?? 'ai-cli';
+        }
+      }
+
+      set({ pendingPrompt: prompt, pendingTab: tabId, activeTab: tabId, isExpanded: true });
+    },
+    consumePrompt: () => {
+      const prompt = get().pendingPrompt;
+      if (prompt) set({ pendingPrompt: null });
+      return prompt;
+    },
+    addShellTab: () => {
+      const { tabs } = get();
+      let n = 1;
+      while (tabs.some((t) => t.id === `shell-${n}`)) n++;
+      const id = `shell-${n}`;
+      set({
+        tabs: [...tabs, { id, label: `Shell ${n}`, icon: 'square-terminal' as const, mode: 'shell' }],
+        activeTab: id,
+        isExpanded: true,
+      });
+      return id;
+    },
+    addAppTab: (appName) => {
+      const { tabs } = get();
+      const id = `app-${appName}`;
+      // Don't duplicate
+      if (tabs.some((t) => t.id === id)) {
+        set({ activeTab: id, isExpanded: true });
+        return;
+      }
+      // Set tab + inject prompt synchronously — no setTimeout race
+      set({
+        tabs: [...tabs, { id, label: appName, icon: 'cpu' as const, mode: 'app', appName }],
+        activeTab: id,
+        isExpanded: true,
+        pendingPrompt: `dndev dev ${appName}`,
+        pendingTab: id,
+      });
+    },
+    removeTab: (id) => {
+      const { tabs, activeTab } = get();
+      const tab = tabs.find((t) => t.id === id);
+      // Protect ai-agent tabs
+      if (tab?.mode === 'ai-agent') return;
+      if (tabs.length <= 1) return;
+      const idx = tabs.findIndex((t) => t.id === id);
+      const newTabs = tabs.filter((t) => t.id !== id);
+      // Select adjacent tab (prefer left neighbor, fall back to right)
+      let nextActive = activeTab;
+      if (activeTab === id) {
+        const adjacentIdx = idx > 0 ? idx - 1 : 0;
+        nextActive = newTabs[adjacentIdx]!.id;
+      }
+      set({ tabs: newTabs, activeTab: nextActive });
+    },
+    toggleFullscreen: () => set((s) => ({ isFullscreen: !s.isFullscreen })),
+  }),
+
+  initialize: async (): Promise<boolean> => {
+    async function fetchSilent(filePath: string): Promise<unknown | null> {
+      try {
+        const res = await fetch(`/api/dndev/file?path=${encodeURIComponent(filePath)}`);
+        if (!res.ok) return null;
+        const json = await res.json();
+        return json.content ?? null;
+      } catch {
+        return null;
+      }
+    }
+
+    // Load kanban cards
+    const kanbanData = await fetchSilent('.dndev/kanban.json');
+    if (Array.isArray(kanbanData)) {
+      useDoNotDashStore.getState().loadCards(kanbanData);
+    }
+
+    // Load dashboard prefs
+    const dashData = await fetchSilent('.dndev/dashboard.json') as { mode?: DashboardMode; lastView?: string; panelSizes?: Record<string, number[]> } | null;
+    if (dashData?.mode) {
+      useDoNotDashStore.setState({
+        mode: dashData.mode,
+        lastView: dashData.lastView || '/',
+        panelSizes: dashData.panelSizes ?? {},
+      });
+    } else {
+      // Auto-detect: protocol.json exists → BUILD
+      const protocol = await fetchSilent('.dndev/protocol.json');
+      useDoNotDashStore.setState({ mode: protocol ? 'build' : 'run' });
+    }
+
+    return true;
+  },
+});

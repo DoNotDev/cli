@@ -1,0 +1,160 @@
+// apps/demo/src/entities/onboarding.ts
+
+import { defineEntity, when } from '@donotdev/core';
+import { defineWorkflow } from '@donotdev/crud';
+
+/**
+ * Entities for the Customer Onboarding workflow demo.
+ * Each entity represents one step in the wizard.
+ */
+
+export const companyEntity = defineEntity({
+  name: 'Company',
+  collection: 'companies',
+  fields: {
+    name: {
+      name: 'name',
+      type: 'text',
+      label: 'Company Name',
+      visibility: 'user',
+      validation: { required: true, minLength: 2 },
+    },
+    industry: {
+      name: 'industry',
+      type: 'select',
+      label: 'Industry',
+      visibility: 'user',
+      validation: {
+        required: true,
+        options: [
+          { value: 'tech', label: 'Technology' },
+          { value: 'finance', label: 'Finance' },
+          { value: 'healthcare', label: 'Healthcare' },
+          { value: 'retail', label: 'Retail' },
+          { value: 'other', label: 'Other' },
+        ],
+      },
+    },
+    size: {
+      name: 'size',
+      type: 'number',
+      label: 'Number of Employees',
+      visibility: 'user',
+      validation: { required: true, min: 1 },
+    },
+    website: {
+      name: 'website',
+      type: 'url',
+      label: 'Website',
+      visibility: 'user',
+    },
+  },
+});
+
+export const contactEntity = defineEntity({
+  name: 'Contact',
+  collection: 'contacts',
+  fields: {
+    firstName: {
+      name: 'firstName',
+      type: 'text',
+      label: 'First Name',
+      visibility: 'user',
+      validation: { required: true },
+    },
+    lastName: {
+      name: 'lastName',
+      type: 'text',
+      label: 'Last Name',
+      visibility: 'user',
+      validation: { required: true },
+    },
+    email: {
+      name: 'email',
+      type: 'email',
+      label: 'Email',
+      visibility: 'user',
+      validation: { required: true },
+    },
+    phone: {
+      name: 'phone',
+      type: 'tel',
+      label: 'Phone',
+      visibility: 'user',
+    },
+  },
+});
+
+export const preferencesEntity = defineEntity({
+  name: 'Preferences',
+  collection: 'preferences',
+  fields: {
+    language: {
+      name: 'language',
+      type: 'select',
+      label: 'Language',
+      visibility: 'user',
+      validation: {
+        options: [
+          { value: 'en', label: 'English' },
+          { value: 'fr', label: 'French' },
+          { value: 'de', label: 'German' },
+          { value: 'es', label: 'Spanish' },
+        ],
+      },
+    },
+    notifications: {
+      name: 'notifications',
+      type: 'switch',
+      label: 'Enable Email Notifications',
+      visibility: 'user',
+    },
+  },
+});
+
+/**
+ * Customer Onboarding Workflow
+ *
+ * 4 steps:
+ * 1. Company Info (required)
+ * 2. Primary Contact (required)
+ * 3. Preferences (skippable)
+ * 4. Billing — only shown if company size > 10
+ */
+export const onboardingWorkflow = defineWorkflow({
+  id: 'customer-onboarding',
+  name: 'Customer Onboarding',
+  persist: true,
+
+  steps: [
+    {
+      id: 'company',
+      title: 'Company Info',
+      entity: companyEntity,
+      fields: ['name', 'industry', 'size', 'website'],
+    },
+    {
+      id: 'contact',
+      title: 'Primary Contact',
+      entity: contactEntity,
+      fields: ['firstName', 'lastName', 'email', 'phone'],
+    },
+    {
+      id: 'preferences',
+      title: 'Preferences',
+      entity: preferencesEntity,
+      fields: ['language', 'notifications'],
+      allowSkip: true,
+    },
+    {
+      id: 'billing',
+      title: 'Billing',
+      description: 'Required for companies with more than 10 employees',
+      entity: companyEntity,
+      fields: ['website'], // placeholder — real app would have billing entity
+      conditions: {
+        visible: when('size').greaterThan(10),
+      },
+    },
+  ],
+});

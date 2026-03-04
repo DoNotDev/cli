@@ -1,0 +1,8 @@
+/* apps/demo/src/globals.css */
+
+/* 1. Group all imports at the top. */
+@import '@donotdev/ui/dndev.css';
+@import './themes.css';
+
+/* 2. App-specific overrides — DO NOT set --font-family here,
+   it would clobber theme overrides (dark/terminal set it to mono) */

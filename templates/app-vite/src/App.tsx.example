@@ -1,0 +1,41 @@
+/**
+ * @fileoverview Main application component
+ * @description Root application component with configuration-driven architecture
+ * @version 0.0.4
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import { ViteAppProviders } from '@donotdev/ui/vite';
+
+import './config/providers';
+import { appConfig } from './config/app';
+
+/**
+ * Main application component
+ *
+ * Configuration-driven architecture with smart defaults.
+ * Layout preset comes from appConfig.preset (configured in config/app.ts).
+ * Layout prop is for breadcrumbs and slot customizations only.
+ * CSS variable overrides should be done in themes.css.
+ * Override only what you need - everything else has sensible defaults.
+ *
+ * Note: HomePage.tsx in src/pages/ is automatically used for the root route "/"
+ *
+ * @version 0.0.4
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+export function App() {
+  return (
+    <ViteAppProviders
+      config={appConfig}
+      layout={{
+        breadcrumbs: 'smart', // 'smart' | 'always' | 'never'
+        header: {
+          // end: () => <YourHeaderActions />,
+        },
+      }}
+    />
+  );
+}

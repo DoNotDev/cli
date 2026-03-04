@@ -1,0 +1,17 @@
+// apps/demo/src/pages/DashboardPage.tsx
+
+import { LayoutDashboard } from 'lucide-react';
+
+import { DashboardTemplate } from '@donotdev/templates';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const meta: PageMeta = {
+  icon: <LayoutDashboard />,
+  auth: true,
+  preset: 'admin',
+};
+
+export default function DashboardPage() {
+  return <DashboardTemplate />;
+}

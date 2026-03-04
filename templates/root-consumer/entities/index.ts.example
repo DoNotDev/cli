@@ -1,0 +1,15 @@
+/**
+ * @fileoverview Entity Exports
+ *
+ * Export all your entities from here for easy importing.
+ * See entities/examples/ for reference entity definitions.
+ *
+ * USAGE:
+ * ```tsx
+ * import { customerEntity } from '../entities';
+ * ```
+ */
+
+// Add your entities:
+// export { customerEntity } from './Customer';
+// export { orderEntity } from './Order';

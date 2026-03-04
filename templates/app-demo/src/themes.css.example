@@ -1,0 +1,336 @@
+/* apps/demo/src/themes.css */
+
+/* ===========================
+   SaaS (default)
+   Dark zinc palette — class .light
+   =========================== */
+:root.light {
+  --theme-icon: 'Moon';
+  --theme-label: 'SaaS';
+  --theme-is-dark: 1;
+
+  /* Core colors */
+  --background: #09090b;
+  --foreground: #fafafa;
+
+  /* Surfaces */
+  --card: #09090b;
+  --card-foreground: #fafafa;
+  --popover: #18181b;
+  --popover-foreground: #fafafa;
+
+  /* Muted (zinc-800 / zinc-400) */
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+
+  /* Border & input (zinc-800) */
+  --border: #27272a;
+  --input: #27272a;
+  --ring: var(--primary);
+
+  /* Brand colors */
+  --primary: #0ea5e9;
+  --primary-foreground: #ffffff;
+
+  --secondary: #27272a;
+  --secondary-foreground: #fafafa;
+
+  --accent: #f97316;
+  --accent-foreground: #ffffff;
+
+  /* Status colors */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #09090b;
+}
+
+/* ===========================
+   BRUTALIST — class .dark
+   Industrial, monospace body, Space Grotesk headlines, orange/black.
+   =========================== */
+:root.dark {
+  --theme-icon: 'Construction';
+  --theme-label: 'Brutalist';
+  --theme-is-dark: 1;
+
+  /* 1. Core Colors - Black + white + industrial orange */
+  --background: #000000;
+  --foreground: #ffffff;
+  --primary: #f97316;
+  --secondary: #ffffff;
+  --accent: #f97316;
+
+  /* 2. Semantic */
+  --success: #22c55e;
+  --warning: #f97316;
+  --destructive: #dc2626;
+
+  /* 3. Surfaces - Dark, industrial */
+  --muted: #111111;
+  --muted-foreground: #888888;
+  --border: #ffffff;
+  --input: #111111;
+  --ring: #f97316;
+  --card: #000000;
+  --card-foreground: #f97316;
+  --popover: #000000;
+  --popover-foreground: #ffffff;
+  --surface-1: #0a0a0a;
+
+  /* 4. Text on Colors */
+  --primary-foreground: #ffffff;
+  --secondary-foreground: #000000;
+  --accent-foreground: #000000;
+  --success-foreground: #ffffff;
+  --warning-foreground: #000000;
+  --destructive-foreground: #ffffff;
+
+  /* 5. Radius - Hard zero */
+  --radius-interactive: 0;
+  --radius-surface: 0;
+  --radius-floating: 0;
+
+  /* 6. Typography - Monospace for body, Space Grotesk 700 for headings */
+  --font-family: var(--font-mono);
+  --font-headline: 'Space Grotesk', var(--font-sans);
+  --font-weight-semibold: 700;
+  --font-weight-bold: 700;
+
+  /* 7. Borders */
+  --border-width: 2px;
+  --border-huge: 4px;
+
+  /* 8. Shadows — flat by default, hard offset on interactive */
+  --shadow-color: var(--foreground);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-xl: 8px 8px 0px 0px var(--shadow-color);
+  --shadow-cta: 20px 20px 0px 0px var(--shadow-color);
+
+  /* 9. Per-variant shadows — only at xl level (elevated/clickable) */
+  --shadow-primary: none;
+  --shadow-primary-xl: 8px 8px 0px 0px var(--background);
+  --shadow-secondary: none;
+  --shadow-secondary-xl: 8px 8px 0px 0px var(--primary);
+
+  /* 10. Header padding for hard-offset shadows */
+  --header-shadow-padding: 0.75rem;
+}
+
+/* Body - grid background */
+.dark body {
+  background-color: var(--background);
+  background-image:
+    linear-gradient(#111 1px, transparent 1px),
+    linear-gradient(90deg, #111 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Uppercase headings */
+.dark {
+  :is(h1, h2, h3, h4, h5, h6),
+  [data-level^='h'] {
+    text-transform: uppercase;
+  }
+}
+
+/* Flat surface - no gradient glow */
+.dark .dndev-surface {
+  background: var(--card);
+}
+.dark .dndev-surface[data-variant='outline'] {
+  border: var(--border-width) solid var(--border);
+}
+
+.dark .dndev-card[data-variant='outline'] {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* ===========================
+   LUXURY
+   Playfair Display headlines, gold/cream, warm shadows.
+   =========================== */
+.luxury {
+  --theme-icon: 'Gem';
+  --theme-label: 'Luxury';
+  --theme-is-dark: 0;
+
+  /* 1. Core Colors */
+  --background: #faf8f5;
+  --foreground: #1c1917;
+  --primary: #b45309;
+  --secondary: #fef3c7;
+  --accent: #92400e;
+
+  /* 2. Semantic */
+  --success: #15803d;
+  --warning: #b45309;
+  --destructive: #b91c1c;
+
+  /* 3. Surfaces */
+  --muted: #fef9c3;
+  --muted-foreground: #78716c;
+  --border: #e7e5e4;
+  --border-hairline: 1px;
+  --input: #ffffff;
+  --ring: #b45309;
+  --card: #ffffff;
+  --card-foreground: #1c1917;
+  --popover: #ffffff;
+  --popover-foreground: #1c1917;
+  --surface-1: #faf8f5;
+
+  /* 4. Text on Colors */
+  --primary-foreground: #ffffff;
+  --secondary-foreground: #1c1917;
+  --accent-foreground: #ffffff;
+  --success-foreground: #ffffff;
+  --warning-foreground: #1c1917;
+  --destructive-foreground: #ffffff;
+
+  /* 5. Radius */
+  --radius-interactive: 0.375rem;
+  --radius-surface: 0.5rem;
+  --radius-floating: 0.5rem;
+
+  /* 6. Typography — lighter weights, serif headlines */
+  --font-family: var(--font-sans);
+  --font-headline: 'Playfair Display', var(--font-serif);
+  --font-weight-normal: 300;
+  --font-weight-medium: 400;
+  --font-weight-semibold: 500;
+  --font-weight-bold: 600;
+
+  /* 7. Spacing — generous, one notch above expressive */
+  --gap-sm: 0.75rem;
+  --gap-md: 1.5rem;
+  --gap-lg: 3rem;
+
+  /* 8. Shadows — warm gold-tinted, soft diffused */
+  --shadow-color: color-mix(in oklab, #b45309 8%, transparent);
+  --shadow-sm: 0 1px 3px var(--shadow-color);
+  --shadow-md: 0 4px 12px var(--shadow-color);
+  --shadow-xl: 0 8px 24px var(--shadow-color);
+}
+
+/* ===========================
+   RETRO
+   8-bit pixel aesthetic, Press Start 2P, neon on dark, CRT vibes.
+   =========================== */
+.retro {
+  --theme-icon: 'Gamepad2';
+  --theme-label: 'Retro';
+  --theme-is-dark: 1;
+
+  /* 1. Core Colors - Muted neon on zinc */
+  --background: #1c1c22;
+  --foreground: #c8e6c9;
+  --primary: #5eead4;
+  --secondary: #c084fc;
+  --accent: #fbbf24;
+
+  /* 2. Semantic */
+  --success: #6ee7b7;
+  --warning: #fbbf24;
+  --destructive: #f87171;
+
+  /* 3. Surfaces - Zinc CRT glass */
+  --muted: #27272f;
+  --muted-foreground: #8bae8b;
+  --border: #4a6a4a;
+  --input: #1c1c22;
+  --ring: #5eead4;
+  --card: #222228;
+  --card-foreground: #c8e6c9;
+  --popover: #222228;
+  --popover-foreground: #c8e6c9;
+  --surface-1: #1e1e24;
+
+  /* 4. Text on Colors */
+  --primary-foreground: #0f172a;
+  --secondary-foreground: #0f172a;
+  --accent-foreground: #0f172a;
+  --success-foreground: #0f172a;
+  --warning-foreground: #0f172a;
+  --destructive-foreground: #ffffff;
+
+  /* 5. Radius - Hard pixel corners */
+  --radius-interactive: 0;
+  --radius-surface: 0;
+  --radius-floating: 0;
+
+  /* 6. Typography - Press Start 2P (pixel font, 400 only) */
+  --font-family: 'Press Start 2P', var(--font-mono);
+  --font-headline: 'Press Start 2P', var(--font-mono);
+  --font-weight-normal: 400;
+  --font-weight-medium: 400;
+  --font-weight-semibold: 400;
+  --font-weight-bold: 400;
+
+  /* 7. Font scale - smaller base (pixel font reads large) */
+  --font-size-xs: 0.5rem;
+  --font-size-sm: 0.625rem;
+  --font-size-base: 0.75rem;
+  --font-size-lg: 0.875rem;
+  --font-size-xl: 1rem;
+  --font-size-2xl: 1.25rem;
+  --font-size-3xl: 1.5rem;
+  --line-height: 1.6;
+
+  /* 8. Borders - Chunky pixel borders */
+  --border-width: 3px;
+  --border-huge: 4px;
+
+  /* 9. Shadows — soft neon glow */
+  --shadow-color: #5eead433;
+  --shadow-sm: 0 0 4px #5eead422;
+  --shadow-md: 0 0 8px #5eead433, 0 0 16px #5eead41a;
+  --shadow-xl: 0 0 12px #5eead444, 0 0 24px #5eead42a, 0 0 48px #c084fc1a;
+  --shadow-cta: 0 0 16px #5eead444, 0 0 32px #5eead422;
+
+  /* 10. Per-variant shadows — soft neon matching */
+  --shadow-primary: 0 0 8px #5eead42a;
+  --shadow-primary-xl: 0 0 16px #5eead444, 0 0 32px #5eead422;
+  --shadow-secondary: 0 0 8px #c084fc2a;
+  --shadow-secondary-xl: 0 0 16px #c084fc44, 0 0 32px #c084fc22;
+
+  /* 11. Header padding */
+  --header-shadow-padding: 0;
+}
+
+/* Body - subtle CRT scanlines */
+.retro body {
+  background-color: var(--background);
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+}
+
+/* Uppercase headings (pixel fonts look best in caps) */
+.retro {
+  :is(h1, h2, h3, h4, h5, h6),
+  [data-level^='h'] {
+    text-transform: uppercase;
+  }
+}
+
+/* Flat surfaces - no gradient, pixel-sharp */
+.retro .dndev-surface {
+  background: var(--card);
+}
+.retro .dndev-surface[data-variant='outline'] {
+  border: var(--border-width) solid var(--border);
+}
+
+.retro .dndev-card[data-variant='outline'] {
+  background: transparent;
+  box-shadow: none;
+}

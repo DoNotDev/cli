@@ -1,0 +1,53 @@
+/**
+ * @fileoverview Sign In Page
+ * @description Authentication page for {{appName}}
+ *
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import { View, StyleSheet } from 'react-native';
+import { Text, Card, Stack, Button } from '@donotdev/expo';
+import { MultipleAuthProviders } from '@donotdev/expo';
+import { useNavigate } from '@donotdev/expo';
+
+/**
+ * Sign in page component
+ */
+export default function SignInPage() {
+  const navigate = useNavigate();
+
+  return (
+    <View style={styles.container}>
+      <Stack spacing={24} style={styles.content}>
+        <Text level="h1">Sign In</Text>
+        
+        <Card title="Welcome Back">
+          <MultipleAuthProviders
+            onSuccess={() => {
+              navigate('/');
+            }}
+          />
+        </Card>
+        
+        <Button onPress={() => navigate('/')} variant="outline">
+          Back to Home
+        </Button>
+      </Stack>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 16,
+  },
+  content: {
+    maxWidth: 400,
+    width: '100%',
+    alignSelf: 'center',
+  },
+});

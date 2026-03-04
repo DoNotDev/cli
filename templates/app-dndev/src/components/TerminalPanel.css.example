@@ -1,0 +1,252 @@
+/* ===========================
+   TERMINAL PANEL
+   When embedded: fills its parent flex container (no fixed positioning)
+   When standalone (collapsed bar in bottom-bar layout): minimal tabbar only
+   =========================== */
+
+.dndev-terminal-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  contain: layout style;
+  min-height: 0;
+}
+
+/* Embedded mode — fills parent panel */
+.dndev-terminal-panel[data-embedded] {
+  flex: 1;
+  height: 100%;
+  border: none;
+}
+
+/* ===========================
+   TAB BAR
+   =========================== */
+
+.dndev-terminal-tabbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 34px;
+  min-height: 34px;
+  padding-inline: 8px;
+  background: var(--muted);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.dndev-terminal-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow: visible;
+  scrollbar-width: none;
+}
+
+.dndev-terminal-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.dndev-terminal-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color var(--dur-fast, 100ms), background var(--dur-fast, 100ms);
+  line-height: 1;
+}
+
+.dndev-terminal-tab:hover {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+.dndev-terminal-tab[data-active='true'] {
+  color: var(--foreground);
+  background: var(--background);
+  font-weight: 500;
+}
+
+.dndev-terminal-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color var(--dur-fast, 100ms), background var(--dur-fast, 100ms);
+}
+
+.dndev-terminal-toggle:hover {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+.dndev-terminal-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Add tab button */
+.dndev-terminal-tab-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  border-radius: 4px;
+  margin-inline-start: 2px;
+  transition: color var(--dur-fast, 100ms), background var(--dur-fast, 100ms);
+}
+
+.dndev-terminal-tab-add:hover {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+/* Tab close / kill button */
+.dndev-terminal-tab-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-inline-start: 2px;
+  border-radius: 3px;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--dur-fast, 100ms), color var(--dur-fast, 100ms), background var(--dur-fast, 100ms);
+}
+
+.dndev-terminal-tab:hover .dndev-terminal-tab-close {
+  opacity: 1;
+}
+
+.dndev-terminal-tab-close:hover {
+  color: var(--destructive);
+  background: color-mix(in oklch, var(--destructive) 15%, transparent);
+}
+
+/* ===========================
+   TERMINAL CONTENT — xterm container
+   =========================== */
+
+.dndev-terminal-content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #0a0a0a;
+  position: relative;
+}
+
+/* Loader overlay — shown during initial ConPTY spawn delay */
+.dndev-terminal-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #0a0a0a;
+  color: var(--muted-foreground);
+  font-size: 13px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+}
+
+.dndev-terminal-loader svg {
+  animation: dndev-terminal-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes dndev-terminal-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* xterm container — fills content area */
+.dndev-terminal-xterm-host {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Per-tab xterm wrapper — created dynamically in JS */
+.dndev-terminal-tab-pane {
+  width: 100%;
+  height: 100%;
+}
+
+/* ===========================
+   XTERM OVERRIDES
+   =========================== */
+
+.dndev-terminal-content .xterm {
+  height: 100%;
+  padding: 4px;
+}
+
+.dndev-terminal-content .xterm-viewport {
+  overflow-y: auto !important;
+}
+
+/* ===========================
+   APP PICKER DROPDOWN
+   =========================== */
+
+.dndev-terminal-app-picker {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  min-width: 160px;
+  background: var(--popover, var(--card));
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px;
+  z-index: 50;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dndev-terminal-app-picker-empty {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.dndev-terminal-app-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background var(--dur-fast, 100ms);
+}
+
+.dndev-terminal-app-picker-item:hover {
+  background: var(--accent, var(--muted));
+}

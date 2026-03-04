@@ -1,0 +1,32 @@
+/**
+ * @fileoverview CRUD List Example
+ * @description EntityCardList example page — copy & rename (e.g. products.tsx, customers.tsx)
+ *
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { EntityCardList, Stack, Text } from '@donotdev/expo';
+import { useAuth } from '@donotdev/auth';
+
+// import { productEntity } from '../entities/Product';
+const productEntity = null as any; // replace with your entity
+
+/**
+ * List page component — shows all records for an entity
+ */
+export default function ListPage() {
+  const { user } = useAuth();
+
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <Stack spacing={16} style={{ flex: 1, padding: 16 }}>
+        <Text level="h2">Products</Text>
+        <EntityCardList entity={productEntity} userRole={user?.role} />
+      </Stack>
+    </SafeAreaView>
+  );
+}

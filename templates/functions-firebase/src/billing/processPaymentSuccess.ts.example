@@ -1,0 +1,14 @@
+// functions/src/billing/processPaymentSuccess.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Payment Success Wrapper
+ * @description Wrapper for framework's processPaymentSuccess with {{APP_NAME}}-specific configuration
+ */
+
+import { processPaymentSuccess as frameworkProcessPaymentSuccess } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} payment success processing
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export const processPaymentSuccess = frameworkProcessPaymentSuccess;

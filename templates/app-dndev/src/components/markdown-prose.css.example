@@ -1,0 +1,49 @@
+/* Prose typography for ReactMarkdown rendered output */
+
+.dndev-docs-rendered {
+  padding: 8px 0;
+  line-height: 1.7;
+}
+
+.dndev-docs-rendered h1,
+.dndev-docs-rendered h2,
+.dndev-docs-rendered h3 {
+  margin-top: 1.2em;
+  margin-bottom: 0.4em;
+}
+
+.dndev-docs-rendered code {
+  padding: 2px 5px;
+  border-radius: 3px;
+  background: var(--muted);
+  font-size: 0.9em;
+}
+
+.dndev-docs-rendered pre {
+  padding: 12px;
+  border-radius: var(--radius-surface, 8px);
+  background: var(--muted);
+  overflow-x: auto;
+}
+
+.dndev-docs-rendered pre code {
+  padding: 0;
+  background: transparent;
+}
+
+.dndev-docs-rendered table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dndev-docs-rendered th,
+.dndev-docs-rendered td {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  text-align: start;
+}
+
+.dndev-docs-rendered th {
+  background: var(--muted);
+  font-weight: 600;
+}

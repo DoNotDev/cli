@@ -1,0 +1,358 @@
+'use client';
+// apps/demo/src/pages/HomePage.tsx
+
+import {
+  Zap,
+  Shield,
+  Rocket,
+  UserPlus,
+  Settings,
+  Play,
+  Quote,
+} from 'lucide-react';
+
+import {
+  Badge,
+  BADGE_VARIANT,
+  Button,
+  BUTTON_VARIANT,
+  CallToAction,
+  Card,
+  CARD_VARIANT,
+  Carousel,
+  HeroSection,
+  Marquee,
+  Roadmap,
+  Section,
+  SplitReveal,
+  Stack,
+  Text,
+} from '@donotdev/components';
+import { useTranslation } from '@donotdev/core';
+import { FeatureCard, PageContainer } from '@donotdev/ui';
+
+import type { RoadmapStep } from '@donotdev/components';
+
+// -- Fake testimonials for Marquee showcase --
+const testimonials = [
+  {
+    name: 'Sarah K.',
+    role: 'CTO @ Fintech',
+    text: 'Shipped our MVP in 3 weeks. CRUD, auth, billing — all wired.',
+  },
+  {
+    name: 'Marco R.',
+    role: 'Solo Founder',
+    text: 'I replaced 6 libraries with one framework. No regrets.',
+  },
+  {
+    name: 'Priya N.',
+    role: 'Lead Dev',
+    text: 'The type safety alone saved us from 2 production bugs on day one.',
+  },
+  {
+    name: 'James L.',
+    role: 'Agency Owner',
+    text: 'We spin up client projects in hours now, not weeks.',
+  },
+  {
+    name: 'Yuki T.',
+    role: 'Indie Hacker',
+    text: 'Dark mode, RTL, i18n — all free. I just write features.',
+  },
+  {
+    name: 'Elena M.',
+    role: 'Staff Engineer',
+    text: 'Best DX I have seen in a React meta-framework. Period.',
+  },
+  {
+    name: 'David C.',
+    role: 'Freelancer',
+    text: 'Entity definitions + auto CRUD cut my project setup time by 80%.',
+  },
+  {
+    name: 'Lisa W.',
+    role: 'Tech Lead',
+    text: 'Finally a framework where the components actually respect the theme system.',
+  },
+  {
+    name: 'Tom H.',
+    role: 'Product Engineer',
+    text: 'Billing integration took 20 minutes. Stripe webhooks just work.',
+  },
+  {
+    name: 'Aisha B.',
+    role: 'Startup CTO',
+    text: 'We went from zero to production in 2 weeks. Not a joke.',
+  },
+];
+
+// -- Carousel items: showcase different component types --
+const showcaseItems = [
+  {
+    title: 'Reveal Animations',
+    description:
+      'Staggered, directional entrance animations with viewport detection.',
+    variant: CARD_VARIANT.ACCENT,
+    icon: Zap,
+  },
+  {
+    title: 'Smart Forms',
+    description:
+      'Conditional fields, draft validation, multi-step wizards — all from entity definitions.',
+    variant: CARD_VARIANT.DEFAULT,
+    icon: Settings,
+  },
+  {
+    title: 'Carousel & Marquee',
+    description:
+      'Autoplay, swipe, infinite loop, momentum physics. This very section.',
+    variant: CARD_VARIANT.DEFAULT,
+    icon: Play,
+  },
+  {
+    title: 'Theme System',
+    description:
+      '5 themes with full design token coverage. Switch live, no flash.',
+    variant: CARD_VARIANT.DEFAULT,
+    icon: Shield,
+  },
+  {
+    title: 'StackedCards & Bento',
+    description:
+      'Scroll-reveal stacked layouts and asymmetric grids for landing pages.',
+    variant: CARD_VARIANT.DEFAULT,
+    icon: Rocket,
+  },
+];
+
+export default function HomePage() {
+  const { t } = useTranslation('dndev');
+
+  // -- Feature cards (rich content for FeatureCard) --
+  const featureCards = [
+    {
+      icon: Zap,
+      title: t('templates.home.features.feature1.title'),
+      subtitle: 'Entity-first architecture',
+      content: [
+        'Define once with defineEntity()',
+        'Auto-generated CRUD operations',
+        'Type-safe forms and validation',
+      ],
+    },
+    {
+      icon: Shield,
+      title: t('templates.home.features.feature2.title'),
+      subtitle: 'Security built in, not bolted on',
+      content: [
+        'Role-based access control',
+        'PII encryption at rest',
+        'Rate limiting and anomaly detection',
+      ],
+    },
+    {
+      icon: Rocket,
+      title: t('templates.home.features.feature3.title'),
+      subtitle: 'Ship fast, stay consistent',
+      content: [
+        '5 themes with design tokens',
+        '30+ production components',
+        'Lazy-loaded advanced components',
+      ],
+    },
+  ];
+
+  // -- Roadmap steps --
+  const steps: RoadmapStep[] = [
+    {
+      phase: t('templates.home.howItWorks.step1.title'),
+      icon: UserPlus,
+      title: t('templates.home.howItWorks.step1.title'),
+      subtitle: t('templates.home.howItWorks.step1.description'),
+    },
+    {
+      phase: t('templates.home.howItWorks.step2.title'),
+      icon: Settings,
+      title: t('templates.home.howItWorks.step2.title'),
+      subtitle: t('templates.home.howItWorks.step2.description'),
+    },
+    {
+      phase: t('templates.home.howItWorks.step3.title'),
+      icon: Play,
+      title: t('templates.home.howItWorks.step3.title'),
+      subtitle: t('templates.home.howItWorks.step3.description'),
+    },
+  ];
+
+  // -- SplitReveal stat cards --
+  const statCards = [
+    {
+      title: '12+ Components',
+      description: 'Atomic, advanced, and layout components ready to compose',
+    },
+    { title: '4 Essences', description: 'SaaS - Brutalist - Luxury - Retro' },
+    {
+      title: '100% Typed',
+      description: 'Full TypeScript coverage with strict mode',
+    },
+    {
+      title: 'Design System',
+      description:
+        'Full Design System with tokens and components when you can personalize anything',
+    },
+  ];
+
+  return (
+    <PageContainer>
+      {/* 1. Hero — clean, no buttons */}
+      <HeroSection
+        badge={t('templates.home.hero.badge')}
+        title={t('templates.home.hero.title')}
+        subtitle={t('templates.home.hero.subtitle')}
+      />
+
+      {/* 2. Features — above the fold, FeatureCard with rich content */}
+      <Section
+        title={t('templates.home.features.title')}
+        gridCols={[1, 1, 3, 3]}
+        collapsible
+        defaultOpen
+      >
+        {featureCards.map((f, i) => (
+          <FeatureCard
+            key={f.title}
+            variant={CARD_VARIANT.GLASS}
+            icon={f.icon}
+            title={f.title}
+            subtitle={f.subtitle}
+            content={f.content}
+          />
+        ))}
+      </Section>
+
+      {/* 3. SplitReveal — slow, deliberate entrance */}
+      <Section title="Framework at a Glance" tone="muted">
+        <SplitReveal
+          left={
+            <Stack gap="medium">
+              <Badge variant={BADGE_VARIANT.ACCENT}>Why DoNotDev?</Badge>
+              <Text level="h2">Built for Real Products</Text>
+              <Text level="body" variant="muted">
+                Production-grade CRUD, auth, billing, and UI — all type-safe,
+                theme-aware, and ready to ship. Stop rebuilding the same
+                plumbing.
+              </Text>
+            </Stack>
+          }
+          right={statCards}
+          useStatCards
+          stagger={400}
+          duration={1000}
+          distance={12}
+        />
+      </Section>
+
+      {/* 4. Roadmap — ghost tone */}
+      <Section title={t('templates.home.howItWorks.title')} tone="ghost">
+        <Roadmap steps={steps} />
+      </Section>
+
+      {/* 5. Testimonials Marquee — muted tone, showcases Marquee component */}
+      <Section title="What Developers Say" tone="muted">
+        <Badge
+          variant={BADGE_VARIANT.MUTED}
+          style={{ marginBottom: 'var(--gap-md)', display: 'inline-block' }}
+        >
+          Fictional testimonials — this is a demo showcase
+        </Badge>
+        <Marquee
+          items={testimonials}
+          renderItem={(_item) => {
+            const t = _item as (typeof testimonials)[number];
+            return (
+              <Card style={{ minWidth: 280, maxWidth: 320 }}>
+                <Stack gap="tight" style={{ padding: 'var(--gap-md)' }}>
+                  <Quote
+                    style={{
+                      width: 'var(--icon-sm)',
+                      height: 'var(--icon-sm)',
+                      color: 'var(--muted-foreground)',
+                      opacity: 0.5,
+                    }}
+                  />
+                  <Text level="small" italic>
+                    &ldquo;{t.text}&rdquo;
+                  </Text>
+                  <Stack gap="none">
+                    <Text level="small" weight="semibold">
+                      {t.name}
+                    </Text>
+                    <Text level="caption" variant="muted">
+                      {t.role}
+                    </Text>
+                  </Stack>
+                </Stack>
+              </Card>
+            );
+          }}
+          speed={300}
+          pauseOnHover
+          gap="medium"
+          behavior="infinite"
+          ariaLabel="Developer testimonials"
+        />
+      </Section>
+
+      {/* 6. Component Showcase Carousel — ghost tone */}
+      <Section title="Component Showcase" tone="ghost">
+        <Badge
+          variant={BADGE_VARIANT.MUTED}
+          style={{ marginBottom: 'var(--gap-md)', display: 'inline-block' }}
+        >
+          Swipe or use arrows — this Carousel is a framework component
+        </Badge>
+        <Carousel
+          gap="medium"
+          items={showcaseItems}
+          renderItem={(_item, _index, isActive) => {
+            const item = _item as (typeof showcaseItems)[number];
+            return (
+              <Card
+                variant={item.variant}
+                icon={item.icon}
+                title={item.title}
+                content={item.description}
+                style={{
+                  opacity: isActive ? 1 : 0.6,
+                  transition: 'opacity var(--dur-normal)',
+                }}
+              />
+            );
+          }}
+          slidesToShow={[1, 2, 3, 4]}
+          showArrows
+          infinite
+          aria-label="Component showcase carousel"
+        />
+      </Section>
+
+      {/* 7. CTA — accent tone */}
+      <CallToAction
+        tone="accent"
+        title={t('templates.home.cta.title')}
+        subtitle={t('templates.home.cta.subtitle')}
+        primaryAction={
+          <Button variant={BUTTON_VARIANT.PRIMARY}>
+            {t('templates.home.cta.primaryAction')}
+          </Button>
+        }
+        secondaryAction={
+          <Button variant={BUTTON_VARIANT.OUTLINE}>
+            {t('templates.home.cta.secondaryAction')}
+          </Button>
+        }
+      />
+    </PageContainer>
+  );
+}

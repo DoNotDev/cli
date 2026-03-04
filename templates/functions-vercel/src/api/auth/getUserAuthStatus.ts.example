@@ -1,0 +1,20 @@
+// functions/src/api/auth/getUserAuthStatus.ts
+
+/**
+ * @fileoverview {{APP_NAME}} User Auth Status Wrapper
+ * @description Wrapper for framework's getUserAuthStatus with {{APP_NAME}}-specific configuration
+ */
+
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { getUserAuthStatus as frameworkGetUserAuthStatus } from '@donotdev/functions/vercel';
+
+/**
+ * {{APP_NAME}} user authentication status
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  return frameworkGetUserAuthStatus(req, res);
+}

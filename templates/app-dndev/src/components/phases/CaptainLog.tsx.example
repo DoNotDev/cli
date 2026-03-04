@@ -1,0 +1,107 @@
+/**
+ * @fileoverview Captain's Log — session history accordion with KPIs
+ *
+ * Reads captain-log.json and renders completed sessions as expandable items.
+ */
+
+import { Accordion, Badge, DescriptionList, Section, Stack, Text } from '@donotdev/components';
+
+import type { CaptainLogData } from './phaseData';
+
+// ============================================================================
+// PROPS
+// ============================================================================
+
+interface CaptainLogProps {
+  data: CaptainLogData;
+  /** When true, renders without the wrapping Section (for embedding in ContextTabs) */
+  embedded?: boolean;
+}
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+
+function formatDuration(start: string, end: string): string {
+  const ms = new Date(end).getTime() - new Date(start).getTime();
+  const hours = Math.floor(ms / 3_600_000);
+  const minutes = Math.floor((ms % 3_600_000) / 60_000);
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+}
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
+
+export function CaptainLog({ data, embedded }: CaptainLogProps) {
+  const sessions = data.sessions ?? [];
+
+  if (sessions.length === 0) {
+    if (embedded) {
+      return <Text level="body" variant="muted">No sessions recorded yet.</Text>;
+    }
+    return null;
+  }
+
+  // Most recent first
+  const sorted = [...sessions].reverse();
+
+  const items = sorted.map((session) => {
+    const toolEntries = Object.entries(session.tool_calls ?? {}).filter(([, c]) => c > 0);
+
+    return {
+      value: String(session.id),
+      trigger: (
+        <Stack direction="row" align="center" gap="tight" style={{ flex: 1 }}>
+          <Text level="small" weight="medium">
+            Phase {session.phase}: {session.phase_name}
+          </Text>
+          {session.module && (
+            <Badge variant="muted">{session.module}</Badge>
+          )}
+          <Badge variant={session.validation === 'passed' ? 'success' : 'warning'}>
+            {session.validation}
+          </Badge>
+          <Text level="caption" variant="muted" style={{ marginInlineStart: 'auto' }}>
+            {session.date}
+          </Text>
+        </Stack>
+      ),
+      content: (
+        <Stack gap="tight">
+          <Text level="small">{session.outcome}</Text>
+          <DescriptionList
+            orientation="horizontal"
+            items={[
+              { label: 'Files touched', value: String(session.files_touched) },
+              { label: 'Symbols used', value: String(session.symbols_used) },
+              { label: 'Duration', value: formatDuration(session.started_at, session.completed_at) },
+              { label: 'Lessons', value: String(session.lessons_recorded) },
+              ...toolEntries.map(([name, count]) => ({
+                label: name.replace(/_/g, ' '),
+                value: String(count),
+              })),
+            ]}
+          />
+        </Stack>
+      ),
+    };
+  });
+
+  const accordion = (
+    <Accordion
+      type="single"
+      collapsible
+      items={items}
+    />
+  );
+
+  if (embedded) return accordion;
+
+  return (
+    <Section title="Captain's Log">
+      {accordion}
+    </Section>
+  );
+}

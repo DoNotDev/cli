@@ -1,0 +1,21 @@
+// functions/src/auth/getUserAuthStatus.ts
+
+/**
+ * @fileoverview {{APP_NAME}} User Auth Status Wrapper
+ * @description Wrapper for framework's getUserAuthStatus with {{APP_NAME}}-specific configuration
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import { getUserAuthStatus as frameworkGetUserAuthStatus } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} user authentication status
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ *
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+export const getUserAuthStatus = frameworkGetUserAuthStatus;

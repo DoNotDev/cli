@@ -1,0 +1,14 @@
+// functions/src/oauth/grantGitHubAccess.ts
+
+/**
+ * @fileoverview {{APP_NAME}} GitHub Access Wrapper
+ * @description Wrapper for framework's grantGitHubAccess with {{APP_NAME}}-specific configuration
+ */
+
+import { grantGitHubAccess as frameworkGrantGitHubAccess } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} GitHub access granting
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export const grantGitHubAccess = frameworkGrantGitHubAccess;

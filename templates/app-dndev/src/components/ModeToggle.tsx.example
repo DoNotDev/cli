@@ -1,0 +1,32 @@
+/**
+ * @fileoverview BUILD / RUN mode toggle for the dashboard header
+ */
+
+import { memo } from 'react';
+import { Hammer, Zap } from 'lucide-react';
+
+import { ToggleGroup } from '@donotdev/components';
+
+import { useDoNotDashStore } from '../stores/dndevStore';
+
+import type { ReactNode } from 'react';
+
+function ModeToggleComponent(): ReactNode {
+  const mode = useDoNotDashStore((s) => s.mode);
+  const toggleMode = useDoNotDashStore((s) => s.toggleMode);
+
+  return (
+    <ToggleGroup
+      type="single"
+      size="sm"
+      value={mode}
+      onValueChange={(v) => { if (v) toggleMode(); }}
+      items={[
+        { value: 'build', label: <><Hammer size={12} /> BUILD</> },
+        { value: 'run', label: <><Zap size={12} /> RUN</> },
+      ]}
+    />
+  );
+}
+
+export const ModeToggle = memo(ModeToggleComponent);

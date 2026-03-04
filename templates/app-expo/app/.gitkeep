@@ -1,0 +1,2 @@
+# This file ensures the app directory is tracked by git
+# Expo Router requires the app directory to exist

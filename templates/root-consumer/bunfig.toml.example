@@ -1,0 +1,64 @@
+# Bun Configuration for DoNotDev Framework
+# Copy this to bunfig.toml and adjust as needed
+# Documentation: https://bun.sh/docs/runtime/bunfig
+
+[install]
+# Enable workspace support for monorepo
+workspace = true
+
+# Dependency installation settings
+exact = false              # Allow version ranges (^, ~) for flexibility
+production = false         # Install devDependencies (needed for framework development)
+optional = true            # Install optional dependencies
+peer = true                # Warn on missing peer dependencies (mandatory peers like valibot must be installed)
+
+# Workspace linking strategy
+# "hoisted" = shared node_modules at root (faster, less disk space, better tool compatibility)
+# "isolated" = separate node_modules per package (better phantom dependency protection)
+linker = "hoisted"
+
+# Hoist essential tools for cross-platform compatibility
+# NOTE: path-to-regexp is required for Firebase emulators compatibility
+publicHoistPattern = [
+  "*eslint*",
+  "*typescript*",
+  "*prettier*",
+  "*turbo*",
+  "*react*",
+  "*@types/react*",
+  "*esbuild*",
+  "@esbuild/*",
+  "@donotdev/*",
+  "vite",
+  "next",
+  "path-to-regexp"
+]
+
+# Cache configuration — disabled to prevent stale resolution
+cache = false
+
+[run]
+# Use Bun runtime for scripts (significantly faster than Node.js)
+bun = true
+
+# Cross-platform shell handling
+# "bun" = use Bun's internal shell (RECOMMENDED for cross-platform compatibility)
+# Ensures consistent behavior across Windows/WSL/Mac/Linux
+shell = "bun"
+
+[install.lockfile]
+# Lockfile version (v2 is modern standard for Bun 1.3+)
+version = 2
+
+# Additional notes:
+# - Always commit bun.lockb to version control
+# - Use workspace:* protocol for internal package dependencies
+# - For merge conflicts in bun.lockb: accept one side, run bun install, commit
+#
+# Firebase Emulators Compatibility:
+# If using Firebase emulators, add these overrides to your root package.json:
+# "overrides": {
+#   "path-to-regexp": "0.1.7",
+#   "express>path-to-regexp": "0.1.7",
+#   "firebase-tools>express>path-to-regexp": "0.1.7"
+# }

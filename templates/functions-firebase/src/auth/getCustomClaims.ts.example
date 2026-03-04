@@ -1,0 +1,19 @@
+/**
+ * @fileoverview {{APP_NAME}} Get Custom Claims Wrapper
+ * @description Wrapper for framework's getCustomClaims with {{APP_NAME}}-specific configuration
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import { getCustomClaims as frameworkGetCustomClaims } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} custom claims retrieval
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ *
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+export const getCustomClaims = frameworkGetCustomClaims;

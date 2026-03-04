@@ -1,0 +1,28 @@
+// apps/demo/vite.config.ts
+
+/**
+ * @fileoverview Vite build configuration for the demo app
+ * @description Configures Vite build tool with application settings, development server, HMR, and file watching options for the demo application.
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import { defineViteConfig } from '@donotdev/core/vite';
+
+import { appConfig } from './src/config/app';
+
+// Features and SEO are now in app.ts (runtime config)
+// Only build-time configs (routes, themes, i18n, assets) go here
+export default defineViteConfig({
+  appConfig,
+  server: {
+    port: 3003,
+    https: false,
+
+    // HMR Configuration - Enabled for debugging
+    hmr: {
+      overlay: true, // Show error overlay in browser
+    },
+  },
+});

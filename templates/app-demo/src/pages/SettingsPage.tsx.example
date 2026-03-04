@@ -1,0 +1,17 @@
+// apps/demo/src/pages/SettingsPage.tsx
+
+import { Settings } from 'lucide-react';
+
+import { SettingsTemplate } from '@donotdev/templates';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const meta: PageMeta = {
+  icon: <Settings />,
+  auth: true,
+  preset: 'admin',
+};
+
+export default function SettingsPage() {
+  return <SettingsTemplate />;
+}

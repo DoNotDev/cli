@@ -1,0 +1,25 @@
+// apps/demo/src/pages/legal/LegalPage.tsx
+
+import { Scale } from 'lucide-react';
+
+import { LegalNoticeTemplate } from '@donotdev/templates';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const meta: PageMeta = {
+  icon: <Scale />,
+  hideFromMenu: true,
+};
+
+export default function LegalPage() {
+  return (
+    <LegalNoticeTemplate
+      publisherName="Demo Company"
+      publisherType="company"
+      registeredOffice="123 Demo Street, Paris, France"
+      email="legal@demo.example.com"
+      directorName="John Doe"
+      hostingProvider="Vercel Inc."
+    />
+  );
+}

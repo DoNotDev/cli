@@ -1,0 +1,23 @@
+// apps/demo/src/pages/legal/PrivacyPage.tsx
+
+import { Shield } from 'lucide-react';
+
+import { PrivacyPolicyTemplate } from '@donotdev/templates';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const meta: PageMeta = {
+  icon: <Shield />,
+  hideFromMenu: true,
+};
+
+export default function PrivacyPage() {
+  return (
+    <PrivacyPolicyTemplate
+      companyName="Demo Company"
+      websiteUrl="https://demo.example.com"
+      privacyEmail="privacy@demo.example.com"
+      companyAddress="123 Demo Street, Paris, France"
+    />
+  );
+}

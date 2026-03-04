@@ -1,0 +1,20 @@
+// functions/src/api/oauth/grantGitHubAccess.ts
+
+/**
+ * @fileoverview {{APP_NAME}} GitHub Access Wrapper
+ * @description Wrapper for framework's grantGitHubAccess with {{APP_NAME}}-specific configuration
+ */
+
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { grantGitHubAccess as frameworkGrantGitHubAccess } from '@donotdev/functions/vercel';
+
+/**
+ * {{APP_NAME}} GitHub access granting
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  return frameworkGrantGitHubAccess(req, res);
+}

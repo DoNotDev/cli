@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  
+  <!-- ✅ CORE: Performance-critical meta tags first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  
+  <!-- ✅ DnDev: Framework will inject FaviconHead here -->
+  <!-- All favicon links will be added by FaviconHead component -->
+  
+  <!-- ✅ DnDev: Asset manifest injection point -->
+  <!-- window.__DNDEV_ASSETS__ and __DNDEV_ASSET_MANIFEST__ injected here -->
+  
+  <!-- ✅ PWA: Manifest link (if exists) -->
+  <link rel="manifest" href="/manifest.json" />
+  
+  <!-- Fonts: Inter, Space Grotesk, Playfair, Roboto loaded via @donotdev/ui/dndev.css (bundled). -->
+  <!-- DNDEV_FONT_PRELOADS -->
+  
+  <!-- ✅ PERFORMANCE: Preconnect to external domains (OAuth providers) -->
+  <!-- GitHub OAuth -->
+  <link rel="preconnect" href="https://github.com">
+  <link rel="preconnect" href="https://api.github.com">
+  <!-- Google OAuth (remove if not using) -->
+  <link rel="preconnect" href="https://accounts.google.com">
+  <link rel="preconnect" href="https://oauth2.googleapis.com">
+  <link rel="preconnect" href="https://apis.google.com">
+  <link rel="preconnect" href="https://www.googleapis.com">
+  
+  <!-- ✅ SEO: Basic meta tags (AutoMetaTags will override these) -->
+  <title>Loading...</title>
+  <meta name="description" content="Modern web application powered by DoNotDev" />
+  
+
+  <!-- ✅ PERFORMANCE: Critical CSS inlined here by build -->
+  <style>
+    /* Critical above-the-fold styles */
+    html, body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background: #ffffff;
+      color: #000000;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { 
+        background: #000000; 
+        color: #ffffff; 
+      }
+    }
+    /* Critical shell loader styles - pure CSS, instant render */
+    #shell-loader { 
+      position: fixed; 
+      inset: 0;
+      background: #000000; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 1;
+      transition: opacity 0.3s ease-out;
+      will-change: opacity;
+      /* Isolate from framework CSS */
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    #shell-loader.shell-loader--fading {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .shell-loader__content {
+      text-align: center;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      width: 100%;
+      max-width: 500px;
+      /* Prevent layout shifts from framework CSS */
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      line-height: 1.2;
+    }
+    .shell-loader__brand {
+      display: block;
+      font-size: clamp(3rem, 10vw, 5rem); 
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      margin: 0 0 1rem 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    /* ECG Waveform Animation - stroke-dasharray (performant, cross-browser, standard SVG technique) */
+    .shell-loader__dots {
+      display: block;
+      width: 300px;
+      height: 60px;
+      margin: 0 auto;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .shell-loader__dots svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .shell-loader__dots path {
+      stroke: #667eea;
+      stroke-width: 3;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 400;
+      stroke-dashoffset: 400;
+      animation: ecg-draw 2s linear infinite;
+    }
+    @keyframes ecg-draw {
+      0% { 
+        stroke-dashoffset: 400;
+        opacity: 0;
+      }
+      10% { 
+        opacity: 1;
+      }
+      70% { 
+        stroke-dashoffset: 0;
+        opacity: 1;
+      }
+      90%, 100% { 
+        stroke-dashoffset: 0;
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ SHELL LOADER: Branded loading experience before React loads -->
+  <div id="shell-loader">
+    <div class="shell-loader__content">
+      <span class="shell-loader__brand">DoNotDev</span>
+      <span class="shell-loader__dots">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 60" preserveAspectRatio="xMidYMid meet">
+          <path d="M0,30 L100,30 L110,20 L120,30 L130,30 L140,5 L150,55 L160,30 L175,30 L190,20 L205,30 L300,30" />
+        </svg>
+      </span>
+    </div>
+  </div>
+  
+  <!-- ✅ APP: React app container -->
+  <div id="root"></div>
+  
+  <!-- ✅ PERFORMANCE: Module script with proper attributes -->
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

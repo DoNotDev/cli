@@ -1,0 +1,75 @@
+// apps/demo/src/entities/booking.ts
+
+import { defineEntity, when } from '@donotdev/core';
+
+/**
+ * Booking entity — demonstrates complex conditional logic.
+ *
+ * - groupSize: visible only for group bookings
+ * - companyName: visible only for corporate bookings
+ * - invoiceAddress: visible for corporate OR group with 10+ people
+ */
+export const bookingEntity = defineEntity({
+  name: 'Booking',
+  collection: 'bookings',
+  fields: {
+    bookingType: {
+      name: 'bookingType',
+      type: 'select',
+      label: 'Booking Type',
+      visibility: 'user',
+      validation: {
+        required: true,
+        options: [
+          { value: 'individual', label: 'Individual' },
+          { value: 'group', label: 'Group (5+)' },
+          { value: 'corporate', label: 'Corporate' },
+        ],
+      },
+    },
+    groupSize: {
+      name: 'groupSize',
+      type: 'number',
+      label: 'Number of People',
+      visibility: 'user',
+      conditions: {
+        visible: when('bookingType').equals('group'),
+        required: when('bookingType').equals('group'),
+      },
+    },
+    companyName: {
+      name: 'companyName',
+      type: 'text',
+      label: 'Company Name',
+      visibility: 'user',
+      conditions: {
+        visible: when('bookingType').equals('corporate'),
+        required: when('bookingType').equals('corporate'),
+      },
+    },
+    invoiceAddress: {
+      name: 'invoiceAddress',
+      type: 'address',
+      label: 'Invoice Address',
+      visibility: 'user',
+      conditions: {
+        visible: when('bookingType')
+          .equals('corporate')
+          .or(when('groupSize').greaterThan(10)),
+      },
+    },
+    date: {
+      name: 'date',
+      type: 'date',
+      label: 'Booking Date',
+      visibility: 'user',
+      validation: { required: true },
+    },
+    notes: {
+      name: 'notes',
+      type: 'textarea',
+      label: 'Special Requests',
+      visibility: 'user',
+    },
+  },
+});

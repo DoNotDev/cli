@@ -1,0 +1,118 @@
+// apps/demo/src/pages/ShowcaseDetailPage.tsx
+
+import { useEffect, useMemo } from 'react';
+
+import { Badge, Grid, Stack, Text } from '@donotdev/components';
+import { PageContainer, useNavigate, useParams } from '@donotdev/ui';
+
+import {
+  COMPONENT_CONFIGS,
+  getCSSFamilies,
+} from './components/componentConfig';
+import { ComponentRenderer } from './components/ComponentRenderer';
+
+import type { PageMeta } from '@donotdev/core';
+import type { ComponentConfig } from './components/componentConfig';
+
+export const meta: PageMeta = {
+  route: '/showcase/:id',
+  hideFromMenu: true,
+  preset: 'admin',
+};
+
+export default function ShowcaseDetailPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const config = useMemo(() => {
+    return COMPONENT_CONFIGS.find((c) => c.id === id);
+  }, [id]);
+
+  const cssFamilies = getCSSFamilies();
+
+  useEffect(() => {
+    if (!config) navigate('/showcase');
+  }, [config, navigate]);
+
+  if (!config) return null;
+
+  const generateVariants = (
+    config: ComponentConfig
+  ): Array<Record<string, any>> => {
+    const variants: Array<Record<string, any>> = [{}];
+
+    const dimensions = [
+      'variant',
+      'size',
+      'tone',
+      'type',
+      'side',
+      'mode',
+    ] as const;
+
+    dimensions.forEach((dim) => {
+      const values = config.variants[dim];
+      if (values?.length) {
+        const newVariants: Array<Record<string, any>> = [];
+        variants.forEach((base) => {
+          values.forEach((value) => {
+            newVariants.push({ ...base, [dim]: value });
+          });
+        });
+        variants.length = 0;
+        variants.push(...newVariants);
+      }
+    });
+
+    return variants.length > 0 ? variants : [{}];
+  };
+
+  const allVariants = generateVariants(config);
+
+  return (
+    <PageContainer>
+      <Stack gap="large" align="center">
+        <Stack gap="tight" align="center">
+          <Text level="h2">{config.name}</Text>
+          <Badge variant="outline">
+            {cssFamilies.find((f) => f.id === config.cssFamily)?.label ||
+              config.cssFamily}
+          </Badge>
+        </Stack>
+
+        <Grid cols={[1, 1, 2, 3]} gap="large">
+          {allVariants.map((variantProps, idx) => {
+            const variantLabels = Object.entries(variantProps)
+              .filter(([_, v]) => v)
+              .map(([k, v]) => `${k}: ${v}`);
+
+            return (
+              <Stack key={idx} align="center">
+                {variantLabels.length > 0 && (
+                  <Stack
+                    direction="row"
+                    gap="tight"
+                    wrap="wrap"
+                    justify="center"
+                  >
+                    {variantLabels.map((label) => (
+                      <Badge key={label} variant="secondary">
+                        {label}
+                      </Badge>
+                    ))}
+                  </Stack>
+                )}
+                <Stack align="center" justify="center">
+                  <ComponentRenderer
+                    config={config}
+                    variantProps={variantProps}
+                  />
+                </Stack>
+              </Stack>
+            );
+          })}
+        </Grid>
+      </Stack>
+    </PageContainer>
+  );
+}

@@ -1,0 +1,41 @@
+/**
+ * @fileoverview Root Layout
+ * @description Root layout component for Expo Router with DoNotDev providers
+ *
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import '../src/config/providers'; // configures CRUD/auth/storage at module load
+import { Stack } from 'expo-router';
+import { ExpoAppProviders } from '@donotdev/expo';
+import { useAuth } from '@donotdev/auth';
+
+/**
+ * Inner layout — rendered inside ExpoAppProviders so useAuth() has context.
+ */
+function AppStack() {
+  const { user } = useAuth();
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    />
+  );
+}
+
+/**
+ * Root layout component
+ * Wraps the entire app with DoNotDev providers and Expo Router Stack.
+ * useAuth() must be called inside ExpoAppProviders, not above it.
+ */
+export default function RootLayout() {
+  return (
+    <ExpoAppProviders>
+      <AppStack />
+    </ExpoAppProviders>
+  );
+}

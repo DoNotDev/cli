@@ -1,0 +1,12 @@
+// functions/src/crud/index.ts
+
+/**
+ * @fileoverview {{APP_NAME}} CRUD Functions
+ * @description Exports all CRUD-related functions for the {{APP_NAME}} app
+ */
+
+export { createEntity } from './createEntity';
+export { updateEntity } from './updateEntity';
+export { deleteEntity } from './deleteEntity';
+export { getEntity } from './getEntity';
+export { listEntities } from './listEntities';

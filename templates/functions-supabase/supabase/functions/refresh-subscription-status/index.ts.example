@@ -1,0 +1,7 @@
+// supabase/functions/refresh-subscription-status/index.ts
+// Supabase Edge Function — Refresh Subscription Status
+// Deploy: supabase functions deploy refresh-subscription-status
+
+import { createRefreshSubscriptionStatus } from '@donotdev/functions/supabase';
+
+Deno.serve(createRefreshSubscriptionStatus());

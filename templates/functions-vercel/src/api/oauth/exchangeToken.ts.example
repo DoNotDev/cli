@@ -1,0 +1,20 @@
+// functions/src/api/oauth/exchangeToken.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Exchange Token Wrapper
+ * @description Wrapper for framework's exchangeToken with {{APP_NAME}}-specific configuration
+ */
+
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { exchangeToken as frameworkExchangeToken } from '@donotdev/functions/vercel';
+
+/**
+ * {{APP_NAME}} OAuth token exchange
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  return frameworkExchangeToken(req, res);
+}

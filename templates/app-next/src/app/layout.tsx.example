@@ -1,0 +1,45 @@
+import type { Metadata } from 'next';
+
+import { FontPreloadLinks } from '@donotdev/ui/next';
+
+import '../globals.css';
+import { ClientLayout } from './ClientLayout';
+
+/**
+ * Framework fonts are loaded via CSS @font-face rules in dndev.css (bundled).
+ * Font preload links are injected at build time; FontPreloadLinks reads the manifest for SSR.
+ */
+
+export const metadata: Metadata = {
+  title: 'DoNotDev Demo',
+  description: 'Next.js site using DNDev framework',
+};
+
+/**
+ * Root layout for Next.js App Router
+ *
+ * Theme detection happens client-side via ClientLayout to avoid
+ * Next.js 16 + Turbopack race condition with async layouts.
+ * Brief FOUC possible on first load, but prevents build-manifest.json errors.
+ */
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html
+      lang="en"
+      className="dndev-design-tokens light"
+      suppressHydrationWarning
+    >
+      <head>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <FontPreloadLinks />
+      </head>
+      <body className="light">
+        <ClientLayout>{children}</ClientLayout>
+      </body>
+    </html>
+  );
+} 

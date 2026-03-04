@@ -1,0 +1,14 @@
+// functions/src/billing/refreshSubscriptionStatus.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Subscription Status Wrapper
+ * @description Wrapper for framework's refreshSubscriptionStatus with {{APP_NAME}}-specific configuration
+ */
+
+import { refreshSubscriptionStatus as frameworkRefreshSubscriptionStatus } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} subscription status refresh
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export const refreshSubscriptionStatus = frameworkRefreshSubscriptionStatus;

@@ -1,0 +1,14 @@
+// functions/src/oauth/getConnections.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Get Connections Wrapper
+ * @description Wrapper for framework's getConnections with {{APP_NAME}}-specific configuration
+ */
+
+import { getConnections as frameworkGetConnections } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} OAuth connections retrieval
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export const getConnections = frameworkGetConnections;

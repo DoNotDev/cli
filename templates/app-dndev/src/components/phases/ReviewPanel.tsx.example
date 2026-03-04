@@ -1,0 +1,115 @@
+/**
+ * @fileoverview Review Panel — Sheet that opens when pendingReview is true
+ *
+ * Shows symbol coverage, tool activity, and approve/dismiss actions.
+ * Approve injects approve_phase() into the AI agent terminal.
+ */
+
+import { CheckCircle2, X } from 'lucide-react';
+
+import { Alert, Badge, Button, DescriptionList, Sheet, Stack, Text } from '@donotdev/components';
+
+import { useDoNotDashStore } from '../../stores/dndevStore';
+
+import type { ProtocolData } from './phaseData';
+
+// ============================================================================
+// PROPS
+// ============================================================================
+
+interface ReviewPanelProps {
+  protocol: ProtocolData;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
+
+export function ReviewPanel({ protocol, open, onOpenChange }: ReviewPanelProps) {
+  const symbols = protocol.lookedUpSymbols ?? [];
+  const toolCalls = protocol.toolCallCounts ?? {};
+  const toolEntries = Object.entries(toolCalls).filter(([, count]) => count > 0);
+
+  function handleApprove() {
+    useDoNotDashStore.getState().injectPrompt(
+      'Use the approve_phase MCP tool to approve the current phase',
+      { mode: 'ai-agent' },
+    );
+    onOpenChange(false);
+  }
+
+  const descItems = [
+    { label: 'Phase', value: `${protocol.currentPhase}: ${protocol.phaseName ?? 'Unknown'}` },
+    { label: 'Agent', value: protocol.agent ?? 'Unknown' },
+    { label: 'Symbols reviewed', value: String(symbols.length) },
+  ];
+
+  if (protocol.currentModule) {
+    descItems.push({ label: 'Module', value: protocol.currentModule });
+  }
+
+  if (protocol.lessonsRecorded) {
+    descItems.push({ label: 'Lessons recorded', value: String(protocol.lessonsRecorded) });
+  }
+
+  return (
+    <Sheet
+      open={open}
+      onOpenChange={onOpenChange}
+      side="right"
+      title="Phase Review"
+      description="Review phase output before approving"
+      footer={
+        <Stack direction="row" gap="tight" justify="end">
+          <Button variant="outline" icon={X} onClick={() => onOpenChange(false)}>
+            Dismiss
+          </Button>
+          <Button variant="default" icon={CheckCircle2} onClick={handleApprove}>
+            Approve Phase
+          </Button>
+        </Stack>
+      }
+    >
+      <Stack gap="tight">
+        <Alert
+          variant="info"
+          title="Phase submitted for review"
+          description="The AI agent has completed this phase and is waiting for your approval."
+        />
+
+        {/* Summary */}
+        <DescriptionList items={descItems} />
+
+        {/* Tool activity */}
+        {toolEntries.length > 0 && (
+          <Stack gap="tight">
+            <Text level="small" weight="semibold">Tool Activity</Text>
+            <DescriptionList
+              items={toolEntries.map(([name, count]) => ({
+                label: name.replace(/_/g, ' '),
+                value: String(count),
+              }))}
+              orientation="horizontal"
+            />
+          </Stack>
+        )}
+
+        {/* Symbol coverage */}
+        {symbols.length > 0 && (
+          <Stack gap="tight">
+            <Text level="small" weight="semibold">
+              Symbols Reviewed ({symbols.length})
+            </Text>
+            <Stack direction="row" gap="tight" style={{ flexWrap: 'wrap' }}>
+              {symbols.map((sym) => (
+                <Badge key={sym} variant="muted">{sym}</Badge>
+              ))}
+            </Stack>
+          </Stack>
+        )}
+      </Stack>
+    </Sheet>
+  );
+}

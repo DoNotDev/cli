@@ -1,0 +1,45 @@
+// functions/src/index.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Firebase Functions
+ * @description {{APP_NAME}} functions that wrap framework functions with {{APP_NAME}}-specific configuration
+ */
+
+import { initializeApp } from 'firebase-admin/app';
+
+// Initialize Firebase Admin if not already initialized
+if (!(globalThis as any).__FIREBASE_ADMIN_INITIALIZED__) {
+  initializeApp();
+  (globalThis as any).__FIREBASE_ADMIN_INITIALIZED__ = true;
+}
+
+// Export auth functions
+export {
+  setCustomClaims,
+  getCustomClaims,
+  removeCustomClaims,
+  getUserAuthStatus,
+} from './auth';
+
+// Export OAuth functions
+export {
+  grantGitHubAccess,
+  revokeGitHubAccess,
+  checkGitHubAccess,
+} from './oauth';
+
+// Export CRUD functions
+export {
+  createEntity,
+  updateEntity,
+  deleteEntity,
+  getEntity,
+  listEntities,
+} from './crud';
+
+// Export billing functions
+export {
+  processPaymentSuccess,
+  refreshSubscriptionStatus,
+  stripeWebhook,
+} from './billing';

@@ -1,0 +1,70 @@
+// apps/demo/src/entities/quote.ts
+
+import { defineEntity, when } from '@donotdev/core';
+
+/**
+ * Insurance Quote entity — demonstrates conditional field visibility.
+ *
+ * - licensePlate: only visible when productType === 'car'
+ * - propertyAddress: only visible when productType === 'home'
+ * - estimatedValue: visible for car OR home (not health)
+ * - notes: disabled until productType is selected
+ */
+export const quoteEntity = defineEntity({
+  name: 'Quote',
+  collection: 'quotes',
+  fields: {
+    productType: {
+      name: 'productType',
+      type: 'select',
+      label: 'Product',
+      visibility: 'user',
+      validation: {
+        required: true,
+        options: [
+          { value: 'health', label: 'Health Insurance' },
+          { value: 'car', label: 'Car Insurance' },
+          { value: 'home', label: 'Home Insurance' },
+        ],
+      },
+    },
+    licensePlate: {
+      name: 'licensePlate',
+      type: 'text',
+      label: 'License Plate',
+      visibility: 'user',
+      conditions: {
+        visible: when('productType').equals('car'),
+        required: when('productType').equals('car'),
+      },
+    },
+    propertyAddress: {
+      name: 'propertyAddress',
+      type: 'address',
+      label: 'Property Address',
+      visibility: 'user',
+      conditions: {
+        visible: when('productType').equals('home'),
+        required: when('productType').equals('home'),
+      },
+    },
+    estimatedValue: {
+      name: 'estimatedValue',
+      type: 'number',
+      label: 'Estimated Value',
+      visibility: 'user',
+      conditions: {
+        visible: when('productType').in(['car', 'home']),
+      },
+    },
+    notes: {
+      name: 'notes',
+      type: 'textarea',
+      label: 'Additional Notes',
+      visibility: 'user',
+      conditions: {
+        disabled: when('productType').notExists(),
+      },
+    },
+  },
+});

@@ -1,0 +1,154 @@
+# {{APP_NAME}} Functions
+
+This directory contains the Firebase Functions for the {{APP_NAME}} app, generated using the DoNotDev framework's scaffolding system.
+
+## ⚠️ CRITICAL: Import Rules
+
+**Functions run on Node.js - you MUST use `/server` imports or your function will crash on deploy.**
+
+```typescript
+// ✅ CORRECT - Functions MUST use /server imports
+import { getFirebaseAdminAuth } from '@donotdev/firebase/server';
+import { getFirebaseAdminFirestore } from '@donotdev/firebase/server';
+import { handleError } from '@donotdev/core/server';
+
+// ❌ WRONG - This will crash on deploy (pulls in React/client code)
+import { getAuth } from '@donotdev/firebase';
+import { getFirestore } from '@donotdev/firebase';
+import { handleError } from '@donotdev/core';
+```
+
+**Why?** Functions run in Node.js, not the browser. Client imports (`@donotdev/firebase`) include React and browser-only code that will crash your function.
+
+**Rule:** Always use `/server` suffix for:
+- `@donotdev/firebase/server` (not `@donotdev/firebase`)
+- `@donotdev/core/server` (not `@donotdev/core`)
+- `@donotdev/utils/server` (not `@donotdev/utils`)
+
+---
+
+## Structure
+
+```
+functions/
+├── src/
+│   ├── auth/                    # Authentication functions
+│   ├── oauth/                   # OAuth functions
+│   ├── billing/                 # Billing functions
+│   └── index.ts                # Main functions entry point
+├── package.json                # Dependencies and scripts
+├── tsconfig.json              # TypeScript configuration
+├── functions.yaml             # Firebase function manifest (manually maintained - must match functions exported from src/index.ts)
+├── .env.example               # Environment variables template
+├── service-account-key.json   # Firebase service account key (copy from Firebase Console)
+└── README.md                  # This file
+```
+
+## Features
+
+- **Authentication Management**: User custom claims and auth status
+- **OAuth Integration**: GitHub access management
+- **Billing Processing**: Stripe checkout and webhook handling
+- **Secure API Layer**: Professional frontend-backend communication
+- **Error Handling**: Comprehensive error handling and logging
+
+## Environment Variables
+
+### File Structure
+
+**Functions use a different .env system than Vite/Next.js:**
+- `.env` → Local development only (not automatically loaded, use with dotenv if needed)
+- Production → Use Firebase Functions Secrets (synced automatically during `dndev deploy`)
+
+**Note:** Functions don't follow Vite/Next.js `.env.local` priority rules. Use Firebase Secrets for production.
+
+### Required Environment Variables
+
+```bash
+# Stripe Configuration
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# GitHub Configuration
+GITHUB_PERSONAL_ACCESS_TOKEN=ghp_...
+GITHUB_REPO_OWNER=your-org
+GITHUB_REPO_NAME=your-repo
+
+# Firebase Configuration
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_REGION={{YOUR_REGION}}
+```
+
+### Setup Instructions
+
+1. **Stripe Setup**:
+   - Create products in Stripe Dashboard
+   - Get price IDs and add to frontend `.env.local` (dev) or `.env.production.local` (prod)
+   - Configure webhook endpoint in Stripe
+   - Add webhook secret to functions `.env` (local) or Firebase Secrets (production)
+
+2. **GitHub Setup**:
+   - Create Personal Access Token with `repo` scope
+   - Add token to functions `.env` (local) or Firebase Secrets (production)
+   - Configure repository owner/name
+
+3. **Firebase Setup**:
+   - Get service account key: Firebase Console → Project Settings → Service Accounts → "Generate new private key"
+   - Copy JSON content into `service-account-key.json` in app root (shared by frontend + functions)
+   - Deploy: `dndev deploy` (from workspace root)
+   - Update webhook URL in Stripe dashboard
+
+## Deployment
+
+Use the unified deployment command from workspace root:
+
+```bash
+# Deploy everything (interactive)
+dndev deploy
+
+# Deploy specific app
+dndev deploy <app-name>
+```
+
+**Important:** `functions.yaml` must be manually maintained. Each function exported from `src/index.ts` must have a corresponding entry in `functions.yaml`. The deployment script preserves `functions.yaml` and does not modify it.
+
+See [FUNCTIONS.md](../../guides/FUNCTIONS.md) for detailed information about `functions.yaml` and function deployment.
+
+## Development
+
+```bash
+# Start Firebase emulators
+bun run serve
+
+# Start with debugging
+bun run dev
+```
+
+## API Endpoints
+
+### Stripe Webhook
+
+- **URL**: `https://your-project.cloudfunctions.net/stripeWebhook`
+- **Events**: `checkout.session.completed`
+- **Purpose**: Processes purchases and grants access
+
+### Checkout Session
+
+- **Integration**: Direct Stripe calls (no function needed)
+- **Purpose**: Creates Stripe checkout sessions for purchases
+
+## Security
+
+- All functions require authentication
+- Webhook signature verification
+- Secure GitHub token management
+- Firebase custom claims for user status
+
+## Framework Integration
+
+This functions package demonstrates how to:
+
+- Use the framework's scaffolding system
+- Implement secure API communication
+- Handle complex purchase flows
+- Integrate with external services (Stripe, GitHub)

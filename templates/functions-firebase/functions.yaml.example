@@ -1,0 +1,14 @@
+endpoints:
+  # Add one entry per function exported from src/index.ts
+  # Each function name must match the export name exactly
+  # Example:
+  # functionName:
+  #   region:
+  #     - europe-west1
+  #   platform: gcfv2
+  #   httpsTrigger: {}
+  #   entryPoint: functionName
+  #   labels: {}
+specVersion: v1alpha1
+requiredAPIs: []
+

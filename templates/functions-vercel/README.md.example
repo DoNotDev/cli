@@ -1,0 +1,116 @@
+# {{APP_NAME}} Functions
+
+This directory contains the Vercel Functions for the {{APP_NAME}} app, generated using the DoNotDev framework's scaffolding system.
+
+## Structure
+
+```
+functions/
+├── src/
+│   └── api/
+│       ├── auth/                    # Authentication functions
+│       ├── oauth/                   # OAuth functions
+│       └── billing/                 # Billing functions
+├── package.json                    # Dependencies and scripts
+├── tsconfig.json                   # TypeScript configuration
+├── vercel.json                     # Vercel configuration
+├── .env.example                    # Environment variables template
+└── README.md                       # This file
+```
+
+## Features
+
+- **Authentication Management**: User custom claims and auth status
+- **OAuth Integration**: GitHub access management
+- **Billing Processing**: Stripe checkout and webhook handling
+- **Secure API Layer**: Professional frontend-backend communication
+- **Error Handling**: Comprehensive error handling and logging
+
+## Environment Variables
+
+### File Structure
+
+**Functions use a different .env system than Vite/Next.js:**
+- `.env` → Local development only (not automatically loaded, use with dotenv if needed)
+- Production → Use Vercel Environment Variables (synced automatically during `dndev deploy`)
+
+**Note:** Functions don't follow Vite/Next.js `.env.local` priority rules. Use Vercel Environment Variables for production.
+
+### Required Environment Variables
+
+```bash
+# Stripe Configuration
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# GitHub Configuration
+GITHUB_PERSONAL_ACCESS_TOKEN=ghp_...
+GITHUB_REPO_OWNER=your-org
+GITHUB_REPO_NAME=your-repo
+```
+
+### Setup Instructions
+
+1. **Stripe Setup**:
+   - Create products in Stripe Dashboard
+   - Get price IDs and add to frontend `.env.local` (dev) or `.env.production.local` (prod)
+   - Configure webhook endpoint in Stripe
+   - Add webhook secret to functions `.env` (local) or Vercel Environment Variables (production)
+
+2. **GitHub Setup**:
+   - Create Personal Access Token with `repo` scope
+   - Add token to functions `.env` (local) or Vercel Environment Variables (production)
+   - Configure repository owner/name
+
+3. **Vercel Setup**:
+   - Deploy: `dndev deploy` (from workspace root)
+   - Set environment variables in Vercel dashboard
+   - Update webhook URL in Stripe dashboard
+
+## Deployment
+
+Use the unified deployment command from workspace root:
+
+```bash
+# Deploy everything (interactive)
+dndev deploy
+
+# Deploy specific app
+dndev deploy <app-name>
+```
+
+## Development
+
+```bash
+# Start Vercel development server
+bun run dev
+```
+
+## API Endpoints
+
+### Stripe Webhook
+
+- **URL**: `https://your-app.vercel.app/api/billing/handleStripeWebhook`
+- **Events**: `checkout.session.completed`
+- **Purpose**: Processes purchases and grants access
+
+### Checkout Session
+
+- **Integration**: Direct Stripe calls (no API needed)
+- **Purpose**: Creates Stripe checkout sessions for purchases
+
+## Security
+
+- All functions require authentication
+- Webhook signature verification
+- Secure GitHub token management
+- Environment variable protection
+
+## Framework Integration
+
+This functions package demonstrates how to:
+
+- Use the framework's scaffolding system
+- Implement secure API communication
+- Handle complex purchase flows
+- Integrate with external services (Stripe, GitHub)

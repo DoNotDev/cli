@@ -1,0 +1,181 @@
+/* ===========================
+   COCKPIT LAYOUT
+   Route-aware split panes via react-resizable-panels
+   =========================== */
+
+.dndev-cockpit {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--header-height, 56px));
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Panel groups fill cockpit */
+.dndev-cockpit > [data-panel-group] {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Panels must shrink below content intrinsic width */
+.dndev-cockpit [data-panel] {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Kill breakthrough CSS inside cockpit panels.
+   Sections use width: calc(100dvw - var(--sidebar-width)) to break out of PageContainer,
+   but inside react-resizable-panels the panel IS the boundary, not the viewport.
+   Without this, Sections render at 100dvw and bleed under the terminal panel. */
+.dndev-cockpit .dndev-container > .dndev-section-full-width {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
+}
+
+/* ===========================
+   PANES
+   =========================== */
+
+.dndev-cockpit-pane {
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dndev-cockpit-pane--content {
+  overflow: hidden;
+}
+
+/* Scrollable area for page content — below the toolbar */
+.dndev-cockpit-scroll {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* ===========================
+   COCKPIT TOOLBAR — real header row above content
+   =========================== */
+
+.dndev-cockpit-toolbar {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+}
+
+.dndev-cockpit-toolbar-start,
+.dndev-cockpit-toolbar-end {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* OverlaySlotTarget center area — pages inject controls here */
+.dndev-cockpit-overlays-center {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* GoTo search — constrain width so it doesn't stretch to fill flex space */
+.dndev-cockpit-goto {
+  max-width: 320px;
+}
+
+.dndev-cockpit-pane--terminal {
+  background: #0a0a0a;
+}
+
+.dndev-cockpit-pane--left-stack {
+  border-inline-end: none;
+}
+
+.dndev-cockpit-pane--explorer {
+  overflow-y: auto;
+  background: var(--card);
+}
+
+/* ===========================
+   RESIZE HANDLES
+   =========================== */
+
+.dndev-cockpit-handle {
+  flex-shrink: 0;
+  transition: background var(--dur-fast, 100ms);
+}
+
+.dndev-cockpit-handle:hover,
+.dndev-cockpit-handle:focus-visible,
+.dndev-cockpit-handle[data-resize-handle-active] {
+  background: var(--primary);
+  outline: none;
+}
+
+/* Vertical handle (between left/right panes) */
+.dndev-cockpit-handle--vertical {
+  width: 4px;
+  cursor: col-resize;
+  background: var(--border);
+}
+
+/* Horizontal handle (between top/bottom panes) */
+.dndev-cockpit-handle--horizontal {
+  height: 4px;
+  cursor: row-resize;
+  background: var(--border);
+}
+
+@media (hover: none) {
+  .dndev-cockpit-handle--vertical { width: 8px; }
+  .dndev-cockpit-handle--horizontal { height: 8px; }
+}
+
+/* ===========================
+   FULLSCREEN — CSS-only, no React tree change
+   Terminal breaks out via position:fixed, content hidden
+   =========================== */
+
+.dndev-cockpit[data-fullscreen] .dndev-cockpit-pane--content,
+.dndev-cockpit[data-fullscreen] .dndev-cockpit-pane--explorer,
+.dndev-cockpit[data-fullscreen] .dndev-cockpit-handle {
+  display: none !important;
+}
+
+/* Terminal in Panel (horizontal/left-stack) */
+.dndev-cockpit[data-fullscreen] .dndev-cockpit-pane--terminal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  height: 100vh !important;
+  max-height: none !important;
+}
+
+/* Terminal direct child (bottom-bar) */
+.dndev-cockpit[data-fullscreen] > .dndev-terminal-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  height: 100vh !important;
+  max-height: none !important;
+  min-height: 0 !important;
+}
+
+/* ===========================
+   REMOVE FRAMEWORK COMPENSATION
+   The terminal is no longer fixed — it's inside the layout.
+   =========================== */
+
+.dndev-layout {
+  padding-bottom: 0 !important;
+}

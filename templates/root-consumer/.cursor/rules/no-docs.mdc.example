@@ -1,0 +1,15 @@
+---
+description: Prevent AI agents from creating documentation files
+globs: ["**/*.md"]
+---
+
+# No Documentation File Creation
+
+**NEVER create .md files** (analysis, summary, plan, brainstorm, status, etc.) unless the user explicitly asks for it.
+
+Session notes, progress tracking, and lessons go in `.dndev/` using the MCP tools:
+- `record_lesson()` for gotchas and learnings
+- `update_progress()` for implementation tracking
+- `.dndev/implementation.md` for checklist items
+
+If you need to document something, ask the user first.

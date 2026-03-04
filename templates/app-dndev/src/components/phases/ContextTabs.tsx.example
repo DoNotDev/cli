@@ -1,0 +1,352 @@
+/**
+ * @fileoverview Context panel — Progress, Specs, Lessons, Log
+ *
+ * Left 1/4 sidebar: category selector (accent) + sub-item list.
+ * Right 3/4: content for selected item.
+ * Lessons opens LESSONS.md for direct editing (same as specs).
+ * Log renders the Captain's Log accordion inline.
+ */
+
+import { useEffect, useRef, useState } from 'react';
+import { Pencil, Eye, Save, Undo2, ClipboardList, FileText, BookOpen, ScrollText } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
+import { Badge, Button, Card, Checkbox, Progress, ScrollArea, Section, Stack, Text, Textarea } from '@donotdev/components';
+
+import { useDndevFile, writeDndevFile } from '../../hooks/useDndevFile';
+import { CaptainLog } from './CaptainLog';
+
+import type { CaptainLogData, ProgressSection, ProtocolData } from './phaseData';
+import type { LucideIcon } from 'lucide-react';
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+interface ContextTabsProps {
+  protocol: ProtocolData;
+  progressSections: ProgressSection[];
+  lessonsCount: number;
+  captainLog: CaptainLogData;
+  onCheckboxToggle: (line: number, currentChecked: boolean) => void;
+}
+
+type Category = 'progress' | 'specs' | 'lessons' | 'log';
+
+interface CategoryDef {
+  id: Category;
+  label: string;
+  icon: LucideIcon;
+}
+
+const CATEGORIES: CategoryDef[] = [
+  { id: 'progress', label: 'Progress', icon: ClipboardList },
+  { id: 'specs', label: 'Specs', icon: FileText },
+  { id: 'lessons', label: 'Lessons', icon: BookOpen },
+  { id: 'log', label: 'Log', icon: ScrollText },
+];
+
+// ============================================================================
+// SIDEBAR ITEM
+// ============================================================================
+
+function SidebarItem({
+  label,
+  icon,
+  active,
+  accent,
+  onClick,
+}: {
+  label: string;
+  icon?: LucideIcon;
+  active?: boolean;
+  accent?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Button
+      variant={active ? (accent ? 'default' : 'secondary') : 'ghost'}
+      onClick={onClick}
+      style={{ justifyContent: 'flex-start', width: '100%' }}
+      icon={icon}
+    >
+      {label}
+    </Button>
+  );
+}
+
+// ============================================================================
+// CONTENT: PROGRESS
+// ============================================================================
+
+function ProgressContent({
+  section,
+  onCheckboxToggle,
+}: {
+  section: ProgressSection;
+  onCheckboxToggle: (line: number, currentChecked: boolean) => void;
+}) {
+  const doneCount = section.items.filter((i) => i.checked).length;
+  const totalCount = section.items.length;
+  const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+
+  return (
+    <Card>
+      <Stack gap="tight">
+        <Stack direction="row" align="center" justify="between">
+          <Text level="small" weight="semibold">{section.title}</Text>
+          <Text level="caption" variant="muted">{doneCount}/{totalCount} ({pct}%)</Text>
+        </Stack>
+        <Progress value={pct} />
+        <Stack gap="none">
+          {section.items.map((item) => (
+            <Stack
+              key={item.line}
+              direction="row"
+              align="center"
+              gap="tight"
+              style={{ paddingBlock: '2px', cursor: 'pointer' }}
+              onClick={() => onCheckboxToggle(item.line, item.checked)}
+            >
+              <Checkbox
+                checked={item.checked}
+                onCheckedChange={() => onCheckboxToggle(item.line, item.checked)}
+              />
+              <Text level="small" variant={item.checked ? 'muted' : undefined}>
+                {item.text}
+              </Text>
+            </Stack>
+          ))}
+        </Stack>
+      </Stack>
+    </Card>
+  );
+}
+
+// ============================================================================
+// CONTENT: DOCUMENT EDITOR (Specs + Lessons)
+// ============================================================================
+
+function DocContent({ path }: { path: string }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const userEdited = useRef(false);
+
+  const { data: fileContent, reload: reloadFile } = useDndevFile<string>(
+    path,
+    (raw) => raw as string,
+    { fallback: '' },
+  );
+
+  const isDirty = userEdited.current && editContent !== (fileContent ?? '');
+
+  // Reset edit state when switching docs
+  useEffect(() => {
+    userEdited.current = false;
+    setEditContent('');
+    setIsEditing(false);
+  }, [path]);
+
+  // Sync file content → edit buffer (only when file changes externally, not during user edits)
+  useEffect(() => {
+    if (fileContent !== null && !userEdited.current) setEditContent(fileContent);
+  }, [fileContent]);
+
+  async function handleSave() {
+    setIsSaving(true);
+    await writeDndevFile(path, editContent);
+    await reloadFile();
+    userEdited.current = false;
+    setIsEditing(false);
+    setIsSaving(false);
+  }
+
+  function handleDiscard() {
+    setEditContent(fileContent ?? '');
+    userEdited.current = false;
+    setIsEditing(false);
+  }
+
+  return (
+    <Card style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+      <Stack direction="row" align="center" justify="between" style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)', flexShrink: 0, flexWrap: 'nowrap' }}>
+        <Text level="caption" variant="muted" style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{path}</Text>
+        <Stack direction="row" gap="tight" style={{ flexShrink: 0 }}>
+          {isEditing ? (
+            <Button variant="outline" icon={Eye} onClick={() => setIsEditing(false)}>
+              Preview
+            </Button>
+          ) : (
+            <Button variant="outline" icon={Pencil} onClick={() => setIsEditing(true)}>
+              Edit
+            </Button>
+          )}
+          {isDirty && (
+            <>
+              <Button variant="ghost" icon={Undo2} onClick={handleDiscard}>
+                Discard
+              </Button>
+              <Button variant="default" icon={Save} onClick={handleSave} disabled={isSaving}>
+                {isSaving ? 'Saving...' : 'Save'}
+              </Button>
+            </>
+          )}
+        </Stack>
+      </Stack>
+
+      <ScrollArea style={{ flex: 1, minHeight: 0 }}>
+        <Stack style={{ padding: '16px 20px' }}>
+          {isEditing ? (
+            <Textarea
+              value={editContent}
+              onChange={(e) => { userEdited.current = true; setEditContent(e.target.value); }}
+              spellCheck={false}
+              style={{ minHeight: '400px', fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', monospace", fontSize: '13px', lineHeight: 1.6 }}
+            />
+          ) : (
+            <div className="dndev-docs-rendered">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {isDirty ? editContent : (fileContent ?? '')}
+              </ReactMarkdown>
+            </div>
+          )}
+        </Stack>
+      </ScrollArea>
+    </Card>
+  );
+}
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
+
+export function ContextTabs({
+  protocol,
+  progressSections,
+  lessonsCount,
+  captainLog,
+  onCheckboxToggle,
+}: ContextTabsProps) {
+  const [category, setCategory] = useState<Category>('progress');
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+
+  // Discover spec docs
+  const [specDocs, setSpecDocs] = useState<{ path: string; label: string }[]>([]);
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/dndev/tree');
+        if (!res.ok) return;
+        const data = await res.json();
+        const entries: { path: string; name: string; isDirectory: boolean }[] = data.entries ?? [];
+        const discovered: { path: string; label: string }[] = [];
+
+        if (entries.some((e) => e.path === '.dndev/implementation.md')) {
+          discovered.push({ path: '.dndev/implementation.md', label: 'Implementation' });
+        }
+        for (const entry of entries) {
+          if (!entry.isDirectory && entry.path.startsWith('.dndev/plans/') && entry.path.endsWith('.md')) {
+            discovered.push({ path: entry.path, label: entry.name.replace(/\.md$/, '') });
+          }
+        }
+        for (const name of ['HLD.md', 'LLD.md']) {
+          if (entries.some((e) => e.path === name)) {
+            discovered.push({ path: name, label: name.replace('.md', '') });
+          }
+        }
+        setSpecDocs(discovered);
+      } catch { /* silent */ }
+    })();
+  }, []);
+
+  // Auto-select first sub-item when category changes
+  useEffect(() => {
+    if (category === 'progress') {
+      setSelectedItem(progressSections.length > 0 ? progressSections[0]!.title : null);
+    } else if (category === 'specs') {
+      setSelectedItem(specDocs.length > 0 ? specDocs[0]!.path : null);
+    } else {
+      setSelectedItem(null);
+    }
+  }, [category, progressSections, specDocs]);
+
+  // Build sub-items for left sidebar
+  let subItems: { key: string; label: string }[] = [];
+  if (category === 'progress') {
+    subItems = progressSections.map((s) => ({ key: s.title, label: s.title }));
+  } else if (category === 'specs') {
+    subItems = specDocs.map((d) => ({ key: d.path, label: d.label }));
+  }
+  // Lessons + Log have no sub-items
+
+  // Render content
+  function renderContent() {
+    if (category === 'progress') {
+      const section = progressSections.find((s) => s.title === selectedItem);
+      if (!section) {
+        return (
+          <Card>
+            <Text level="body" variant="muted">No implementation plan found. Run Phase 0 to generate one.</Text>
+          </Card>
+        );
+      }
+      return <ProgressContent section={section} onCheckboxToggle={onCheckboxToggle} />;
+    }
+
+    if (category === 'specs') {
+      if (!selectedItem) {
+        return (
+          <Card>
+            <Text level="body" variant="muted">No spec documents found. Run Phase 0 to generate PRD, HLD, and LLD.</Text>
+          </Card>
+        );
+      }
+      return <DocContent path={selectedItem} />;
+    }
+
+    if (category === 'lessons') {
+      return <DocContent path=".dndev/LESSONS.md" />;
+    }
+
+    // Log
+    return <CaptainLog data={captainLog} embedded />;
+  }
+
+  return (
+    <Section gridCols={["1fr", "1fr", "1fr 3fr", "1fr 3fr"]} gridGap="medium">
+      {/* Left sidebar */}
+      <Stack gap="tight">
+        {/* Category selectors — accent */}
+        {CATEGORIES.map((cat) => (
+          <SidebarItem
+            key={cat.id}
+            label={cat.id === 'lessons' ? `${cat.label} (${lessonsCount})` : cat.label}
+            icon={cat.icon}
+            accent
+            active={category === cat.id}
+            onClick={() => setCategory(cat.id)}
+          />
+        ))}
+
+        {/* Sub-items below categories */}
+        {subItems.length > 0 && (
+          <Stack gap="none" style={{ marginBlockStart: '4px' }}>
+            {subItems.map((item) => (
+              <SidebarItem
+                key={item.key}
+                label={item.label}
+                active={selectedItem === item.key}
+                onClick={() => setSelectedItem(item.key)}
+              />
+            ))}
+          </Stack>
+        )}
+      </Stack>
+
+      {/* Right content */}
+      {renderContent()}
+    </Section>
+  );
+}

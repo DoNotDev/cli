@@ -1,0 +1,366 @@
+/**
+ * @fileoverview WAI-WAY phase constants, types, and shared parsers
+ *
+ * Shared across PhasesPage, HomePage, and phase sub-components.
+ */
+
+import type { LucideIcon } from 'lucide-react';
+import { Lightbulb, FileCode, Database, Layers, Settings, CheckCircle2, Loader2, Circle } from 'lucide-react';
+
+// ============================================================================
+// TYPES — Protocol v2
+// ============================================================================
+
+export interface PhaseData {
+  status?: 'pending' | 'active' | 'completed';
+  startedAt?: string;
+  completedAt?: string;
+  summary?: string;
+  fileCount?: number;
+}
+
+export interface ProtocolData {
+  version?: number;
+  currentPhase: number;
+  phaseName?: string;
+  agent?: string;
+  startedAt?: string;
+  phases: Record<number, PhaseData>;
+  lookedUpSymbols?: string[];
+  pendingReview?: boolean;
+  currentModule?: string;
+  toolCallCounts?: Record<string, number>;
+  completedPhases?: number[];
+  lessonsRecorded?: number;
+}
+
+export const DEFAULT_PROTOCOL: ProtocolData = { currentPhase: -1, phases: {} };
+
+// ============================================================================
+// TYPES — Progress
+// ============================================================================
+
+export interface ProgressItem {
+  text: string;
+  checked: boolean;
+  line: number;
+}
+
+export interface ProgressSection {
+  title: string;
+  items: ProgressItem[];
+}
+
+// ============================================================================
+// TYPES — Lessons
+// ============================================================================
+
+export interface Lesson {
+  id: number;
+  content: string;
+  tags: string[];
+  confidence: number;
+  isAntiPattern: boolean;
+  addedAt: string | null;
+  phase: string | null;
+}
+
+// ============================================================================
+// TYPES — Captain's Log
+// ============================================================================
+
+export interface CaptainLogSession {
+  id: number;
+  date: string;
+  phase: number;
+  phase_name: string;
+  module?: string;
+  started_at: string;
+  completed_at: string;
+  outcome: string;
+  files_touched: number;
+  symbols_used: number;
+  tool_calls: Record<string, number>;
+  lessons_recorded: number;
+  lessons_scored?: { helpful: number; harmful: number };
+  validation: string;
+}
+
+export interface CaptainLogData {
+  project?: string;
+  started?: string;
+  sessions: CaptainLogSession[];
+}
+
+// ============================================================================
+// PHASE BLUEPRINTS
+// ============================================================================
+
+export interface PhaseBlueprint {
+  id: number;
+  name: string;
+  agent: string;
+  icon: LucideIcon;
+  blueprint: string;
+  doneWhen: string;
+}
+
+export const PHASE_BLUEPRINTS: PhaseBlueprint[] = [
+  {
+    id: 0,
+    name: 'Brainstorm',
+    agent: 'extractor',
+    icon: Lightbulb,
+    blueprint: 'Gather requirements, audit framework features, apply UX strategy (North Star, Kano), produce validated PRD/HLD/LLD.',
+    doneWhen: 'PRD.md, HLD.md, LLD.md validated. implementation.md generated with per-phase checklists.',
+  },
+  {
+    id: 1,
+    name: 'Scaffold',
+    agent: 'extractor',
+    icon: FileCode,
+    blueprint: 'Create app, apply aesthetic essence, stub all pages as interactive prototype. Validate sitemap and click-depth.',
+    doneWhen: 'All pages exist with PageMeta. Navigation renders. Prototype clickable. App compiles clean.',
+  },
+  {
+    id: 2,
+    name: 'Entities',
+    agent: 'architect',
+    icon: Database,
+    blueprint: 'Define all data models with defineEntity. Fields, states, access rules, visibility, relationships.',
+    doneWhen: 'All entities in entities/*.ts with index.ts barrel. Types compile. Relationships valid.',
+  },
+  {
+    id: 3,
+    name: 'Compose',
+    agent: 'builder',
+    icon: Layers,
+    blueprint: 'Build pages with framework components, wire CRUD, apply UX mandates (70/30 hierarchy, benefit-first copy).',
+    doneWhen: 'All pages functional with real data flow. CRUD wired. Strings hardcoded. No placeholders.',
+  },
+  {
+    id: 4,
+    name: 'Configure',
+    agent: 'polisher',
+    icon: Settings,
+    blueprint: 'Generate tests, security rules, CI/CD. Contract check, heuristic audit, mobile validation.',
+    doneWhen: 'Tests pass. Security rules generated. CI green. Production-ready.',
+  },
+];
+
+// ============================================================================
+// STATUS ICONS
+// ============================================================================
+
+export function getPhaseStatus(
+  phaseId: number,
+  protocol: ProtocolData,
+): 'pending' | 'active' | 'completed' {
+  const data = protocol.phases?.[phaseId];
+  if (data?.status) return data.status;
+  if (protocol.currentPhase === phaseId) return 'active';
+  if ((protocol.completedPhases ?? []).includes(phaseId)) return 'completed';
+  return 'pending';
+}
+
+export function getPhaseStatusIcon(status: string): LucideIcon {
+  switch (status) {
+    case 'completed': return CheckCircle2;
+    case 'active': return Loader2;
+    default: return Circle;
+  }
+}
+
+// ============================================================================
+// PARSERS
+// ============================================================================
+
+/** Parse implementation.md into sections with checkbox items */
+export function parseProgress(raw: string): ProgressSection[] {
+  const lines = raw.split('\n');
+  const sections: ProgressSection[] = [];
+  let current: ProgressSection | null = null;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!;
+    const headerMatch = line.match(/^###\s+(.+)/);
+    if (headerMatch) {
+      current = { title: headerMatch[1]!, items: [] };
+      sections.push(current);
+      continue;
+    }
+    const checkboxMatch = line.match(/^- \[([ x])\] (.+)/);
+    if (checkboxMatch && current) {
+      current.items.push({
+        text: checkboxMatch[2]!,
+        checked: checkboxMatch[1] === 'x',
+        line: i,
+      });
+    }
+  }
+
+  return sections;
+}
+
+/** Parse LESSONS.md into structured lesson objects */
+export function parseLessons(raw: string): Lesson[] {
+  // Detect bullet-list format: lines starting with "- ["
+  const bulletLines = raw.split('\n').filter((l) => /^\s*-\s+\[/.test(l));
+  if (bulletLines.length > 0) return parseBulletLessons(bulletLines);
+
+  // Fallback: --- separated blocks
+  const lessons: Lesson[] = [];
+  const blocks = raw.split(/^---+$/m).filter((b) => b.trim());
+
+  if (blocks.length <= 1) {
+    // ### header blocks
+    const headerBlocks = raw.split(/^### /m).filter((b) => b.trim());
+    for (let i = 0; i < headerBlocks.length; i++) {
+      const block = headerBlocks[i]!;
+      const lines = block.split('\n');
+      const content = lines[0]?.trim() || '';
+      if (!content || /^#\s/.test(content)) continue;
+
+      const tags: string[] = [];
+      let confidence = 0.5;
+      let addedAt: string | null = null;
+      let phase: string | null = null;
+      let isAntiPattern = false;
+
+      for (const line of lines.slice(1)) {
+        const tagMatch = line.match(/^(?:Tags?|tags?):?\s*(.+)/);
+        if (tagMatch) {
+          tags.push(...tagMatch[1]!.split(/[,;]/).map((t) => t.trim().replace(/^[`#]|[`]$/g, '')).filter(Boolean));
+        }
+        const confMatch = line.match(/^(?:Confidence|confidence):?\s*([\d.]+)/);
+        if (confMatch) confidence = parseFloat(confMatch[1]!);
+        const dateMatch = line.match(/^(?:Added|added|Date):?\s*(.+)/);
+        if (dateMatch) addedAt = dateMatch[1]!.trim();
+        const phaseMatch = line.match(/^(?:Phase|phase):?\s*(.+)/);
+        if (phaseMatch) phase = phaseMatch[1]!.trim();
+        if (line.toLowerCase().includes('anti-pattern') || line.toLowerCase().includes('antipattern')) {
+          isAntiPattern = true;
+        }
+      }
+
+      lessons.push({ id: i, content, tags: [...new Set(tags)], confidence, isAntiPattern, addedAt, phase });
+    }
+  } else {
+    for (let i = 0; i < blocks.length; i++) {
+      const lines = blocks[i]!.trim().split('\n');
+      const content = lines.filter((l) => !l.match(/^(Tags?|Confidence|Added|Phase|Date):/i))[0]?.replace(/^#+\s*/, '').trim() || '';
+      if (!content) continue;
+
+      const tags: string[] = [];
+      let confidence = 0.5;
+      let addedAt: string | null = null;
+      let phase: string | null = null;
+      let isAntiPattern = false;
+
+      for (const line of lines) {
+        const tagMatch = line.match(/^(?:Tags?|tags?):?\s*(.+)/);
+        if (tagMatch) {
+          tags.push(...tagMatch[1]!.split(/[,;]/).map((t) => t.trim().replace(/^[`#]|[`]$/g, '')).filter(Boolean));
+        }
+        const confMatch = line.match(/^(?:Confidence|confidence):?\s*([\d.]+)/);
+        if (confMatch) confidence = parseFloat(confMatch[1]!);
+        const dateMatch = line.match(/^(?:Added|added|Date):?\s*(.+)/);
+        if (dateMatch) addedAt = dateMatch[1]!.trim();
+        const phaseMatch = line.match(/^(?:Phase|phase):?\s*(.+)/);
+        if (phaseMatch) phase = phaseMatch[1]!.trim();
+        if (line.toLowerCase().includes('anti-pattern')) isAntiPattern = true;
+      }
+
+      lessons.push({ id: i, content, tags: [...new Set(tags)], confidence, isAntiPattern, addedAt, phase });
+    }
+  }
+
+  return lessons;
+}
+
+/**
+ * Parse bullet-list format: `- [date] [Phase N: NAME][tag1, tag2] content {metadata}`
+ * This is the format produced by `record_lesson` MCP tool.
+ */
+function parseBulletLessons(lines: string[]): Lesson[] {
+  const lessons: Lesson[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!.replace(/^\s*-\s+/, '');
+
+    // Extract all bracketed segments from the front: [date] [Phase ...][tags]
+    let remaining = line;
+    let addedAt: string | null = null;
+    let phase: string | null = null;
+    const tags: string[] = [];
+
+    // Consume leading [...] groups
+    const bracketRe = /^\[([^\]]+)\]\s*/;
+    let match = bracketRe.exec(remaining);
+    while (match) {
+      const val = match[1]!;
+
+      if (!addedAt && /^\d/.test(val) && /\d{4}/.test(val)) {
+        // Date-like: starts with digit, contains a 4-digit year
+        addedAt = val;
+      } else if (!phase && /phase/i.test(val)) {
+        phase = val;
+      } else {
+        // Tags group — comma-separated
+        tags.push(...val.split(',').map((t) => t.trim()).filter(Boolean));
+      }
+
+      remaining = remaining.slice(match[0].length);
+      match = bracketRe.exec(remaining);
+    }
+
+    // Extract trailing {metadata} — e.g. {helpful:0,harmful:0,lastSeen:...,status:candidate}
+    let confidence = 0.5;
+    let isAntiPattern = false;
+    const metaMatch = remaining.match(/\{([^}]+)\}\s*$/);
+    if (metaMatch) {
+      remaining = remaining.slice(0, metaMatch.index).trim();
+      const meta = metaMatch[1]!;
+
+      const helpfulMatch = meta.match(/helpful:\s*(\d+)/);
+      const harmfulMatch = meta.match(/harmful:\s*(\d+)/);
+      if (helpfulMatch && harmfulMatch) {
+        const helpful = parseInt(helpfulMatch[1]!, 10);
+        const harmful = parseInt(harmfulMatch[1]!, 10);
+        const total = helpful + harmful;
+        confidence = total > 0 ? helpful / total : 0.5;
+      }
+
+      if (meta.includes('anti-pattern') || meta.includes('antipattern')) {
+        isAntiPattern = true;
+      }
+    }
+
+    const content = remaining.trim();
+    if (!content) continue;
+
+    if (content.toLowerCase().includes('anti-pattern') || content.toLowerCase().includes('antipattern')) {
+      isAntiPattern = true;
+    }
+
+    lessons.push({ id: i, content, tags: [...new Set(tags)], confidence, isAntiPattern, addedAt, phase });
+  }
+
+  return lessons;
+}
+
+/** Calculate decay based on age (half-life: 90 days) */
+export function getDecay(addedAt: string | null): number {
+  if (!addedAt) return 0;
+  const age = (Date.now() - new Date(addedAt).getTime()) / (1000 * 60 * 60 * 24);
+  return 1 - Math.pow(0.5, age / 90);
+}
+
+/** Parse implementation.md into done/total ratio */
+export function parseProgressRatio(md: string): { done: number; total: number } {
+  const doneMatches = md.match(/- \[x\]/gi);
+  const pendingMatches = md.match(/- \[ \]/g);
+  const done = doneMatches?.length ?? 0;
+  const total = done + (pendingMatches?.length ?? 0);
+  return { done, total };
+}

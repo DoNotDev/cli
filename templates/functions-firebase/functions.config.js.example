@@ -1,0 +1,31 @@
+// functions/functions.config.js
+
+/**
+ * @fileoverview {{APP_NAME}} Functions Configuration
+ * @description Configuration for Firebase Functions deployment
+ * @type {import('@donotdev/types').FunctionsConfig}
+ *
+ * Static functions are AUTO-DETECTED from src/index.ts exports.
+ * Secrets are AUTO-DETECTED from .env (non-config keys).
+ * You only need to list CRUD entities and set defaults.
+ *
+ * Use the `functions` object ONLY for overrides (e.g., HTTP triggers for webhooks).
+ */
+
+export const functionsConfig = {
+  defaults: {
+    region: ['{{YOUR_REGION}}'],
+    platform: 'gcfv2',
+    labels: { app: '{{APP_NAME}}' },
+  },
+  // Static functions are auto-detected from src/index.ts exports.
+  // Only add entries here for overrides:
+  functions: {
+    // stripeWebhook: { trigger: 'http' },  // Override: HTTP trigger instead of callable
+  },
+  crud: {
+    // List entity collection names to auto-generate CRUD functions
+    // Each generates: create_*, get_*, list_*, listCard_*, update_*, delete_*
+    entities: [],
+  },
+};

@@ -1,0 +1,154 @@
+/**
+ * @fileoverview Example CRUD Form Page (Create/Edit)
+ *
+ * COPY THIS FILE and rename (e.g., ProductPage.tsx, CustomerPage.tsx)
+ *
+ * HOW IT WORKS:
+ * 1. Route: /products/:id (edit) or /products/new (create)
+ * 2. EntityFormRenderer generates form from entity fields
+ * 3. useCrud provides get/add/update operations
+ * 4. Optimistic updates - navigation is instant, sync happens in background
+ */
+
+import { useEffect, useState } from 'react';
+
+import { Section, Button, Alert } from '@donotdev/components';
+import { useCrud } from '@donotdev/crud';
+import { useTranslation } from '@donotdev/core';
+import type { PageMeta } from '@donotdev/core';
+import { PageContainer, Link, EntityFormRenderer } from '@donotdev/ui';
+
+// Import your entity from root-level entities folder
+// import { productEntity } from 'entities/Product';
+
+// Placeholder - replace with your entity import
+const productEntity = null as any;
+
+// Helper to get route param - replace with your routing solution
+const useParam = (name: string) => {
+  // For react-router: const { id } = useParams();
+  // For TanStack Router: const { id } = Route.useParams();
+  return 'new'; // Placeholder
+};
+
+// ============================================================================
+// PAGE METADATA
+// ============================================================================
+
+export const NAMESPACE = 'product';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  route: '/products/:id',
+  auth: { required: true, role: 'admin' },
+  hideFromMenu: true, // Don't show in navigation (accessed via list page)
+};
+
+// ============================================================================
+// PAGE COMPONENT
+// ============================================================================
+
+export default function ProductPage() {
+  const { t } = useTranslation(NAMESPACE);
+  const id = useParam('id');
+  const isNew = id === 'new';
+
+  // useCrud provides CRUD operations with optimistic updates
+  const { get, add, update, error } = useCrud(productEntity);
+  const [formData, setFormData] = useState<any>(null);
+
+  // ==========================================================================
+  // FETCH EXISTING DATA (edit mode only)
+  // ==========================================================================
+  useEffect(() => {
+    if (!isNew && id) {
+      get(id).then((data) => {
+        if (data) setFormData(data);
+      });
+    }
+  }, [id, isNew, get]);
+
+  // ==========================================================================
+  // FORM SUBMISSION - Optimistic Update Pattern
+  // ==========================================================================
+  const handleSubmit = async (data: any) => {
+    // OPTIMISTIC UPDATE: Fire and forget!
+    // We don't await the backend. We navigate immediately.
+    // CrudStore handles background sync and optimistic cache update.
+
+    if (isNew) {
+      add(data); // No await - fires in background
+    } else if (id) {
+      update(id, data); // No await - fires in background
+    }
+
+    // Navigation happens automatically via cancelPath (defaults to /products)
+    // Or you can navigate manually if needed
+  };
+
+  // ==========================================================================
+  // ERROR STATE
+  // ==========================================================================
+  if (!isNew && error) {
+    return (
+      <PageContainer>
+        <Section title={t('error')}>
+          <Alert variant="error" description={t('failedToLoadData')} />
+          <Link path="/products">
+            <Button variant="outline">{t('backToList')}</Button>
+          </Link>
+        </Section>
+      </PageContainer>
+    );
+  }
+
+  // ==========================================================================
+  // RENDER FORM
+  // ==========================================================================
+  return (
+    <PageContainer>
+      <Section
+        gridCols={[1, 1, 2, 2]} // Responsive: 1 col mobile, 2 cols desktop
+        title={isNew ? t('addNew') : t('edit')}
+      >
+        {isNew ? (
+          // CREATE MODE
+          <EntityFormRenderer
+            entity={productEntity}
+            operation="create"
+            onSubmit={handleSubmit}
+            defaultValues={{ status: 'draft' }} // Initial values for new items
+            submitText={t('create')}
+            // Cancel automatically navigates to /products (or cancelPath if provided)
+            cancelPath="/products"
+          />
+        ) : (
+          // EDIT MODE
+          <EntityFormRenderer
+            entity={productEntity}
+            operation="edit"
+            onSubmit={handleSubmit}
+            defaultValues={formData} // Loaded data
+            submitText={t('update')}
+            // Cancel automatically navigates to /products (or cancelPath if provided)
+            cancelPath="/products"
+          />
+        )}
+      </Section>
+    </PageContainer>
+  );
+}
+
+// ============================================================================
+// i18n KEYS NEEDED (add to locales/product_en.json)
+// ============================================================================
+//
+// {
+//   "addNew": "Add New Product",
+//   "edit": "Edit Product",
+//   "create": "Create Product",
+//   "update": "Update Product",
+//   "error": "Error",
+//   "failedToLoadData": "Failed to load product data",
+//   "backToList": "Back to Products"
+// }

@@ -1,0 +1,640 @@
+/**
+ * @fileoverview Board — tickets (tasks, bugs, ideas, improvements) with Kanban columns
+ *
+ * Replaces KanbanPage + absorbs ReportPage.
+ * Click "+" to create ticket. Bug type includes screenshot capture.
+ * "Send to Agent" injects task into terminal.
+ */
+
+import { useEffect, useRef, useState } from 'react';
+import {
+  LayoutList,
+  Plus,
+  GripVertical,
+  Save,
+  Send,
+  Trash2,
+  ChevronDown,
+  Bug,
+  Lightbulb,
+  ArrowUpCircle,
+  CheckSquare,
+  ImagePlus,
+  X,
+  Clipboard,
+} from 'lucide-react';
+import {
+  DndContext,
+  closestCorners,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+} from '@dnd-kit/core';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useDroppable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
+
+import { Badge, Stack, Text, Button, Sheet, Input, Textarea, ToggleGroup, FloatingLabel } from '@donotdev/components';
+import type { PageMeta } from '@donotdev/core';
+import { PageContainer } from '@donotdev/ui';
+
+import { OverlaySlotPortal } from '../components/OverlaySlot';
+import { useDoNotDashStore, COLUMNS } from '../stores/dndevStore';
+
+import type { KanbanCard, CardColumn, CardPriority, TicketType } from '../stores/dndevStore';
+import type { DragEndEvent, DragStartEvent, DragOverEvent } from '@dnd-kit/core';
+import type { LucideIcon } from 'lucide-react';
+
+export const meta: PageMeta = {
+  icon: <LayoutList />,
+  title: 'Board',
+};
+
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+const VISIBLE_CAP = 20;
+
+const PRIORITY_COLOR: Record<string, string> = {
+  critical: '#ef4444',
+  high: '#f97316',
+  medium: '#eab308',
+  low: '#6b7280',
+};
+
+const PRIORITY_ITEMS = [
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+  { value: 'critical', label: 'Critical' },
+];
+
+const COLUMN_ITEMS = COLUMNS.map((col) => ({ value: col.id, label: col.label }));
+
+const TYPE_ICON: Record<TicketType, LucideIcon> = {
+  task: CheckSquare,
+  bug: Bug,
+  idea: Lightbulb,
+  improvement: ArrowUpCircle,
+};
+
+const TYPE_ITEMS: { value: string; label: string }[] = [
+  { value: 'task', label: 'Task' },
+  { value: 'bug', label: 'Bug' },
+  { value: 'idea', label: 'Idea' },
+  { value: 'improvement', label: 'Improvement' },
+];
+
+const FILTER_ITEMS = [
+  { value: 'all', label: 'All' },
+  ...TYPE_ITEMS,
+];
+
+// ============================================================================
+// SORTABLE CARD
+// ============================================================================
+
+function SortableCard({
+  card,
+  onOpen,
+}: {
+  card: KanbanCard;
+  onOpen: (card: KanbanCard) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: card.id, data: { column: card.column } });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  };
+
+  const TypeIcon = TYPE_ICON[card.type ?? 'task'];
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="dndev-kanban-card"
+      data-priority={card.priority}
+      onClick={() => onOpen(card)}
+      onKeyDown={(e) => { if (e.key === 'Enter') onOpen(card); }}
+      {...attributes}
+      {...listeners}
+    >
+      <div className="dndev-kanban-card-inner" style={{ borderInlineStartColor: PRIORITY_COLOR[card.priority] }}>
+        <GripVertical size={12} className="dndev-kanban-grip-icon" />
+
+        <div className="dndev-kanban-card-body">
+          <div className="dndev-kanban-card-title">
+            <TypeIcon size={12} style={{ flexShrink: 0, opacity: 0.6 }} />
+            {' '}{card.title}
+          </div>
+          {card.filePath && (
+            <div className="dndev-kanban-card-meta">
+              {card.filePath}{card.lineNumber ? `:${card.lineNumber}` : ''}
+            </div>
+          )}
+        </div>
+
+        <Badge
+          variant={card.priority === 'critical' ? 'destructive' : card.priority === 'high' ? 'warning' : 'muted'}
+        >
+          {card.priority}
+        </Badge>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// DROPPABLE COLUMN
+// ============================================================================
+
+function KanbanColumn({
+  column,
+  cards,
+  onAdd,
+  onOpenCard,
+}: {
+  column: typeof COLUMNS[number];
+  cards: KanbanCard[];
+  onAdd: (column: CardColumn) => void;
+  onOpenCard: (card: KanbanCard) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const capped = !expanded && cards.length > VISIBLE_CAP;
+  const visibleCards = capped ? cards.slice(0, VISIBLE_CAP) : cards;
+  const hiddenCount = cards.length - visibleCards.length;
+
+  const { setNodeRef: setDroppableRef } = useDroppable({
+    id: `column-${column.id}`,
+    data: { column: column.id },
+  });
+
+  return (
+    <div className="dndev-kanban-column" data-column={column.id}>
+      <div className="dndev-kanban-col-header">
+        <div className="dndev-kanban-col-title">
+          <span className="dndev-kanban-col-dot" />
+          <Text level="caption" weight="semibold">{column.label}</Text>
+          <Badge variant="muted">{cards.length}</Badge>
+        </div>
+        <button
+          type="button"
+          className="dndev-kanban-add"
+          onClick={() => onAdd(column.id)}
+          aria-label={`Add card to ${column.label}`}
+        >
+          <Plus size={14} />
+        </button>
+      </div>
+
+      <SortableContext items={visibleCards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+        <div ref={setDroppableRef} className="dndev-kanban-cards" data-column={column.id}>
+          {visibleCards.map((card) => (
+            <SortableCard key={card.id} card={card} onOpen={onOpenCard} />
+          ))}
+          {cards.length === 0 && (
+            <div className="dndev-kanban-empty">
+              <Text level="small" variant="muted">Drop cards here</Text>
+            </div>
+          )}
+        </div>
+      </SortableContext>
+
+      {capped && (
+        <button
+          type="button"
+          className="dndev-kanban-show-more"
+          onClick={() => setExpanded(true)}
+        >
+          <ChevronDown size={14} />
+          <span>Show {hiddenCount} more</span>
+        </button>
+      )}
+      {expanded && cards.length > VISIBLE_CAP && (
+        <button
+          type="button"
+          className="dndev-kanban-show-more"
+          onClick={() => setExpanded(false)}
+        >
+          <span>Collapse</span>
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// CARD DETAIL SHEET (with ticket type + bug fields)
+// ============================================================================
+
+function CardSheet({
+  cardId,
+  onClose,
+}: {
+  cardId: string;
+  onClose: () => void;
+}) {
+  const card = useDoNotDashStore((s) => s.cards.find((c) => c.id === cardId));
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [form, setForm] = useState(() => ({
+    title: card?.title ?? '',
+    description: card?.description ?? '',
+    filePath: card?.filePath ?? '',
+    priority: card?.priority ?? 'medium',
+    column: card?.column ?? 'backlog',
+    type: (card?.type ?? 'task') as TicketType,
+    route: card?.route ?? '',
+    screenshot: card?.screenshot ?? '',
+  }));
+
+  if (!card) return null;
+  const c = card;
+
+  const patch = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }));
+
+  function handleScreenshot(dataUrl: string) {
+    setForm((f) => ({ ...f, screenshot: dataUrl }));
+  }
+
+  function handlePaste(e: React.ClipboardEvent) {
+    for (const item of e.clipboardData.items) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const blob = item.getAsFile();
+        if (!blob) continue;
+        const reader = new FileReader();
+        reader.onload = () => handleScreenshot(reader.result as string);
+        reader.readAsDataURL(blob);
+        return;
+      }
+    }
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = () => handleScreenshot(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = () => handleScreenshot(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  async function save() {
+    // Save screenshot server-side if it's a data URL
+    let screenshotId = form.screenshot;
+    if (form.screenshot.startsWith('data:')) {
+      screenshotId = c.id;
+      const base64 = form.screenshot.replace(/^data:image\/\w+;base64,/, '');
+      try {
+        await fetch('/api/dndev/bugs/screenshot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: screenshotId, data: base64 }),
+        });
+      } catch { /* silent */ }
+    }
+
+    useDoNotDashStore.getState().updateCard(cardId, {
+      title: form.title,
+      description: form.description || undefined,
+      priority: form.priority as CardPriority,
+      column: form.column as CardColumn,
+      type: form.type,
+      filePath: form.filePath || undefined,
+      route: form.route || undefined,
+      screenshot: screenshotId || undefined,
+    });
+    onClose();
+  }
+
+  function handleDelete() {
+    useDoNotDashStore.getState().removeCard(c.id);
+    onClose();
+  }
+
+  function handleSendToAgent() {
+    const prompt = [
+      `${form.type === 'bug' ? 'Bug report' : 'Task'} (${c.priority}): ${c.title}`,
+      c.description ? `Description: ${c.description}` : '',
+      c.filePath ? `File: ${c.filePath}${c.lineNumber ? `:${c.lineNumber}` : ''}` : '',
+      c.route ? `Route: ${c.route}` : '',
+      c.screenshot ? `Screenshot: .dndev/bugs/${c.screenshot}.png` : '',
+      form.type === 'bug' ? 'Please investigate and fix this bug.' : 'Please investigate and implement this.',
+    ].filter(Boolean).join('\n');
+
+    useDoNotDashStore.getState().injectPrompt(prompt, { mode: 'ai-agent' });
+    useDoNotDashStore.getState().moveCard(c.id, 'in_progress');
+    onClose();
+  }
+
+  return (
+    <Sheet
+      open
+      onOpenChange={(open) => { if (!open) onClose(); }}
+      title="Edit Ticket"
+      side="right"
+      footer={
+        <Stack direction="row" align="center" gap="tight">
+          <Button variant="destructive" icon={Trash2} onClick={handleDelete}>
+            Delete
+          </Button>
+          <Stack style={{ flex: 1 }}>{' '}</Stack>
+          <Button variant="ghost" icon={Send} onClick={handleSendToAgent}>
+            Send to Agent
+          </Button>
+          <Button variant="default" icon={Save} onClick={save}>
+            Save
+          </Button>
+        </Stack>
+      }
+    >
+      <div onPaste={handlePaste}>
+        <Stack gap="tight">
+          {/* Type selector */}
+          <Stack gap="tight">
+            <Text level="small" weight="medium">Type</Text>
+            <ToggleGroup
+              type="single"
+              size="sm"
+              value={form.type}
+              onValueChange={(v) => { if (v) patch('type', v); }}
+              items={TYPE_ITEMS}
+            />
+          </Stack>
+
+          <Input
+            label="Title"
+            value={form.title}
+            onChange={(e) => patch('title', e.target.value)}
+            autoFocus
+          />
+
+          <FloatingLabel label="Description">
+            <Textarea
+              value={form.description}
+              onChange={(e) => patch('description', e.target.value)}
+              rows={4}
+              placeholder="What needs to be done..."
+            />
+          </FloatingLabel>
+
+          <Input
+            label="File Path"
+            value={form.filePath}
+            onChange={(e) => patch('filePath', e.target.value)}
+            placeholder="src/components/Foo.tsx"
+          />
+
+          {/* Bug-specific fields */}
+          {form.type === 'bug' && (
+            <>
+              <Input
+                label="Route / URL"
+                value={form.route}
+                onChange={(e) => patch('route', e.target.value)}
+                placeholder="/dashboard/settings"
+              />
+
+              {/* Screenshot capture */}
+              <Stack gap="tight">
+                <Text level="small" weight="medium">Screenshot</Text>
+                {form.screenshot ? (
+                  <Stack style={{ position: 'relative' }}>
+                    <img
+                      src={form.screenshot.startsWith('data:')
+                        ? form.screenshot
+                        : `/api/dndev/file?path=.dndev/bugs/${form.screenshot}.png`}
+                      alt="Bug screenshot"
+                      style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '4px', objectFit: 'contain' }}
+                    />
+                    <Button
+                      variant="destructive"
+                      display="compact"
+                      icon={X}
+                      onClick={() => patch('screenshot', '')}
+                      aria-label="Remove screenshot"
+                      style={{ position: 'absolute', top: '4px', insetInlineEnd: '4px' }}
+                    />
+                  </Stack>
+                ) : (
+                  <Stack
+                    align="center"
+                    gap="tight"
+                    style={{
+                      padding: '24px',
+                      border: '1px dashed var(--border)',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => fileInputRef.current?.click()}
+                    onDrop={handleDrop}
+                    onDragOver={(e: React.DragEvent) => e.preventDefault()}
+                  >
+                    <ImagePlus size={24} />
+                    <Text level="small" variant="muted">Paste, drop, or click to upload</Text>
+                    <Badge variant="muted"><Clipboard size={12} /> Clipboard ready</Badge>
+                  </Stack>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+              </Stack>
+            </>
+          )}
+
+          <Stack gap="tight">
+            <Text level="small" weight="medium">Priority</Text>
+            <ToggleGroup
+              type="single"
+              value={form.priority}
+              onValueChange={(v) => { if (v) patch('priority', v); }}
+              items={PRIORITY_ITEMS}
+            />
+          </Stack>
+
+          <Stack gap="tight">
+            <Text level="small" weight="medium">Column</Text>
+            <ToggleGroup
+              type="single"
+              value={form.column}
+              onValueChange={(v) => { if (v) patch('column', v); }}
+              items={COLUMN_ITEMS}
+            />
+          </Stack>
+
+          <Text level="caption" variant="muted">
+            Created {new Date(c.createdAt).toLocaleString()}
+          </Text>
+        </Stack>
+      </div>
+    </Sheet>
+  );
+}
+
+// ============================================================================
+// BOARD
+// ============================================================================
+
+export default function BoardPage() {
+  const cards = useDoNotDashStore((s) => s.cards);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+  );
+
+  const filteredCards = typeFilter === 'all'
+    ? cards
+    : cards.filter((c) => (c.type ?? 'task') === typeFilter);
+
+  const cardsByColumn: Record<CardColumn, KanbanCard[]> = {
+    backlog: [], in_progress: [], review: [], done: [],
+  };
+  for (const card of filteredCards) {
+    cardsByColumn[card.column]?.push(card);
+  }
+
+  const activeCard = cards.find((c) => c.id === activeId) ?? null;
+
+  useEffect(() => {
+    if (import.meta.hot && !import.meta.hot.data.kanbanHmr) {
+      import.meta.hot.data.kanbanHmr = true;
+      import.meta.hot.on('dndev:file-changed', (data: { path: string }) => {
+        if (data.path === '.dndev/kanban.json') {
+          fetch('/api/dndev/file?path=.dndev/kanban.json')
+            .then((r) => r.json())
+            .then((json) => {
+              if (Array.isArray(json.content)) useDoNotDashStore.getState().loadCards(json.content);
+            })
+            .catch(() => {});
+        }
+      });
+    }
+  }, []);
+
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(String(event.active.id));
+  }
+
+  /** Extract column from an over target — works for both sortable cards and droppable columns */
+  function resolveColumn(over: DragOverEvent['over']): CardColumn | null {
+    if (!over) return null;
+    const data = over.data.current as { column?: CardColumn } | undefined;
+    return data?.column ?? null;
+  }
+
+  function handleDragOver(event: DragOverEvent) {
+    const { active, over } = event;
+    const targetColumn = resolveColumn(over);
+    if (!targetColumn) return;
+    const activeData = active.data.current as { column?: CardColumn } | undefined;
+    if (activeData?.column && activeData.column !== targetColumn) {
+      // Optimistic move in store (no disk write) so dnd-kit SortableContexts stay in sync
+      useDoNotDashStore.getState().moveCard(String(active.id), targetColumn, false);
+    }
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    setActiveId(null);
+    const { active, over } = event;
+    // Resolve target column — or fall back to the card's current column (set by handleDragOver)
+    const targetColumn = resolveColumn(over)
+      ?? useDoNotDashStore.getState().cards.find((c) => c.id === String(active.id))?.column;
+    if (targetColumn) {
+      // Persist final position to disk
+      useDoNotDashStore.getState().moveCard(String(active.id), targetColumn);
+    }
+  }
+
+  function handleAdd(column: CardColumn) {
+    useDoNotDashStore.getState().addCard({ title: 'New ticket', column, type: 'task' });
+  }
+
+  return (
+    <PageContainer>
+      <OverlaySlotPortal>
+        <Stack direction="row" align="center" gap="tight">
+          <ToggleGroup
+            type="single"
+            size="sm"
+            variant="outline"
+            value={typeFilter}
+            onValueChange={(v) => { if (v) setTypeFilter(v); }}
+            items={FILTER_ITEMS}
+          />
+          <Text level="caption" variant="muted">
+            {filteredCards.length}
+          </Text>
+        </Stack>
+      </OverlaySlotPortal>
+
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="dndev-kanban-board">
+          {COLUMNS.map((col) => (
+            <KanbanColumn
+              key={col.id}
+              column={col}
+              cards={cardsByColumn[col.id]}
+              onAdd={handleAdd}
+              onOpenCard={(card) => setSelectedCardId(card.id)}
+            />
+          ))}
+        </div>
+
+        <DragOverlay>
+          {activeCard ? (
+            <div className="dndev-kanban-card-overlay">
+              <div
+                className="dndev-kanban-card-inner"
+                style={{ borderInlineStartColor: PRIORITY_COLOR[activeCard.priority] }}
+              >
+                <div className="dndev-kanban-card-body">
+                  <div className="dndev-kanban-card-title">{activeCard.title}</div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+
+      {selectedCardId && (
+        <CardSheet cardId={selectedCardId} onClose={() => setSelectedCardId(null)} />
+      )}
+    </PageContainer>
+  );
+}

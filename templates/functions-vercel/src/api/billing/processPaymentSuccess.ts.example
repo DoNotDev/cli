@@ -1,0 +1,20 @@
+// functions/src/api/billing/processPaymentSuccess.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Payment Success Wrapper
+ * @description Wrapper for framework's processPaymentSuccess with {{APP_NAME}}-specific configuration
+ */
+
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { processPaymentSuccess as frameworkProcessPaymentSuccess } from '@donotdev/functions/vercel';
+
+/**
+ * {{APP_NAME}} payment success processing
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  return frameworkProcessPaymentSuccess(req, res);
+}

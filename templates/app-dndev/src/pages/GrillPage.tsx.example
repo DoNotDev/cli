@@ -1,0 +1,658 @@
+/**
+ * @fileoverview Grill Review — triage findings from grill-report.json
+ *
+ * DataTable-based view with batch actions and per-item triage.
+ * Fix/Discuss/Fix Source inject prompts into AI agent terminal.
+ * Reject saves reason to grill-report.json + grill-ignore.json.
+ */
+
+import { useEffect, useState } from 'react';
+import {
+  ShieldCheck,
+  AlertTriangle,
+  AlertCircle,
+  Info,
+  Wrench,
+  X,
+  MessageCircle,
+  FileCode,
+  CheckCircle2,
+  Flame,
+} from 'lucide-react';
+
+import {
+  Section,
+  Card,
+  Code,
+  Stack,
+  Text,
+  Button,
+  Badge,
+  Input,
+  DataTable,
+  Grid,
+  Sheet,
+  ToggleGroup,
+} from '@donotdev/components';
+import type { TableColumn } from '@donotdev/components';
+import type { PageMeta } from '@donotdev/core';
+import { PageContainer } from '@donotdev/ui';
+
+import { useDndevFile, writeDndevFile } from '../hooks/useDndevFile';
+import { useDoNotDashStore } from '../stores/dndevStore';
+
+export const meta: PageMeta = {
+  icon: <ShieldCheck />,
+  title: 'Grill',
+};
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+type FindingStatus = 'pending' | 'fixing' | 'fixed' | 'rejected' | 'discussing' | 'fixing-source';
+
+interface GrillItem {
+  id: number;
+  severity: 'blocker' | 'warn' | 'note';
+  file: string;
+  line: number;
+  issue: string;
+  context?: string;
+  category: string;
+  status: FindingStatus;
+  comment?: string;
+}
+
+interface GrillReport {
+  generated: string;
+  target: string;
+  verdict: 'DO NOT SHIP' | 'SHIP' | 'READY' | 'CONDITIONAL';
+  items: GrillItem[];
+  lastReviewed?: string;
+}
+
+interface IgnoreRule {
+  issue: string;
+  category: string;
+  reason: string;
+  date: string;
+}
+
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+const SEVERITY_ICON: Record<GrillItem['severity'], typeof AlertCircle> = {
+  blocker: AlertCircle,
+  warn: AlertTriangle,
+  note: Info,
+};
+
+const SEVERITY_VARIANT: Record<GrillItem['severity'], 'destructive' | 'warning' | 'primary'> = {
+  blocker: 'destructive',
+  warn: 'warning',
+  note: 'primary',
+};
+
+const STATUS_VARIANT: Record<FindingStatus, 'muted' | 'warning' | 'destructive' | 'accent' | 'success'> = {
+  pending: 'muted',
+  fixing: 'warning',
+  fixed: 'success',
+  rejected: 'destructive',
+  discussing: 'accent',
+  'fixing-source': 'warning',
+};
+
+const VERDICT_VARIANT: Record<string, 'destructive' | 'success' | 'warning' | 'default'> = {
+  'DO NOT SHIP': 'destructive',
+  SHIP: 'success',
+  READY: 'success',
+  CONDITIONAL: 'warning',
+};
+
+const FILTER_ITEMS = [
+  { value: 'all', label: 'All' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'fixing', label: 'Fixing' },
+  { value: 'fixed', label: 'Fixed' },
+  { value: 'rejected', label: 'Rejected' },
+];
+
+// ============================================================================
+// EXPANDED ROW — context + actions for a single finding
+// ============================================================================
+
+function FindingActions({
+  item,
+  onAction,
+}: {
+  item: GrillItem;
+  onAction: (id: number, action: 'fix' | 'reject' | 'discuss' | 'fix-source' | 'reopen' | 'mark-fixed', reason?: string) => void;
+}) {
+  const [rejectMode, setRejectMode] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+
+  function handleRejectSubmit() {
+    if (!rejectReason.trim()) return;
+    onAction(item.id, 'reject', rejectReason.trim());
+    setRejectMode(false);
+    setRejectReason('');
+  }
+
+  const actionable = item.status === 'pending' || item.status === 'discussing';
+
+  if (rejectMode) {
+    return (
+      <Stack direction="row" gap="tight" align="center">
+        <Input
+          value={rejectReason}
+          onChange={(e) => setRejectReason(e.target.value)}
+          placeholder="Why is this wrong?"
+          onKeyDown={(e) => { if (e.key === 'Enter') handleRejectSubmit(); }}
+          autoFocus
+        />
+        <Button variant="destructive" display="compact" onClick={handleRejectSubmit} disabled={!rejectReason.trim()}>
+          Reject
+        </Button>
+        <Button variant="ghost" display="compact" onClick={() => setRejectMode(false)}>
+          Cancel
+        </Button>
+      </Stack>
+    );
+  }
+
+  if (actionable) {
+    return (
+      <Stack direction="row" gap="tight">
+        <Button variant="default" display="compact" icon={Wrench} onClick={() => onAction(item.id, 'fix')}>
+          Fix
+        </Button>
+        <Button variant="destructive" display="compact" icon={X} onClick={() => setRejectMode(true)}>
+          Reject
+        </Button>
+        <Button variant="ghost" display="compact" icon={MessageCircle} onClick={() => onAction(item.id, 'discuss')}>
+          Discuss
+        </Button>
+        <Button variant="ghost" display="compact" icon={FileCode} onClick={() => onAction(item.id, 'fix-source')}>
+          Fix Source
+        </Button>
+      </Stack>
+    );
+  }
+
+  // Non-actionable (fixing, fixed, rejected, fixing-source) — show status + actions
+  return (
+    <Stack direction="row" gap="tight" align="center">
+      <Badge variant={STATUS_VARIANT[item.status]}>{item.status}</Badge>
+      {item.comment && <Text level="caption" variant="muted">{item.comment}</Text>}
+      {(item.status === 'fixing' || item.status === 'fixing-source') && (
+        <Button variant="default" display="compact" icon={CheckCircle2} onClick={() => onAction(item.id, 'mark-fixed')}>
+          Mark Fixed
+        </Button>
+      )}
+      <Button variant="ghost" display="compact" onClick={() => onAction(item.id, 'reopen')}>
+        Reopen
+      </Button>
+    </Stack>
+  );
+}
+
+// ============================================================================
+// CODE PREVIEW — fetch file content for read-only display
+// ============================================================================
+
+/** Fetch a source file and return lines array. Cached per path. */
+function useSourceFile(path: string | null): { lines: string[]; loading: boolean } {
+  const [lines, setLines] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!path) { setLines([]); return; }
+    let cancelled = false;
+    setLoading(true);
+    fetch(`/api/dndev/file?path=${encodeURIComponent(path)}`)
+      .then((res) => res.ok ? res.json() : null)
+      .then((json) => {
+        if (cancelled) return;
+        const content = json?.content ?? '';
+        setLines(typeof content === 'string' ? content.split('\n') : []);
+      })
+      .catch(() => { if (!cancelled) setLines([]); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [path]);
+
+  return { lines, loading };
+}
+
+/** How many lines of context to show around the finding line */
+const CODE_CONTEXT_LINES = 15;
+
+/** Guess language from file extension */
+function guessLanguage(file: string): string {
+  const ext = file.split('.').pop()?.toLowerCase() ?? '';
+  const map: Record<string, string> = {
+    ts: 'typescript', tsx: 'tsx', js: 'javascript', jsx: 'jsx',
+    css: 'css', json: 'json', md: 'markdown', html: 'html',
+    vue: 'vue', py: 'python', rs: 'rust', go: 'go',
+  };
+  return map[ext] ?? 'typescript';
+}
+
+function FindingSheet({
+  item,
+  open,
+  onOpenChange,
+  onAction,
+}: {
+  item: GrillItem | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAction: (id: number, action: 'fix' | 'reject' | 'discuss' | 'fix-source' | 'reopen' | 'mark-fixed', reason?: string) => void;
+}) {
+  const { lines, loading: fileLoading } = useSourceFile(open && item ? item.file : null);
+
+  if (!item) return null;
+
+  // Extract lines around the finding
+  const targetLine = item.line;
+  const startLine = Math.max(0, targetLine - CODE_CONTEXT_LINES - 1);
+  const endLine = Math.min(lines.length, targetLine + CODE_CONTEXT_LINES);
+  const codeSnippet = lines.slice(startLine, endLine).join('\n');
+  const lang = guessLanguage(item.file);
+
+  const SeverityIcon = SEVERITY_ICON[item.severity];
+
+  return (
+    <Sheet
+      open={open}
+      onOpenChange={onOpenChange}
+      title={
+        <Stack direction="row" align="center" gap="tight">
+          <Badge variant={SEVERITY_VARIANT[item.severity]}>
+            <SeverityIcon size={12} /> {item.severity}
+          </Badge>
+          <Badge variant="muted">{item.category}</Badge>
+        </Stack>
+      }
+      description={item.issue}
+      side="right"
+      footer={
+        <FindingActions
+          item={item}
+          onAction={(id, action, reason) => {
+            onAction(id, action, reason);
+            if (action !== 'reopen') onOpenChange(false);
+          }}
+        />
+      }
+    >
+      <Stack gap="tight">
+        {/* Location */}
+        <Text as="code" variant="code" level="caption">{item.file}:{item.line}</Text>
+
+        {/* Code preview with Shiki syntax highlighting */}
+        {fileLoading ? (
+          <Text level="caption" variant="muted">Loading source...</Text>
+        ) : lines.length > 0 ? (
+          <Code language={lang} compact showCopyButton={false}>
+            {codeSnippet}
+          </Code>
+        ) : (
+          <Text level="caption" variant="muted">Could not load source file.</Text>
+        )}
+      </Stack>
+    </Sheet>
+  );
+}
+
+// ============================================================================
+// START GRILL — collapsible trigger section
+// ============================================================================
+
+function StartGrill() {
+  const [target, setTarget] = useState('');
+
+  function handleRun() {
+    const cmd = target.trim() ? `/grill ${target.trim()}` : '/grill';
+    useDoNotDashStore.getState().injectPrompt(cmd, { mode: 'ai-agent' });
+  }
+
+  return (
+    <Grid cols="1fr auto" gap="tight" align="end">
+      <Input
+        placeholder="Target — e.g. packages/core, src/pages (blank = all)"
+        value={target}
+        onChange={(e) => setTarget(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter') handleRun(); }}
+      />
+      <Button icon={Flame} variant="default" onClick={handleRun}>
+        Grill
+      </Button>
+    </Grid>
+  );
+}
+
+// ============================================================================
+// PAGE
+// ============================================================================
+
+const DEFAULT_REPORT: GrillReport = {
+  generated: '',
+  target: '',
+  verdict: 'READY',
+  items: [],
+};
+
+export default function GrillPage() {
+  const { data: report, loading, reload } = useDndevFile<GrillReport>(
+    '.dndev/grill-report.json',
+    (raw) => raw as GrillReport,
+    { fallback: DEFAULT_REPORT },
+  );
+
+  const [filter, setFilter] = useState('all');
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const data = report ?? DEFAULT_REPORT;
+  const hasReport = data.items.length > 0;
+
+  // ---- Action handler ----
+
+  async function handleAction(id: number, action: 'fix' | 'reject' | 'discuss' | 'fix-source' | 'reopen' | 'mark-fixed', reason?: string) {
+    if (!report) return;
+    const item = report.items.find((i) => i.id === id);
+    if (!item) return;
+
+    const statusMap: Record<string, FindingStatus> = {
+      fix: 'fixing', 'mark-fixed': 'fixed', reject: 'rejected', discuss: 'discussing', 'fix-source': 'fixing-source', reopen: 'pending',
+    };
+
+    const updated: GrillReport = {
+      ...report,
+      lastReviewed: new Date().toISOString(),
+      items: report.items.map((i) =>
+        i.id === id
+          ? { ...i, status: statusMap[action]!, comment: action === 'reject' ? reason : i.comment }
+          : i,
+      ),
+    };
+    await writeDndevFile('.dndev/grill-report.json', updated);
+
+    if (action === 'fix') {
+      const prompt = [
+        `Fix this grill finding in ${item.file}:${item.line}:`,
+        item.issue,
+        item.context ? `Context:\n${item.context}` : '',
+        'Please fix this issue.',
+      ].filter(Boolean).join('\n');
+      useDoNotDashStore.getState().injectPrompt(prompt, { mode: 'ai-agent' });
+    }
+
+    if (action === 'discuss') {
+      const prompt = [
+        `Explain this grill finding in detail:`,
+        `File: ${item.file}:${item.line}`,
+        `Issue: ${item.issue}`,
+        `Category: ${item.category}`,
+        item.context ? `Context:\n${item.context}` : '',
+        'Is this a real issue? What would be the correct fix?',
+      ].filter(Boolean).join('\n');
+      useDoNotDashStore.getState().injectPrompt(prompt, { mode: 'ai-agent' });
+    }
+
+    if (action === 'fix-source') {
+      const prompt = [
+        `Update the JSDoc or conventions for "${item.category}" so this finding never flags again:`,
+        `Issue: ${item.issue}`,
+        `File: ${item.file}:${item.line}`,
+        'The convention rule or JSDoc is wrong/incomplete. Fix the source of truth, not the code.',
+      ].filter(Boolean).join('\n');
+      useDoNotDashStore.getState().injectPrompt(prompt, { mode: 'ai-agent' });
+    }
+
+    if (action === 'reject' && reason) {
+      try {
+        const ignoreRes = await fetch('/api/dndev/file?path=.dndev/grill-ignore.json');
+        const ignoreData: IgnoreRule[] = ignoreRes.ok
+          ? ((await ignoreRes.json()).content ?? [])
+          : [];
+
+        const rule: IgnoreRule = {
+          issue: item.issue,
+          category: item.category,
+          reason,
+          date: new Date().toISOString(),
+        };
+
+        await writeDndevFile('.dndev/grill-ignore.json', [...(Array.isArray(ignoreData) ? ignoreData : []), rule]);
+      } catch (err) {
+        console.error('[grill] failed to write ignore rule — rejection saved but rule lost:', err);
+      }
+    }
+
+    await reload();
+  }
+
+  // ---- Batch actions ----
+
+  async function handleBatchFix(severity?: GrillItem['severity']) {
+    if (!report) return;
+    const pending = report.items.filter((i) =>
+      i.status === 'pending' && (!severity || i.severity === severity),
+    );
+    if (pending.length === 0) return;
+
+    const updated: GrillReport = {
+      ...report,
+      lastReviewed: new Date().toISOString(),
+      items: report.items.map((i) =>
+        i.status === 'pending' && (!severity || i.severity === severity)
+          ? { ...i, status: 'fixing' as FindingStatus }
+          : i,
+      ),
+    };
+    await writeDndevFile('.dndev/grill-report.json', updated);
+
+    const prompt = pending.map((item) => [
+      `Fix this grill finding in ${item.file}:${item.line}:`,
+      item.issue,
+      item.context ? `Context:\n${item.context}` : '',
+      'Please fix this issue.',
+    ].filter(Boolean).join('\n')).join('\n\n---\n\n');
+
+    useDoNotDashStore.getState().injectPrompt(prompt, { mode: 'ai-agent' });
+    await reload();
+  }
+
+  // ---- Stats ----
+
+  const items = data.items;
+  const stats = {
+    blocker: items.filter((i) => i.severity === 'blocker').length,
+    warn: items.filter((i) => i.severity === 'warn').length,
+    note: items.filter((i) => i.severity === 'note').length,
+    pending: items.filter((i) => i.status === 'pending').length,
+    total: items.length,
+  };
+
+  // ---- Filter ----
+
+  const filteredItems = filter === 'all'
+    ? items
+    : items.filter((i) => i.status === filter);
+
+  // ---- Table columns ----
+
+  const columns: TableColumn<GrillItem>[] = [
+    {
+      key: 'severity',
+      title: '',
+      width: 40,
+      align: 'center',
+      render: (_v, row) => {
+        const Icon = SEVERITY_ICON[row.severity];
+        return (
+          <Badge variant={SEVERITY_VARIANT[row.severity]} as="span">
+            <Icon size={12} />
+          </Badge>
+        );
+      },
+    },
+    {
+      key: 'location',
+      title: 'Location',
+      width: 220,
+      align: 'start',
+      render: (_v, row) => (
+        <Text as="code" variant="code" level="caption">
+          {row.file.replace(/^apps\/dndev\//, '')}:{row.line}
+        </Text>
+      ),
+    },
+    {
+      key: 'issue',
+      title: 'Issue',
+      dataIndex: 'issue',
+      align: 'start',
+      render: (_v, row) => (
+        <Text level="small">{row.issue}</Text>
+      ),
+    },
+    {
+      key: 'category',
+      title: 'Cat',
+      width: 100,
+      align: 'start',
+      render: (_v, row) => <Badge variant="muted">{row.category}</Badge>,
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      width: 100,
+      align: 'start',
+      render: (_v, row) => (
+        <Badge variant={STATUS_VARIANT[row.status]}>{row.status}</Badge>
+      ),
+    },
+  ];
+
+  // ---- Render ----
+
+  if (loading) {
+    return (
+      <PageContainer>
+        <Section title="Grill Review">
+          <Stack align="center"><Text level="small" variant="muted">Loading report...</Text></Stack>
+        </Section>
+      </PageContainer>
+    );
+  }
+
+  return (
+    <PageContainer>
+      <Section title="Grill Review">
+        <Stack gap="tight">
+        <StartGrill />
+
+        {hasReport ? (
+          <Stack gap="tight">
+            {/* Verdict bar + batch actions */}
+            <Card>
+              <Stack direction="row" align="center" justify="between">
+                <Stack direction="row" align="center" gap="tight">
+                  <Badge variant={VERDICT_VARIANT[data.verdict] ?? 'default'}>{data.verdict}</Badge>
+                  <Text level="caption" variant="muted">{data.target}</Text>
+                </Stack>
+                <Stack direction="row" align="center" gap="tight">
+                  {stats.pending > 0 && (
+                    <Button
+                      variant="default"
+                      display="compact"
+                      icon={Wrench}
+                      onClick={() => handleBatchFix()}
+                    >
+                      Fix all ({stats.pending})
+                    </Button>
+                  )}
+                  {stats.blocker > 0 && stats.pending !== stats.blocker && (
+                    <Button
+                      variant="destructive"
+                      display="compact"
+                      icon={AlertCircle}
+                      onClick={() => handleBatchFix('blocker')}
+                    >
+                      Fix blockers
+                    </Button>
+                  )}
+                  <ToggleGroup
+                    type="single"
+                    size="sm"
+                    variant="outline"
+                    value={filter}
+                    onValueChange={(v) => { if (v) setFilter(v); }}
+                    items={FILTER_ITEMS}
+                  />
+                </Stack>
+              </Stack>
+            </Card>
+
+            {/* Stats */}
+            <Grid cols={[2, 2, 4, 4]} gap="tight">
+              <Card variant="destructive">
+                <Stack direction="row" align="center" gap="tight">
+                  <AlertCircle size={14} />
+                  <Text level="caption" weight="semibold">{stats.blocker} blockers</Text>
+                </Stack>
+              </Card>
+              <Card variant="warning">
+                <Stack direction="row" align="center" gap="tight">
+                  <AlertTriangle size={14} />
+                  <Text level="caption" weight="semibold">{stats.warn} warnings</Text>
+                </Stack>
+              </Card>
+              <Card variant="primary">
+                <Stack direction="row" align="center" gap="tight">
+                  <Info size={14} />
+                  <Text level="caption" weight="semibold">{stats.note} notes</Text>
+                </Stack>
+              </Card>
+              <Card variant="muted">
+                <Stack direction="row" align="center" gap="tight">
+                  <CheckCircle2 size={14} />
+                  <Text level="caption" weight="semibold">{stats.pending}/{stats.total} pending</Text>
+                </Stack>
+              </Card>
+            </Grid>
+
+            {/* Findings table */}
+            <DataTable<GrillItem>
+              data={filteredItems}
+              columns={columns}
+              onRowClick={(row) => setExpandedId(row.id)}
+            />
+
+            {/* Finding detail sheet with code preview + actions */}
+            <FindingSheet
+              item={expandedId !== null ? items.find((i) => i.id === expandedId) ?? null : null}
+              open={expandedId !== null}
+              onOpenChange={(open) => { if (!open) setExpandedId(null); }}
+              onAction={async (id, action, reason) => { await handleAction(id, action, reason); }}
+            />
+
+            {filteredItems.length === 0 && (
+              <Card variant="muted">
+                <Text level="small" variant="muted">No findings match the current filter.</Text>
+              </Card>
+            )}
+          </Stack>
+        ) : (
+          <Card variant="muted">
+            <Text level="small" variant="muted">No findings yet — run a grill to get started.</Text>
+          </Card>
+        )}
+        </Stack>
+      </Section>
+    </PageContainer>
+  );
+}

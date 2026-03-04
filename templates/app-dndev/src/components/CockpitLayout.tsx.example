@@ -1,0 +1,209 @@
+/**
+ * @fileoverview Cockpit layout wrapper — route-aware split panes via react-resizable-panels v4
+ *
+ * Reads current route, maps to a LayoutPreset, and renders the appropriate
+ * split arrangement with terminal as a contextual slot.
+ *
+ * Two presets:
+ * - bottom-bar: content on top, terminal at bottom (observer pages)
+ * - horizontal: content left, terminal right (operator pages)
+ *
+ * Terminal is rendered ONCE per layout — never conditionally swapped.
+ * Fullscreen is CSS-only (data-fullscreen attribute), no React tree change.
+ */
+
+import { useCallback, useEffect, useRef } from 'react';
+import { Group, Panel, Separator, usePanelRef } from 'react-resizable-panels';
+
+import { LanguageSelector } from '@donotdev/core';
+import { GoTo, ThemeToggle, useLocation } from '@donotdev/ui';
+
+import { useDoNotDashStore } from '../stores/dndevStore';
+import { ModeToggle } from './ModeToggle';
+import { OverlaySlotProvider, OverlaySlotTarget } from './OverlaySlot';
+import { TerminalPanel } from './TerminalPanel';
+
+import type { ReactNode } from 'react';
+import type { Layout } from 'react-resizable-panels';
+
+// ============================================================================
+// CONTENT PANE — scrollable children + fixed overlays (GoTo, ModeToggle)
+// ============================================================================
+
+function ContentPane({ children }: { children: ReactNode }): ReactNode {
+  const { pathname } = useLocation();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Reset scroll position on route change
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [pathname]);
+
+  return (
+    <div className="dndev-cockpit-pane dndev-cockpit-pane--content">
+      <div className="dndev-cockpit-toolbar">
+        <div className="dndev-cockpit-toolbar-start">
+          <ThemeToggle display="compact" />
+          <LanguageSelector display="compact" />
+          <GoTo className="dndev-cockpit-goto" />
+        </div>
+        <OverlaySlotTarget />
+        <div className="dndev-cockpit-toolbar-end">
+          <ModeToggle />
+        </div>
+      </div>
+      <div ref={scrollRef} className="dndev-cockpit-scroll">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// LAYOUT PRESETS
+// ============================================================================
+
+type LayoutPreset = 'bottom-bar' | 'horizontal';
+
+const LAYOUT_MAP: Record<string, LayoutPreset> = {
+  '/': 'bottom-bar',
+  '/phases': 'horizontal',
+  '/board': 'bottom-bar',
+  '/grill': 'horizontal',
+  '/settings': 'bottom-bar',
+};
+
+function getPreset(pathname: string): LayoutPreset {
+  if (LAYOUT_MAP[pathname]) return LAYOUT_MAP[pathname];
+  const base = '/' + pathname.split('/').filter(Boolean)[0];
+  return LAYOUT_MAP[base] ?? 'bottom-bar';
+}
+
+// ============================================================================
+// RESIZE HANDLE
+// ============================================================================
+
+function ResizeHandle({ direction }: { direction: 'horizontal' | 'vertical' }) {
+  return (
+    <Separator
+      className={`dndev-cockpit-handle dndev-cockpit-handle--${direction}`}
+    />
+  );
+}
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
+
+interface CockpitLayoutProps {
+  children: ReactNode;
+}
+
+export function CockpitLayout({ children }: CockpitLayoutProps): ReactNode {
+  const { pathname } = useLocation();
+  const preset = getPreset(pathname);
+  const isFullscreen = useDoNotDashStore((s) => s.isFullscreen);
+  const isExpanded = useDoNotDashStore((s) => s.isExpanded);
+  const terminalPanelRef = usePanelRef();
+
+  // Sync store isExpanded ↔ panel collapse/expand (bidirectional, loop-safe)
+  useEffect(() => {
+    const panel = terminalPanelRef.current;
+    if (!panel) return;
+    const panelCollapsed = panel.isCollapsed();
+    if (isExpanded && panelCollapsed) panel.expand();
+    else if (!isExpanded && !panelCollapsed) panel.collapse();
+  }, [isExpanded, terminalPanelRef]);
+
+  // Sync panel collapse/expand → store (handles manual drag past minSize)
+  const syncCollapseToStore = useCallback(() => {
+    const panel = terminalPanelRef.current;
+    if (!panel) return;
+    const collapsed = panel.isCollapsed();
+    const storeExpanded = useDoNotDashStore.getState().isExpanded;
+    if (collapsed && storeExpanded) useDoNotDashStore.getState().setExpanded(false);
+    else if (!collapsed && !storeExpanded) useDoNotDashStore.getState().setExpanded(true);
+  }, [terminalPanelRef]);
+
+  // GOTCHA: onLayoutChanged fires on initial render. Without debounce:
+  // saveSizes → writes .dndev/dashboard.json → file watcher HMR event → re-render → loop.
+  // 500ms debounce breaks the cycle — initial render fires are swallowed.
+  const saveTimer = useRef<ReturnType<typeof setTimeout>>(null);
+  const saveSizes = useCallback((layout: Layout) => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      const sizes = Object.values(layout);
+      useDoNotDashStore.getState().setPanelSizes(pathname, sizes);
+    }, 500);
+  }, [pathname]);
+
+  // Clean up debounce timer on unmount or pathname change
+  useEffect(() => {
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    };
+  }, [pathname]);
+
+  const direction = preset === 'horizontal' ? 'horizontal' : 'vertical';
+
+  if (preset === 'horizontal') {
+    return (
+      <OverlaySlotProvider>
+        <div className="dndev-cockpit" data-preset="horizontal" data-fullscreen={isFullscreen || undefined}>
+          <Group
+            orientation="horizontal"
+            onLayoutChanged={saveSizes}
+            id={`cockpit-${pathname}`}
+          >
+            <Panel defaultSize="65%" minSize="30%">
+              <ContentPane>{children}</ContentPane>
+            </Panel>
+            <ResizeHandle direction="vertical" />
+            <Panel
+              defaultSize="35%"
+              minSize="20%"
+              collapsible
+              collapsedSize="34px"
+              panelRef={terminalPanelRef}
+              onResize={syncCollapseToStore}
+            >
+              <div className="dndev-cockpit-pane dndev-cockpit-pane--terminal">
+                <TerminalPanel embedded direction={direction} />
+              </div>
+            </Panel>
+          </Group>
+        </div>
+      </OverlaySlotProvider>
+    );
+  }
+
+  // bottom-bar (default) — content on top, terminal at bottom, resizable
+  return (
+    <OverlaySlotProvider>
+      <div className="dndev-cockpit" data-preset="bottom-bar" data-fullscreen={isFullscreen || undefined}>
+        <Group
+          orientation="vertical"
+          onLayoutChanged={saveSizes}
+          id={`cockpit-${pathname}`}
+        >
+          <Panel defaultSize="75%" minSize="20%">
+            <ContentPane>{children}</ContentPane>
+          </Panel>
+          <ResizeHandle direction="horizontal" />
+          <Panel
+            defaultSize="25%"
+            minSize="80px"
+            collapsible
+            collapsedSize="34px"
+            panelRef={terminalPanelRef}
+            onResize={syncCollapseToStore}
+          >
+            <div className="dndev-cockpit-pane dndev-cockpit-pane--terminal">
+              <TerminalPanel embedded direction={direction} />
+            </div>
+          </Panel>
+        </Group>
+      </div>
+    </OverlaySlotProvider>
+  );
+}

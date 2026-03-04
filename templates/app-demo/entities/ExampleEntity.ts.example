@@ -1,0 +1,230 @@
+/**
+ * @fileoverview Example Entity Definition
+ *
+ * COPY THIS FILE and rename to your entity (e.g., Product.ts, Task.ts, Customer.ts)
+ *
+ * HOW ENTITIES WORK:
+ * 1. Define fields with types, visibility, validation
+ * 2. Set access rules (who can create/read/update/delete)
+ * 3. Choose which fields show in list vs card vs form views
+ * 4. Framework generates: Firestore queries, forms, lists, cards automatically
+ *
+ * FIRESTORE PATH: `products/{productId}` (collection name from 'collection' prop)
+ */
+
+import { defineEntity } from '@donotdev/core';
+
+// ============================================================================
+// ENTITY DEFINITION
+// ============================================================================
+
+export const productEntity = defineEntity({
+  // Entity name - used for i18n keys, display labels
+  name: 'Product',
+
+  // Firestore collection path
+  collection: 'products',
+
+  // Fields shown in EntityList table (column order matters)
+  listFields: ['name', 'category', 'price', 'status'],
+
+  // Fields shown in EntityCardList (card layout)
+  listCardFields: ['images', 'name', 'price', 'category'],
+
+  // ==========================================================================
+  // ACCESS RULES - Who can do what (maps to Supabase RLS policies)
+  // ==========================================================================
+  //
+  // 'guest'   → Anyone (including not logged in)
+  // 'user'    → Any logged-in user
+  // 'admin'   → Only admin role
+  // 'super'   → Only super admin
+  //
+  // NOTE: These are DB-level roles. For owner-based logic, use field-level
+  // 'editable' / 'visibility' settings (see FIELD DEFINITIONS below).
+  //
+  access: {
+    create: 'admin',   // Only admins can create products
+    read: 'guest',     // Anyone can view products (public catalog)
+    update: 'admin',   // Only admins can edit
+    delete: 'admin',   // Only admins can delete
+  },
+
+  // ==========================================================================
+  // FIELD DEFINITIONS
+  // ==========================================================================
+  //
+  // FIELD TYPES:
+  // 'text'      → Single-line text input
+  // 'textarea'  → Multi-line text
+  // 'number'    → Numeric input
+  // 'email'     → Email with validation
+  // 'tel'       → Phone number with country picker
+  // 'select'    → Dropdown with options
+  // 'combobox'  → Searchable dropdown
+  // 'switch'    → Toggle on/off
+  // 'checkbox'  → Multiple selections
+  // 'date'      → Date picker
+  // 'timestamp' → Date + time
+  // 'price'     → Structured price (amount, currency, VAT, discount %)
+  // 'images'    → Image upload (multiple)
+  // 'reference' → Link to another entity
+  //
+  // VISIBILITY (field-level, UI only):
+  // 'guest'   → Everyone can see this field
+  // 'user'    → Only logged-in users
+  // 'admin'   → Only admins
+  // 'super'   → Only super admins
+  // 'hidden'  → Never sent to client (server-only)
+  //
+  // EDITABLE (field-level, UI only):
+  // 'admin'       → Only admins can edit
+  // 'owner'       → Only document creator can edit
+  // 'user'        → Any authenticated user can edit
+  // 'create-only' → Set on creation, read-only after
+  // false         → Never editable (read-only)
+  //
+  fields: {
+    // ==========================================================================
+    // PUBLIC FIELDS - Visible to all, editable by admin
+    // ==========================================================================
+
+    name: {
+      name: 'name',
+      label: 'name', // i18n key: products.fields.name
+      type: 'text',
+      visibility: 'guest',
+      editable: 'admin',
+      validation: { required: true },
+    },
+
+    description: {
+      name: 'description',
+      label: 'description',
+      type: 'textarea',
+      visibility: 'guest',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    category: {
+      name: 'category',
+      label: 'category',
+      type: 'select',
+      visibility: 'guest',
+      editable: 'admin',
+      validation: {
+        required: true,
+        options: [
+          { value: 'electronics', label: 'category.electronics' },
+          { value: 'clothing', label: 'category.clothing' },
+          { value: 'home', label: 'category.home' },
+          { value: 'other', label: 'category.other' },
+        ],
+      },
+    },
+
+    price: {
+      name: 'price',
+      label: 'price',
+      type: 'price',
+      visibility: 'guest',
+      editable: 'admin',
+      validation: { required: true },
+    },
+
+    images: {
+      name: 'images',
+      label: 'images',
+      type: 'images',
+      visibility: 'guest',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    // ==========================================================================
+    // ADMIN-ONLY FIELDS - Hidden from public, visible to admins
+    // ==========================================================================
+
+    cost: {
+      name: 'cost',
+      label: 'cost',
+      type: 'number',
+      visibility: 'admin', // Only admins see this
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    supplier: {
+      name: 'supplier',
+      label: 'supplier',
+      type: 'text',
+      visibility: 'admin',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    // ==========================================================================
+    // STATUS FIELD - Framework provides draft/available/deleted by default
+    // ==========================================================================
+    // Add custom status options that extend framework defaults:
+
+    status: {
+      name: 'status',
+      label: 'status',
+      type: 'select',
+      visibility: 'admin',
+      validation: {
+        options: [
+          // Framework adds: draft, available, deleted
+          // Add your custom statuses:
+          { value: 'featured', label: 'status.featured' },
+          { value: 'clearance', label: 'status.clearance' },
+        ],
+      },
+    },
+  },
+});
+
+// ============================================================================
+// USAGE EXAMPLES
+// ============================================================================
+//
+// In a List Page:
+// ```tsx
+// import { EntityList } from '@donotdev/crud';
+// import { productEntity } from '../entities/ExampleEntity';
+//
+// export default function ProductsListPage() {
+//   return (
+//     <PageContainer>
+//       <EntityList entity={productEntity} />
+//     </PageContainer>
+//   );
+// }
+// ```
+//
+// In a Form Page:
+// ```tsx
+// import { EntityFormRenderer, useCrud } from '@donotdev/crud';
+// import { productEntity } from '../entities/ExampleEntity';
+//
+// export default function ProductPage() {
+//   const { get, add, update } = useCrud(productEntity);
+//   // ... see ExampleFormPage.tsx for full pattern
+// }
+// ```
+//
+// In a Card Grid:
+// ```tsx
+// import { EntityCardList } from '@donotdev/crud';
+// import { productEntity } from '../entities/ExampleEntity';
+//
+// export default function ProductsGridPage() {
+//   return (
+//     <PageContainer>
+//       <EntityCardList entity={productEntity} />
+//     </PageContainer>
+//   );
+// }
+// ```

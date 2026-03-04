@@ -1,0 +1,33 @@
+// apps/demo/src/main.tsx
+
+/**
+ * @fileoverview Demo application entry point
+ * @description Main entry point for the DoNotDev framework demo application
+ *
+ * Initializes React with StrictMode for development safety.
+ * Shell loader management is handled by BaseStoresInitializer for optimal timing.
+ *
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import './globals.css';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
+import { App } from './App';
+
+// Ensure the root element exists
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error(
+    'Root element not found. Did you remove the root div from index.html?'
+  );
+}
+
+ReactDOM.createRoot(rootElement).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);

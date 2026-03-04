@@ -1,0 +1,137 @@
+/**
+ * @fileoverview WAI-WAY Operator Cockpit — phase control center
+ *
+ * Collapsible "DoNotDev — WAI-WAY Phases" section with shared PhaseCardList.
+ * Selected phase opens PhaseDetail + ContextTabs below.
+ * ReviewPanel auto-opens on pendingReview. CaptainLog at bottom.
+ */
+
+import { useEffect, useState } from 'react';
+import { GitBranch, Loader2 } from 'lucide-react';
+
+import { Section, Stack } from '@donotdev/components';
+import type { PageMeta } from '@donotdev/core';
+import { PageContainer } from '@donotdev/ui';
+
+import { ContextTabs } from '../components/phases/ContextTabs';
+import { PhaseCardList } from '../components/phases/PhaseCard';
+import { PhaseDetail } from '../components/phases/PhaseDetail';
+import { ReviewPanel } from '../components/phases/ReviewPanel';
+import {
+  DEFAULT_PROTOCOL,
+  parseLessons,
+  parseProgress,
+} from '../components/phases/phaseData';
+import { useDndevFile } from '../hooks/useDndevFile';
+
+import type {
+  CaptainLogData,
+  Lesson,
+  ProgressSection,
+  ProtocolData,
+} from '../components/phases/phaseData';
+
+export const meta: PageMeta = {
+  icon: <GitBranch />,
+  title: 'Phases',
+};
+
+export default function PhasesPage() {
+  // ---- Data sources (all HMR-reactive) ----
+  const { data: protocol, loading: protocolLoading } = useDndevFile<ProtocolData>(
+    '.dndev/protocol.json',
+    (raw) => raw as ProtocolData,
+    { fallback: DEFAULT_PROTOCOL },
+  );
+  const { data: progressSections, loading: progressLoading, reload: reloadProgress } = useDndevFile<ProgressSection[]>(
+    '.dndev/implementation.md',
+    (raw) => parseProgress(raw as string),
+    { fallback: [] },
+  );
+  const { data: captainLog } = useDndevFile<CaptainLogData>(
+    '.dndev/captain-log.json',
+    (raw) => raw as CaptainLogData,
+    { fallback: { sessions: [] } },
+  );
+  const { data: lessons } = useDndevFile<Lesson[]>(
+    '.dndev/LESSONS.md',
+    (raw) => parseLessons(raw as string),
+    { fallback: [] },
+  );
+
+  // ---- UI state ----
+  const proto = protocol ?? DEFAULT_PROTOCOL;
+  const [selectedPhase, setSelectedPhase] = useState<number>(Math.max(0, proto.currentPhase));
+  const [reviewOpen, setReviewOpen] = useState(false);
+
+  useEffect(() => {
+    if (proto.currentPhase >= 0) setSelectedPhase(proto.currentPhase);
+  }, [proto.currentPhase]);
+
+  useEffect(() => {
+    if (proto.pendingReview) setReviewOpen(true);
+  }, [proto.pendingReview]);
+
+  // ---- Checkbox toggle ----
+  async function handleCheckboxToggle(line: number, currentChecked: boolean) {
+    try {
+      await fetch('/api/dndev/progress/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ line, checked: !currentChecked }),
+      });
+      await reloadProgress();
+    } catch {
+      // Silent
+    }
+  }
+
+  // ---- Loading ----
+  if (protocolLoading || progressLoading) {
+    return (
+      <PageContainer>
+        <Section title="DoNotDev — WAI-WAY Phases">
+          <Stack align="center">
+            <Loader2 size={24} style={{ animation: 'spin 1.5s linear infinite' }} />
+          </Stack>
+        </Section>
+      </PageContainer>
+    );
+  }
+
+  return (
+    <PageContainer>
+      {/* Phase cards (left) + detail (right) */}
+      <Section title="DoNotDev — WAI-WAY Phases" gridCols={["1fr", "1fr", "1fr 2fr", "1fr 2fr"]}>
+        <PhaseCardList
+          protocol={proto}
+          progressSections={progressSections ?? []}
+          selectedPhase={selectedPhase}
+          onSelectPhase={setSelectedPhase}
+        />
+        <PhaseDetail
+          phaseId={selectedPhase}
+          protocol={proto}
+          progressSections={progressSections ?? []}
+          onOpenReview={() => setReviewOpen(true)}
+        />
+      </Section>
+
+      {/* Context: progress, specs, lessons, log */}
+      <ContextTabs
+        protocol={proto}
+        progressSections={progressSections ?? []}
+        lessonsCount={(lessons ?? []).length}
+        captainLog={captainLog ?? { sessions: [] }}
+        onCheckboxToggle={handleCheckboxToggle}
+      />
+
+      {/* Review sheet */}
+      <ReviewPanel
+        protocol={proto}
+        open={reviewOpen}
+        onOpenChange={setReviewOpen}
+      />
+    </PageContainer>
+  );
+}

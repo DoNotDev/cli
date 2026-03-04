@@ -1,0 +1,52 @@
+#!/usr/bin/env node
+/**
+ * @fileoverview Build script for {{APP_NAME}} Vercel functions
+ * @description Bundles @donotdev/types and imports framework functions
+ */
+
+import { build } from 'esbuild';
+import { createAppFunctionsConfig } from '@donotdev/core/functions';
+
+async function buildFunctions() {
+  console.log('🔨 Building {{APP_NAME}} Vercel functions...');
+  
+  try {
+    const config = createAppFunctionsConfig({
+      entry: 'src/index.ts',
+      outDir: 'lib',
+      minify: process.env.NODE_ENV === 'production',
+      sourcemap: true,
+    });
+
+    console.log('📦 Bundling @donotdev/types and importing framework functions...');
+    
+    const result = await build(config);
+    
+    if (result.errors.length > 0) {
+      console.error('❌ Build errors:', result.errors);
+      process.exit(1);
+    }
+    
+    if (result.warnings.length > 0) {
+      console.warn('⚠️ Build warnings:', result.warnings);
+    }
+    
+    console.log('✅ {{APP_NAME}} Vercel functions built successfully!');
+    console.log('📁 Output directory: lib/');
+    
+    // Log bundle info if metafile is available
+    if (result.metafile) {
+      const { analyzeMetafile } = await import('esbuild');
+      const analysis = await analyzeMetafile(result.metafile);
+      console.log('\n📊 Bundle analysis:');
+      console.log(analysis);
+    }
+    
+  } catch (error) {
+    console.error('❌ Build failed:', error);
+    process.exit(1);
+  }
+}
+
+// Run the build
+buildFunctions();

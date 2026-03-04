@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+import { buildFunctions } from '@donotdev/core/functions';
+import { functionsConfig } from './functions.config.js';
+
+buildFunctions(functionsConfig);

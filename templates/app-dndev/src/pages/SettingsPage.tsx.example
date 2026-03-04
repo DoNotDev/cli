@@ -1,0 +1,64 @@
+/**
+ * @fileoverview Settings page — project configuration and preferences
+ *
+ * Project info, mode toggle, terminal defaults.
+ * Layout: bottom-bar (observer page).
+ */
+
+import { Settings } from 'lucide-react';
+
+import { Stack, Card, Text, Section } from '@donotdev/components';
+import type { PageMeta } from '@donotdev/core';
+import { PageContainer } from '@donotdev/ui';
+
+import { useDoNotDashStore } from '../stores/dndevStore';
+import { ModeToggle } from '../components/ModeToggle';
+
+export const meta: PageMeta = {
+  icon: <Settings />,
+  title: 'Settings',
+};
+
+export default function SettingsPage() {
+  const mode = useDoNotDashStore((s) => s.mode);
+
+  return (
+    <PageContainer>
+      <Stack gap="tight">
+        <Section title="Project">
+          <Card
+            title="Mode"
+            subtitle={`Currently in ${mode.toUpperCase()} mode`}
+            content={<ModeToggle />}
+          />
+        </Section>
+
+        <Section title="Terminal">
+          <Card
+            title="Terminal Defaults"
+            subtitle="Terminal connects to PTY sidecar on port 24681"
+            content={
+              <Stack gap="tight">
+                <Text level="caption" variant="muted">
+                  Default tab: AI CLI | Shell: system default | Font: JetBrains Mono 13px
+                </Text>
+              </Stack>
+            }
+          />
+        </Section>
+
+        <Section title="About">
+          <Card
+            title="DnDev Cockpit"
+            subtitle="AI-driven development cockpit"
+            content={
+              <Text level="caption" variant="muted">
+                WAI-WAY protocol orchestration, project health monitoring, code review, task management.
+              </Text>
+            }
+          />
+        </Section>
+      </Stack>
+    </PageContainer>
+  );
+}

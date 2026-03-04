@@ -1,0 +1,89 @@
+/**
+ * @fileoverview Home Page
+ * @description Welcome page for {{appName}}
+ *
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import { View, StyleSheet } from 'react-native';
+import { Text, Card, Stack, Button } from '@donotdev/expo';
+import { useNavigate } from '@donotdev/expo';
+import { useAuth } from '@donotdev/auth';
+
+/**
+ * Home page component
+ */
+export default function HomePage() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  return (
+    <View style={styles.container}>
+      <Stack spacing={24} style={styles.content}>
+        <Text level="h1">Welcome to {{appName}}</Text>
+        
+        <Card title="Getting Started">
+          <Text level="body">
+            Your Expo app is running! Follow these steps to get started:
+          </Text>
+          
+          <Stack spacing={16} style={styles.steps}>
+            <View>
+              <Text level="h3">1. Backend Setup</Text>
+              <Text level="small">
+                Run: dndev coach → fill .env → dndev setup
+              </Text>
+            </View>
+            
+            <View>
+              <Text level="h3">2. Configure Environment</Text>
+              <Text level="small">
+                Update .env with your Firebase credentials
+              </Text>
+            </View>
+            
+            <View>
+              <Text level="h3">3. Start Building</Text>
+              <Text level="small">
+                Use WAI-WAY to build your app features
+              </Text>
+            </View>
+          </Stack>
+        </Card>
+
+        {user ? (
+          <Card title="You're Signed In">
+            <Text level="body">Welcome, {user.email}!</Text>
+            <Button onPress={() => navigate('/profile')}>
+              Go to Profile
+            </Button>
+          </Card>
+        ) : (
+          <Card title="Authentication">
+            <Text level="body">Sign in to get started</Text>
+            <Button onPress={() => navigate('/signin')}>
+              Sign In
+            </Button>
+          </Card>
+        )}
+      </Stack>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  content: {
+    maxWidth: 600,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  steps: {
+    marginTop: 16,
+  },
+});

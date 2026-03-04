@@ -1,0 +1,18 @@
+// apps/demo/src/pages/ProfilePage.tsx
+
+import { User } from 'lucide-react';
+
+import { ProfileTemplate } from '@donotdev/templates';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const meta: PageMeta = {
+  icon: <User />,
+  auth: true,
+  preset: 'admin',
+  hideFromMenu: true,
+};
+
+export default function ProfilePage() {
+  return <ProfileTemplate billingPath="/pricing" />;
+}

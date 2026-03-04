@@ -1,0 +1,19 @@
+/**
+ * @fileoverview {{APP_NAME}} Create Entity Wrapper
+ * @description Wrapper for framework's createEntity with {{APP_NAME}}-specific configuration
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import { createEntity as frameworkCreateEntity } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} entity creation
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ *
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+export const createEntity = frameworkCreateEntity;

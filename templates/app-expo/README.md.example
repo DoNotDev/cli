@@ -1,0 +1,58 @@
+# {{appName}}
+
+Mobile app built with DoNotDev Framework and Expo.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20+ and Bun 1.3+
+- Expo Go app on your phone (for development)
+- Provider configured (run `dndev coach` then `dndev setup`)
+
+### Development
+
+```bash
+# Install dependencies
+bun install
+
+# Start development server
+bun dev
+# or
+npx expo start
+
+# Scan QR code with Expo Go app on your phone
+```
+
+### Building
+
+```bash
+# Install EAS CLI
+npm install -g eas-cli
+
+# Login
+eas login
+
+# Build for iOS
+eas build --platform ios
+
+# Build for Android
+eas build --platform android
+```
+
+## Project Structure
+
+```
+app/              # Expo Router pages (file-based routing)
+  _layout.tsx     # Root layout
+  index.tsx       # Home page (/)
+src/              # Source files (components, config, etc.)
+app.json          # Expo configuration
+eas.json          # EAS Build configuration
+```
+
+## Documentation
+
+- [Expo Router Docs](https://docs.expo.dev/router/introduction/)
+- [DoNotDev Expo Package](../../../docs/development/EXPO_QUICK_START.md)
+- [WAI-WAY Guide](../../guides/wai-way/WAI_WAY_CLI.md.example)

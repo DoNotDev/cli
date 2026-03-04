@@ -1,0 +1,576 @@
+/**
+ * @fileoverview DEMO ENTITY - Complete Reference
+ *
+ * Shows ALL field types, visibility levels, and options.
+ * Copy what you need. NOT exported by default.
+ */
+
+import { defineEntity } from '@donotdev/core';
+import * as v from 'valibot';
+
+const demoEntity = defineEntity({
+  // ===========================================================================
+  // ENTITY CONFIG
+  // ===========================================================================
+
+  name: 'Demo',
+  collection: 'demos',
+  // collection: 'users/{userId}/demos', // Subcollection syntax
+  // namespace: 'entity-demo', // Optional: defaults to entity-${name.toLowerCase()}
+
+  listFields: ['title', 'status', 'category', 'price'],
+  listCardFields: ['images', 'title', 'price'],
+
+  // ===========================================================================
+  // ACCESS - Who can CRUD (entity-level)
+  // ===========================================================================
+  // 'guest' | 'user' | 'admin' | 'super'
+  access: {
+    create: 'admin',   // Default: 'admin'
+    read: 'guest',     // Default: 'guest'
+    update: 'admin',   // Default: 'admin'
+    delete: 'admin',   // Default: 'admin'
+  },
+  // allowGuestCreate: true, // Required if create: 'guest'
+
+  fields: {
+    // =========================================================================
+    // TEXT INPUTS
+    // =========================================================================
+
+    title: {
+      name: 'title',
+      label: 'title',              // i18n: demos.fields.title
+      type: 'text',
+      visibility: 'guest',         // guest|user|admin|super|hidden
+      editable: 'owner',           // admin|owner|user|create-only|false
+      validation: { required: true },
+    },
+
+    description: {
+      name: 'description',
+      label: 'description',
+      type: 'textarea',
+      visibility: 'guest',
+      editable: 'owner',
+      validation: { required: false },
+    },
+
+    content: {
+      name: 'content',
+      label: 'content',
+      type: 'richtext',            // Rich text editor
+      visibility: 'guest',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    website: {
+      name: 'website',
+      label: 'website',
+      type: 'url',
+      visibility: 'guest',
+      editable: 'owner',
+      validation: { required: false },
+    },
+
+    brandColor: {
+      name: 'brandColor',
+      label: 'brandColor',
+      type: 'color',               // Color picker
+      visibility: 'admin',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    secretKey: {
+      name: 'secretKey',
+      label: 'secretKey',
+      type: 'password',            // Masked input
+      visibility: 'admin',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    // =========================================================================
+    // NUMBERS
+    // =========================================================================
+
+    price: {
+      name: 'price',
+      label: 'price',
+      type: 'price',  // Value: { amount, currency?, vatIncluded?, discountPercent? }
+      visibility: 'guest',
+      editable: 'admin',
+      validation: { required: true },
+    },
+
+    rating: {
+      name: 'rating',
+      label: 'rating',
+      type: 'range',               // Slider
+      visibility: 'guest',
+      editable: 'owner',
+      validation: { required: false },
+    },
+
+    year: {
+      name: 'year',
+      label: 'year',
+      type: 'year',                // Year combobox (type or select)
+      visibility: 'guest',
+      editable: 'owner',
+      validation: {
+        required: true,
+        min: 1900,                 // Optional: defaults to 1900
+        max: 2100,                 // Optional: defaults to current year + 10
+      },
+    },
+
+    // =========================================================================
+    // CONTACT
+    // =========================================================================
+
+    email: {
+      name: 'email',
+      label: 'email',
+      type: 'email',
+      visibility: 'admin',
+      editable: 'owner',
+      validation: { required: true },
+    },
+
+    phone: {
+      name: 'phone',
+      label: 'phone',
+      type: 'tel',
+      visibility: 'admin',
+      editable: 'owner',
+      validation: { required: false },
+      options: {
+        fieldSpecific: {
+          defaultCountry: 'US',
+          preferredCountries: ['US', 'FR', 'GB'],
+          showFlags: true,
+        }
+      }
+    },
+
+    // =========================================================================
+    // BOOLEAN / TOGGLE
+    // =========================================================================
+
+    isActive: {
+      name: 'isActive',
+      label: 'isActive',
+      type: 'switch',              // Toggle switch
+      visibility: 'admin',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    acceptTerms: {
+      name: 'acceptTerms',
+      label: 'acceptTerms',
+      type: 'checkbox',            // Single checkbox
+      visibility: 'user',
+      editable: 'user',
+      validation: { required: true },
+    },
+
+    // Switch with custom values
+    transmission: {
+      name: 'transmission',
+      label: 'transmission',
+      type: 'switch',
+      visibility: 'guest',
+      editable: 'admin',
+      options: {
+        fieldSpecific: {
+          uncheckedLabel: 'Manual',
+          checkedLabel: 'Automatic',
+          uncheckedValue: 'Manual',
+          checkedValue: 'Automatic',
+        }
+      },
+      validation: { required: true },
+    },
+
+    // =========================================================================
+    // DATES
+    // =========================================================================
+
+    birthDate: {
+      name: 'birthDate',
+      label: 'birthDate',
+      type: 'date',                // Date only
+      visibility: 'user',
+      editable: 'owner',
+      validation: { required: false },
+    },
+
+    eventTime: {
+      name: 'eventTime',
+      label: 'eventTime',
+      type: 'datetime-local',      // Date + time
+      visibility: 'guest',
+      editable: 'owner',
+      validation: { required: false },
+    },
+
+    reminderTime: {
+      name: 'reminderTime',
+      label: 'reminderTime',
+      type: 'time',                // Time only
+      visibility: 'user',
+      editable: 'owner',
+      validation: { required: false },
+    },
+
+    reportWeek: {
+      name: 'reportWeek',
+      label: 'reportWeek',
+      type: 'week',                // Week picker
+      visibility: 'admin',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    reportMonth: {
+      name: 'reportMonth',
+      label: 'reportMonth',
+      type: 'month',               // Month picker
+      visibility: 'admin',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    lastSync: {
+      name: 'lastSync',
+      label: 'lastSync',
+      type: 'timestamp',           // Firestore Timestamp
+      visibility: 'admin',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    // =========================================================================
+    // SELECTION
+    // =========================================================================
+
+    category: {
+      name: 'category',
+      label: 'category',
+      type: 'select',              // Dropdown
+      visibility: 'guest',
+      editable: 'owner',
+      validation: {
+        required: true,
+        options: [
+          { value: 'electronics', label: 'category.electronics' },
+          { value: 'clothing', label: 'category.clothing' },
+        ],
+      },
+    },
+
+    brand: {
+      name: 'brand',
+      label: 'brand',
+      type: 'combobox',            // Searchable dropdown
+      visibility: 'guest',
+      editable: 'owner',
+      validation: {
+        required: false,
+        options: [
+          { value: 'apple', label: 'Apple' },
+          { value: 'samsung', label: 'Samsung' },
+        ],
+      },
+    },
+
+    tags: {
+      name: 'tags',
+      label: 'tags',
+      type: 'multiselect',         // Multiple selection
+      visibility: 'guest',
+      editable: 'owner',
+      validation: {
+        required: false,
+        options: [
+          { value: 'featured', label: 'Featured' },
+          { value: 'sale', label: 'On Sale' },
+          { value: 'new', label: 'New Arrival' },
+        ],
+      },
+    },
+
+    priority: {
+      name: 'priority',
+      label: 'priority',
+      type: 'radio',               // Radio buttons
+      visibility: 'user',
+      editable: 'owner',
+      validation: {
+        required: true,
+        options: [
+          { value: 'low', label: 'Low' },
+          { value: 'medium', label: 'Medium' },
+          { value: 'high', label: 'High' },
+        ],
+      },
+    },
+
+    // Dependent select (options based on another field)
+    model: {
+      name: 'model',
+      label: 'model',
+      type: 'combobox',
+      visibility: 'guest',
+      editable: 'owner',
+      dependsOn: { field: 'brand' },
+      validation: {
+        required: false,
+        options: ((formValues: { brand?: string }) => {
+          const models: Record<string, string[]> = {
+            apple: ['iPhone', 'MacBook'],
+            samsung: ['Galaxy', 'Tab'],
+          };
+          const list = formValues?.brand ? models[formValues.brand] || [] : [];
+          return list.map(m => ({ value: m, label: m }));
+        }) as any,
+      },
+    },
+
+    // =========================================================================
+    // FILES & MEDIA
+    // =========================================================================
+
+    avatar: {
+      name: 'avatar',
+      label: 'avatar',
+      type: 'avatar',              // Avatar image
+      visibility: 'guest',
+      editable: 'owner',
+      validation: { required: false },
+    },
+
+    photo: {
+      name: 'photo',
+      label: 'photo',
+      type: 'image',               // Single image
+      visibility: 'guest',
+      editable: 'owner',
+      validation: { required: false },
+    },
+
+    images: {
+      name: 'images',
+      label: 'images',
+      type: 'images',              // Multiple images
+      visibility: 'guest',
+      editable: 'owner',
+      validation: { required: false },
+    },
+
+    resume: {
+      name: 'resume',
+      label: 'resume',
+      type: 'document',            // Single document (PDF, etc.)
+      visibility: 'admin',
+      editable: 'owner',
+      validation: { required: false },
+    },
+
+    attachments: {
+      name: 'attachments',
+      label: 'attachments',
+      type: 'documents',           // Multiple documents
+      visibility: 'admin',
+      editable: 'owner',
+      validation: { required: false },
+    },
+
+    dataFile: {
+      name: 'dataFile',
+      label: 'dataFile',
+      type: 'file',                // Single file (any type)
+      visibility: 'admin',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    backups: {
+      name: 'backups',
+      label: 'backups',
+      type: 'files',               // Multiple files
+      visibility: 'admin',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    // =========================================================================
+    // LOCATION
+    // =========================================================================
+
+    location: {
+      name: 'location',
+      label: 'location',
+      type: 'geopoint',            // Lat/lng coordinates
+      visibility: 'guest',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    address: {
+      name: 'address',
+      label: 'address',
+      type: 'address',             // Address with autocomplete
+      visibility: 'guest',
+      editable: 'owner',
+      validation: { required: false },
+    },
+
+    // =========================================================================
+    // REFERENCE (link to other entity)
+    // =========================================================================
+
+    customerId: {
+      name: 'customerId',
+      label: 'customerId',
+      type: 'reference',
+      visibility: 'admin',
+      editable: 'create-only',     // Set once, read-only after
+      validation: {
+        required: true,
+        reference: 'customers',    // Target collection
+      },
+    },
+
+    // =========================================================================
+    // SPECIAL
+    // =========================================================================
+
+    keywords: {
+      name: 'keywords',
+      label: 'keywords',
+      type: 'array',               // Array of strings
+      visibility: 'admin',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    internalNotes: {
+      name: 'internalNotes',
+      label: 'internalNotes',
+      type: 'textarea',
+      visibility: 'hidden',        // NEVER sent to client
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    // =========================================================================
+    // STATUS - Framework adds: draft, available, deleted
+    // =========================================================================
+
+    status: {
+      name: 'status',
+      label: 'status',
+      type: 'select',
+      visibility: 'admin',
+      validation: {
+        options: [
+          // Custom options (merge with framework defaults)
+          { value: 'featured', label: 'status.featured' },
+          { value: 'archived', label: 'status.archived' },
+        ],
+      },
+    },
+
+    // =========================================================================
+    // CUSTOM FIELD with Valibot schema
+    // =========================================================================
+
+    repairs: {
+      name: 'repairs',
+      label: 'repairs',
+      type: 'text',                // Base type (schema overrides)
+      visibility: 'admin',
+      editable: 'admin',
+      validation: {
+        required: false,
+        // Custom schema takes precedence over type
+        schema: v.nullish(v.array(v.object({
+          operation: v.string(),
+          cost: v.number(),
+          date: v.optional(v.string()),
+        }))),
+      },
+    },
+
+    metadata: {
+      name: 'metadata',
+      label: 'metadata',
+      type: 'text',
+      visibility: 'admin',
+      editable: 'admin',
+      validation: {
+        required: false,
+        schema: v.optional(v.object({
+          source: v.string(),
+          importedAt: v.string(),
+          tags: v.array(v.string()),
+        })),
+      },
+    },
+
+    // =========================================================================
+    // TECHNICAL FIELDS - Auto-added, don't define:
+    // id, createdAt, updatedAt, createdById, updatedById
+    // =========================================================================
+  },
+});
+
+// =============================================================================
+// VISIBILITY LEVELS
+// =============================================================================
+//
+// 'guest'     → Everyone (including not logged in)
+// 'user'      → Authenticated users
+// 'admin'     → Admin role only
+// 'super'     → Super admin only
+// 'hidden'    → NEVER sent to client (server-only)
+//
+// Hierarchy: guest < user < admin < super
+// Admin sees guest + user + admin fields
+
+// =============================================================================
+// EDITABLE LEVELS
+// =============================================================================
+//
+// 'admin'       → Only admins can edit
+// 'owner'       → Only document creator
+// 'user'        → Any authenticated user
+// 'create-only' → Set on creation, read-only after
+// false         → Never editable (read-only)
+
+// =============================================================================
+// CUSTOM FIELD TYPES (register in app startup)
+// =============================================================================
+//
+// import { registerFieldType } from '@donotdev/crud';
+// import { useController } from '@donotdev/crud';
+//
+// function MyCustomField({ fieldConfig, control, t }: ControlledFieldProps) {
+//   const { field, fieldState } = useController({ name: fieldConfig.name, control });
+//   return <input {...field} />;
+// }
+//
+// registerFieldType({
+//   type: 'myCustomType',
+//   controlledComponent: MyCustomField,
+// });
+
+// =============================================================================
+// EXPORT - Uncomment to use this entity
+// =============================================================================
+// export { demoEntity };

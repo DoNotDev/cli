@@ -1,0 +1,135 @@
+# DoNotDev Framework - Agent Quick Start
+
+**Persona:** Lead Developer | UX Designer | Expert Adviser.
+**Intelligence Engine:** This project is pre-configured with the **`dndev` MCP Server** in `.mcp.json`.
+
+**Critical Rule:**
+> **DO NOT GUESS. DO NOT HALLUCINATE.**
+> Use `lookup_symbol("ComponentName")` to get actual TypeScript types. Every symbol has JSDoc and Types. Every setup has a Guide. Use them.
+
+---
+
+## Getting Started (for humans)
+
+**Canonical flow:** The showcase app’s **Get Started** page is the single source of truth: `apps/showcase/src/pages/GetStartedPage.tsx` and `apps/showcase/src/pages/locales/getstarted_*.json`. Below is the same flow in short form.
+
+1. **P0 — Prerequisites**
+   - **Runtime:** **Node.js 24** (nodejs.org) and **Bun 1.3+** (bun.sh). Both required.
+   - **IDE:** Any IDE (Cursor, VS Code, Windsurf, etc.). Need help? Use the collapsible “Need help setting up?” on the Get Started page.
+2. **Create your project’s monorepo**
+   - `bunx create-donotdev my-app`
+3. **Open the repo in your IDE**
+   - Start your IDE in that repo. Dependencies are already installed.
+4. **Enable MCP, then read AI.md and follow the flow**
+   - Talk with your agent; ask it to load the MCP (Cursor: Ctrl+Shift+P → “MCP Server” → enable “donotdev”; other IDEs: see “How to enable MCP” collapsible on the Get Started page).
+   - Then have the agent read the root **`AI.md`** and this file (**`guides/dndev/AGENT_START_HERE.md`**). Follow the phases.
+5. **AI helps with provider; cd there, bun install, run**
+   - AI helps you choose and set up your provider (Firebase, Supabase, or custom). Then `cd` into the app directory if needed, `bun install`, and `dndev dev` / `dndev build` / `dndev deploy`.
+
+---
+
+## Demo App — Canonical Reference
+
+**Before building anything, look at the demo app:** `packages/cli/templates/app-demo/`
+
+It demonstrates the correct way to use the framework:
+- Per-route layout switching via `PageMeta.preset` (landing → admin → docs)
+- SaaS pages as thin template wrappers (~5 lines each)
+- Component showcase with filterable grid and detail pages
+- Entity definition with `defineEntity()`
+- Zero custom CSS in page files
+- Auth-guarded routes alongside public routes
+
+**Copy from the demo app, then customize.** Don't invent patterns — the demo app IS the pattern.
+
+---
+
+## First Thing to Call: list_features()
+
+Call **`list_features()`** before designing or coding. It lists all framework packages with a one-line summary from each README (templates, core, ui, auth, billing, etc.). Use it so you don't reinvent what the framework already provides (blog, CRUD, billing, legal pages, etc.).
+
+---
+
+## The WAI-WAY Workflow (5 Phases)
+
+Call `start_phase(N)` to begin each phase. It returns the blueprint, agent persona, and files to read.
+
+### Phase 0: BRAINSTORM (Extractor)
+- **MCP:** `start_phase(0)`
+- **Goal:** Validated spec. Use BMAD probing questions to turn a vague idea into a complete `spec_template.md`.
+- **Discovery:** `search_framework('topic')` to see what's possible.
+
+### Phase 1: SCAFFOLD (Extractor)
+- **MCP:** `start_phase(1)`
+- **Goal:** Running skeleton. Run `dndev create-app` (interactive wizard, run directly — never `bunx`) and create `*Page.tsx` stubs.
+
+### Phase 2: ENTITIES (Architect)
+- **MCP:** `start_phase(2)`
+- **Goal:** Single Source of Truth. Define entities in `entities/` using `defineEntity()`.
+- **Types:** `lookup_symbol('defineEntity')` for exact props and @examples.
+
+### Phase 3: COMPOSE (Builder)
+- **MCP:** `start_phase(3)`
+- **Goal:** Functional pages. Hardcode all strings. No i18n yet.
+- **Types:** `lookup_symbol('Button')`, `lookup_symbol('EntityList')`, etc.
+
+### Phase 4: CONFIGURE (Polisher)
+- **MCP:** `start_phase(4)`
+- **Goal:** QA & Polish. Update `app.ts`, `.env`, verify mobile (375px).
+- **Lessons:** `record_lesson('Project quirk found')`.
+
+Call `complete_phase()` after each phase. It records progress and tells you what's next.
+
+---
+
+## Mindset & Standards
+
+* **SSOT Pattern:** The Entity is the brain. Change fields in `entities/*.ts` first. UI and DB follow.
+* **Composition > Customization:** Do not write custom CSS. Use `<Stack>`, `<Grid>`, and component props.
+* **Hardcode First:** In Phase 3, never use i18n. Validate the UI with real strings first.
+* **Zero Drift:** Your documentation is the **compiled code**. `lookup_symbol` shows the current reality.
+
+## Before You Start Coding
+
+Check that the user has completed environment setup:
+1. Firebase configured? (`.env` has `VITE_FIREBASE_API_KEY` filled in)
+2. Service account key exists? (`service-account-key.json` in app root)
+3. Emulators work? (`dndev emu start` runs without errors)
+
+If not, coach them: "Run `dndev coach` to see what to configure, fill in the .env values, then run `dndev setup`." See [SETUP_FIREBASE.md](./SETUP_FIREBASE.md) or [SETUP_SUPABASE.md](./SETUP_SUPABASE.md).
+
+---
+
+## Project Args (`.dndev/args.json`)
+
+Generated by `dndev init`. All features ON by default — Phase 0 narrows down based on what the user actually needs.
+
+```json
+{
+  "platform": "firebase",
+  "strictness": "enforced",
+  "features": ["crud", "auth", "i18n", "billing", "oauth", "functions"],
+  "region": "europe-west1"
+}
+```
+
+| Field | Values | Effect |
+|-------|--------|--------|
+| `platform` | `firebase`, `vercel` | Derived from builder choice |
+| `strictness` | `enforced`, `warnings`, `permissive` | `enforced` = blocks `complete_phase` on convention violations. `warnings` = reports but allows. `permissive` = skips checks. |
+| `features` | `crud`, `auth`, `i18n`, `billing`, `oauth`, `functions` | Filters gotchas — remove features the project doesn't use to reduce noise |
+| `region` | any GCP region | Informational, shown in `start_phase` context |
+
+`start_phase()` returns project args + phase-relevant gotchas automatically. `complete_phase()` respects `strictness`.
+
+**Without MCP:** `args.json` and `GOTCHAS.md` are plain files. Any agent can read them directly.
+
+---
+
+## Gotchas (`guides/dndev/GOTCHAS.md`)
+
+Common mistakes, phase-tagged. `start_phase(N)` automatically filters and returns only the gotchas relevant to phase N and your enabled features. Read the full file for reference: [GOTCHAS.md](../guides/dndev/GOTCHAS.md).
+
+---
+
+**Starting:** Call `list_features()` first, then `get_phase_status()` to see where you are, then `start_phase(0)` to begin.

@@ -1,0 +1,9 @@
+/* Next.js app globals.css */
+@import '@donotdev/ui/dndev.css';
+
+@import './themes.css';
+
+/**
+ * Font choices (--font-family, --font-sans, etc.) belong in themes.css.
+ * Fonts (Inter, Space Grotesk, Playfair, Roboto) are bundled via @donotdev/ui; no external fetch, no public/fonts required.
+ */ 

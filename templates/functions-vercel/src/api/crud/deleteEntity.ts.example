@@ -1,0 +1,20 @@
+// functions/src/api/crud/deleteEntity.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Delete Entity Wrapper
+ * @description Wrapper for framework's deleteEntity with {{APP_NAME}}-specific configuration
+ */
+
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { deleteEntity as frameworkDeleteEntity } from '@donotdev/functions/vercel';
+
+/**
+ * {{APP_NAME}} entity deletion
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  return frameworkDeleteEntity(req, res);
+}

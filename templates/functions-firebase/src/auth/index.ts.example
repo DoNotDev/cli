@@ -1,0 +1,11 @@
+// functions/src/auth/index.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Auth Functions
+ * @description Exports all auth-related functions for the {{APP_NAME}} app
+ */
+
+export { setCustomClaims } from './setCustomClaims';
+export { getCustomClaims } from './getCustomClaims';
+export { removeCustomClaims } from './removeCustomClaims';
+export { getUserAuthStatus } from './getUserAuthStatus';

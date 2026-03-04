@@ -1,0 +1,198 @@
+/**
+ * @fileoverview Home Page — Setup Guide
+ *
+ * This page guides you through setting up your app.
+ * Replace it with your actual landing page once setup is complete.
+ *
+ * HOW PAGES WORK:
+ * 1. Name files *Page.tsx in src/pages/ → auto-discovered as routes
+ * 2. Export `meta` for navigation, auth, icons
+ * 3. Export default function → your page component
+ * 4. Use PageContainer as wrapper → handles layout, scrolling
+ */
+
+import { Home } from 'lucide-react';
+
+import { HeroSection, Section, Card, Grid, List, Alert, Text, Stack } from '@donotdev/components';
+import type { PageMeta } from '@donotdev/core';
+import { PageContainer } from '@donotdev/ui';
+
+export const NAMESPACE = 'home';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <Home />,
+};
+
+export default function HomePage() {
+  return (
+    <PageContainer>
+      <HeroSection
+        title="Your App is Running"
+        subtitle="Follow the steps below to complete your setup. Replace this page when you're ready to build."
+        variant="primary"
+      />
+
+      {/* ================================================================ */}
+      {/* REQUIRED SETUP                                                   */}
+      {/* ================================================================ */}
+
+      <Section title="Required Setup">
+        <Grid cols={[1, 1, 2, 2]}>
+          <Card
+            title="1. Git Repository"
+            content={[
+              'git init',
+              'git add . && git commit -m "Initial scaffold"',
+              'Create a repo on GitHub, then:',
+              'git remote add origin <your-repo-url>',
+              'git push -u origin main',
+            ]}
+          />
+
+          <Card
+            title="2. Provider Setup"
+            content={[
+              'Run: dndev coach',
+              'This shows what to configure:',
+              '  - Which dashboard to visit',
+              '  - What to copy and where to paste it',
+              'Fill in your .env values, then run:',
+              '  dndev setup',
+              'Setup validates, automates, and health-checks.',
+            ]}
+          />
+        </Grid>
+      </Section>
+
+      {/* ================================================================ */}
+      {/* VERIFY SETUP                                                     */}
+      {/* ================================================================ */}
+
+      <Section title="Verify It Works">
+        <Grid cols={[1, 1, 2, 3]}>
+          <Card
+            title="Local Dev"
+            content={[
+              'bun dev → starts the app',
+              'Should load without errors',
+            ]}
+          />
+          <Card
+            title="Emulators"
+            content={[
+              'dndev emu start → Firebase emulators',
+              'Select: Auth + Firestore + Functions',
+              'Test auth and CRUD locally',
+            ]}
+          />
+          <Card
+            title="Deploy"
+            content={[
+              'dndev deploy → deploys to Firebase Hosting',
+              'Functions + hosting deployed automatically',
+              'Cloud Run IAM configured for you',
+            ]}
+          />
+        </Grid>
+      </Section>
+
+      {/* ================================================================ */}
+      {/* OPTIONAL SETUP                                                   */}
+      {/* ================================================================ */}
+
+      <Section title="Optional Setup">
+        <Alert
+          variant="info"
+          title="None of these are required to start building"
+          description="Set these up when you need them, not before."
+        />
+
+        <Grid cols={[1, 1, 2, 2]}>
+          <Card
+            title="GitHub Actions (CI/CD)"
+            subtitle="Automatic deploy on push to main"
+            content={[
+              'WAI-WAY Phase 4 generates .github/workflows/ci.yml',
+              'Add secrets in GitHub → Settings → Secrets:',
+              'FIREBASE_SERVICE_ACCOUNT (paste service account JSON)',
+              'Pushes to main auto-deploy after tests pass',
+            ]}
+          />
+
+          <Card
+            title="Staging Environment"
+            subtitle="Separate Firebase project for testing"
+            content={[
+              'Create a second Firebase project (e.g. my-app-staging)',
+              'Add to .firebaserc: { "projects": { "staging": "my-app-staging" } }',
+              'Create .env.staging with staging Firebase config',
+              'Create service-account-key.staging.json',
+              'Deploy with: dndev staging',
+            ]}
+          />
+
+          <Card
+            title="Secrets (Stripe, OAuth, etc.)"
+            subtitle="Server-side API keys for Cloud Functions"
+            content={[
+              'Add secrets to functions/.env (not the app .env)',
+              'Run: dndev sync-secrets to push to Firebase Secret Manager',
+              'Secrets are auto-loaded by Cloud Functions at runtime',
+              'Never put server secrets in VITE_ variables',
+            ]}
+          />
+
+          <Card
+            title="Stripe (Payments)"
+            subtitle="Subscriptions, one-time payments, customer portal"
+            content={[
+              'Go to dashboard.stripe.com → create account',
+              'Get API keys from Developers → API Keys',
+              'Add to functions/.env: STRIPE_SECRET_KEY=sk_test_...',
+              'Add to .env: VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...',
+              'Set up webhook: Developers → Webhooks → Add endpoint',
+              'Webhook URL: https://<your-functions-url>/stripeWebhook',
+              'Run: dndev sync-secrets to push secret key to Firebase',
+            ]}
+          />
+
+          <Card
+            title="Custom Domain"
+            subtitle="Use your own domain instead of .web.app"
+            content={[
+              'Firebase Console → Hosting → Add custom domain',
+              'Add DNS records as instructed',
+              'SSL certificate provisioned automatically',
+            ]}
+          />
+        </Grid>
+      </Section>
+
+      {/* ================================================================ */}
+      {/* NEXT STEPS                                                       */}
+      {/* ================================================================ */}
+
+      <Section title="Start Building" tone="muted" align="center">
+        <Stack align="center">
+          <Text level="body">
+            Once setup is complete, use WAI-WAY to build your app:
+          </Text>
+          <List
+            items={[
+              'Phase 0: Brainstorm — describe your app, produce a spec',
+              'Phase 1: Scaffold — create all pages and routes',
+              'Phase 2: Entities — define your data models',
+              'Phase 3: Compose — build pages with framework components',
+              'Phase 4: Configure — generate tests, firestore rules, CI/CD',
+            ]}
+            ordered
+          />
+          <Text level="small">
+            Read guides/wai-way/WAI_WAY_CLI.md for the full workflow, or use the MCP tools if your IDE supports them.
+          </Text>
+        </Stack>
+      </Section>
+    </PageContainer>
+  );
+}

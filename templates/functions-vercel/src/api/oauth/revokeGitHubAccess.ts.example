@@ -1,0 +1,20 @@
+// functions/src/api/oauth/revokeGitHubAccess.ts
+
+/**
+ * @fileoverview {{APP_NAME}} GitHub Access Revocation Wrapper
+ * @description Wrapper for framework's revokeGitHubAccess with {{APP_NAME}}-specific configuration
+ */
+
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { revokeGitHubAccess as frameworkRevokeGitHubAccess } from '@donotdev/functions/vercel';
+
+/**
+ * {{APP_NAME}} GitHub access revocation
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  return frameworkRevokeGitHubAccess(req, res);
+}

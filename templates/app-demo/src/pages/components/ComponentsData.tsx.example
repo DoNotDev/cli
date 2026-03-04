@@ -1,0 +1,234 @@
+// apps/demo/src/pages/components/ComponentsData.tsx
+// Single source of truth for example prop values
+
+import { Rocket, Check, X, AlertCircle } from 'lucide-react';
+import { Button, Collapsible, Text, Badge } from '@donotdev/components';
+
+export const PROP_VALUES = {
+  title: 'Title',
+  subtitle: 'Subtitle',
+  description:
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+  content:
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+  shortLabel: 'Lorem ipsum short',
+  collapsibleContent: (
+    <div className="dndev-p-md dndev-surface dndev-mt-sm">
+      <Text variant="muted" className="dndev-mb-sm">
+        Advanced Configuration Details:
+      </Text>
+      <Text>• Cache policy: 3600s</Text>
+      <Text>• Retries: 3</Text>
+      <Text>• Timeout: 5000ms</Text>
+    </div>
+  ),
+  label: 'Label',
+  placeholder: 'Placeholder',
+  tooltip: 'Tooltip',
+  icon: Rocket,
+  trigger: 'Trigger: Open component',
+  button: 'Button',
+  confirmLabel: 'Confirm',
+  cancelLabel: 'Cancel',
+  primaryAction: <Button icon={Rocket}>Primary</Button>,
+  secondaryAction: (
+    <Button variant="outline" icon={Rocket}>
+      Secondary
+    </Button>
+  ),
+  items: [
+    {
+      label: 'Item 1',
+      value: '1',
+      content:
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    },
+    {
+      label: 'Item 2',
+      value: '2',
+      content:
+        'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit.',
+    },
+    {
+      label: 'Item 3',
+      value: '3',
+      content:
+        'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error.',
+    },
+  ],
+  accordionItems: [
+    {
+      value: 'item-1',
+      trigger: 'Trigger: Accordion Item 1',
+      content:
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+    },
+    {
+      value: 'item-2',
+      trigger: 'Trigger: Accordion Item 2',
+      content:
+        'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+    },
+    {
+      value: 'item-3',
+      trigger: 'Trigger: Accordion Item 3',
+      content:
+        'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.',
+    },
+  ],
+  tabsItems: [
+    {
+      value: 'tab1',
+      label: 'Tab 1',
+      content:
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+    },
+    {
+      value: 'tab2',
+      label: 'Tab 2',
+      content:
+        'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.',
+    },
+  ],
+  commandGroups: [
+    {
+      heading: 'Navigation',
+      items: [
+        { label: 'Home', description: 'Go to home', onSelect: () => {} },
+        {
+          label: 'Components',
+          description: 'Open components page',
+          onSelect: () => {},
+        },
+        { label: 'Settings', description: 'Open settings', onSelect: () => {} },
+      ],
+    },
+  ],
+  listItems: [
+    {
+      icon: <Check className="dndev-size-md" />,
+      content: 'Feature enabled with icon support',
+    },
+    {
+      icon: <Check className="dndev-size-md" />,
+      content: (
+        <Text>
+          Custom ReactNode content with <Badge>Badge</Badge>
+        </Text>
+      ),
+    },
+    {
+      icon: <AlertCircle className="dndev-size-md" />,
+      content: 'Warning item with different icon',
+    },
+    { content: 'Simple text item without icon' },
+  ],
+  navigationItems: [
+    { label: 'Home', path: '#' },
+    { label: 'Products', path: '#' },
+    { label: 'Docs', path: '#' },
+  ],
+  descriptionListItems: [
+    { label: 'Status', value: <Badge variant="success">Active</Badge> },
+    { label: 'Plan', value: <Badge variant="primary">Pro</Badge> },
+    { label: 'Email', value: 'user@example.com' },
+    { label: 'Last Login', value: <Text variant="muted">2 hours ago</Text> },
+  ],
+  demoItems: ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo'],
+  selectOptions: [
+    { value: 'option1', label: 'Option 1' },
+    { value: 'option2', label: 'Option 2' },
+    { value: 'option3', label: 'Option 3' },
+  ],
+  comboboxOptions: [
+    {
+      value: 'tenant1',
+      label: 'Tenant Alpha',
+      description: 'Primary tenant account',
+    },
+    {
+      value: 'tenant2',
+      label: 'Tenant Beta',
+      description: 'Secondary tenant account',
+    },
+    {
+      value: 'tenant3',
+      label: 'Tenant Gamma',
+      description: 'Test tenant account',
+    },
+    { value: 'owner1', label: 'John Smith', description: 'Owner - Marketing' },
+    { value: 'owner2', label: 'Jane Doe', description: 'Owner - Engineering' },
+    { value: 'owner3', label: 'Bob Johnson', description: 'Owner - Sales' },
+  ],
+  radioGroupItems: [
+    { value: 'option1', label: 'Option 1' },
+    { value: 'option2', label: 'Option 2' },
+    { value: 'option3', label: 'Option 3' },
+  ],
+  toggleGroupItems: [
+    { value: 'left', label: 'Left' },
+    { value: 'center', label: 'Center' },
+    { value: 'right', label: 'Right' },
+  ],
+  avatarSrc: '/logo.png',
+  avatarFallback: 'DN',
+  footer: (
+    <div className="dndev-command-footer">
+      <div className="dndev-command-footer-shortcuts">
+        <div className="dndev-command-footer-shortcut">
+          <kbd className="dndev-command-footer-key">↑</kbd>
+          <kbd className="dndev-command-footer-key">↓</kbd>
+          <span>Navigate</span>
+        </div>
+        <div className="dndev-command-footer-shortcut">
+          <kbd className="dndev-command-footer-key">↵</kbd>
+          <span>Select</span>
+        </div>
+        <div className="dndev-command-footer-shortcut">
+          <kbd className="dndev-command-footer-key">Esc</kbd>
+          <span>Close</span>
+        </div>
+      </div>
+    </div>
+  ),
+};
+
+export type CSSFamily =
+  | 'surface'
+  | 'floating'
+  | 'interactive'
+  | 'layout'
+  | 'input'
+  | 'other';
+
+export type PropType =
+  | 'title'
+  | 'subtitle'
+  | 'description'
+  | 'content'
+  | 'collapsibleContent'
+  | 'label'
+  | 'placeholder'
+  | 'tooltip'
+  | 'icon'
+  | 'trigger'
+  | 'button'
+  | 'confirmLabel'
+  | 'cancelLabel'
+  | 'primaryAction'
+  | 'secondaryAction'
+  | 'items'
+  | 'accordionItems'
+  | 'tabsItems'
+  | 'commandGroups'
+  | 'listItems'
+  | 'navigationItems'
+  | 'descriptionListItems'
+  | 'demoItems'
+  | 'selectOptions'
+  | 'comboboxOptions'
+  | 'radioGroupItems'
+  | 'toggleGroupItems'
+  | 'footer'
+  | 'avatarSrc'
+  | 'avatarFallback';

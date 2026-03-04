@@ -1,0 +1,52 @@
+/**
+ * @fileoverview CRUD Form Example
+ * @description FormRenderer example page — create / edit (use with expo-router dynamic routes)
+ * Suggested file locations: app/[entity]/new.tsx or app/[entity]/[id]/edit.tsx
+ *
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import { useState } from 'react';
+import { Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+
+import { EntityFormRenderer, Stack, Text } from '@donotdev/expo';
+import { useCrud } from '@donotdev/crud';
+
+// import { productEntity } from '../entities/Product';
+const productEntity = null as any; // replace with your entity
+
+/**
+ * Form page component — create or edit a single record
+ */
+export default function FormPage() {
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { add, update } = useCrud(productEntity);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (data: unknown) => {
+    setSubmitting(true);
+    try {
+      if (id) await update(id as string, data as any);
+      else await add(data as any);
+      router.back();
+    } catch (err) {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to save.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <Stack spacing={16} style={{ flex: 1, padding: 16 }}>
+        <Text level="h2">{id ? 'Edit' : 'Create'}</Text>
+        <EntityFormRenderer entity={productEntity} entityId={id} onSubmit={handleSubmit} />
+      </Stack>
+    </SafeAreaView>
+  );
+}

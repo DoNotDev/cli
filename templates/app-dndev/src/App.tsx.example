@@ -1,0 +1,35 @@
+/**
+ * @fileoverview Main application component
+ *
+ * Admin preset with cockpit layout wrapper.
+ * Single unified store (DoNotDashStore) for all app state.
+ * Terminal embedded inside CockpitLayout (route-aware split panes).
+ * Ctrl+K navigation uses framework GoToWrapper (rendered by DnDevLayout).
+ */
+
+import { ViteAppProviders } from '@donotdev/ui/vite';
+
+import { CockpitLayout } from './components/CockpitLayout';
+import './components/TerminalPanel.css';
+import './components/CockpitLayout.css';
+import './components/Kanban.css';
+import './components/markdown-prose.css';
+import './config/providers';
+import { appConfig } from './config/app';
+import { useDoNotDashStore } from './stores/dndevStore';
+
+export function App() {
+  return (
+    <ViteAppProviders
+      config={appConfig}
+      layout={{
+        breadcrumbs: 'smart',
+        footer: () => null,
+        wrapper: ({ children }) => <CockpitLayout>{children}</CockpitLayout>,
+      }}
+      customStores={[
+        { name: 'donotdash', type: 'regular', store: useDoNotDashStore },
+      ]}
+    />
+  );
+}

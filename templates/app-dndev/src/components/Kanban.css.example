@@ -1,0 +1,385 @@
+/* ===========================
+   KANBAN — Board + Cards + Sheet
+   =========================== */
+
+/* --- Board grid --- */
+
+.dndev-kanban-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-surface, 8px);
+  overflow: hidden;
+  background: var(--card);
+  flex: 1;
+  min-height: 100dvh;
+}
+
+@media (width < 900px) {
+  .dndev-kanban-board { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (width < 540px) {
+  .dndev-kanban-board { grid-template-columns: 1fr; }
+}
+
+/* --- Column --- */
+
+.dndev-kanban-column {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.dndev-kanban-column + .dndev-kanban-column {
+  border-inline-start: 1px dashed var(--border);
+}
+
+@media (width < 900px) {
+  .dndev-kanban-column:nth-child(3),
+  .dndev-kanban-column:nth-child(4) { border-top: 1px dashed var(--border); }
+  .dndev-kanban-column:nth-child(3) { border-inline-start: none; }
+}
+
+@media (width < 540px) {
+  .dndev-kanban-column + .dndev-kanban-column {
+    border-inline-start: none;
+    border-top: 1px dashed var(--border);
+  }
+}
+
+.dndev-kanban-column[data-column='backlog'] { background: color-mix(in oklch, var(--muted) 40%, transparent); }
+.dndev-kanban-column[data-column='in_progress'] { background: color-mix(in oklch, var(--warning, #f59e0b) 4%, transparent); }
+.dndev-kanban-column[data-column='review'] { background: color-mix(in oklch, var(--primary) 4%, transparent); }
+.dndev-kanban-column[data-column='done'] { background: color-mix(in oklch, var(--success, #22c55e) 4%, transparent); }
+
+/* Column header */
+.dndev-kanban-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dndev-kanban-col-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dndev-kanban-col-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dndev-kanban-column[data-column='backlog'] .dndev-kanban-col-dot { background: var(--muted-foreground); }
+.dndev-kanban-column[data-column='in_progress'] .dndev-kanban-col-dot { background: var(--warning, #f59e0b); }
+.dndev-kanban-column[data-column='review'] .dndev-kanban-col-dot { background: var(--primary); }
+.dndev-kanban-column[data-column='done'] .dndev-kanban-col-dot { background: var(--success, #22c55e); }
+
+/* Cards area */
+.dndev-kanban-cards {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  min-height: 80px;
+  overflow-y: auto;
+}
+
+.dndev-kanban-empty {
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  flex: 1;
+  min-height: 80px;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  opacity: 0.5;
+}
+
+/* Show more button */
+.dndev-kanban-show-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  border: none;
+  border-top: 1px dashed var(--border);
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color var(--dur-fast, 100ms);
+}
+
+.dndev-kanban-show-more:hover {
+  color: var(--foreground);
+  background: color-mix(in oklch, var(--muted) 30%, transparent);
+}
+
+/* ===========================
+   KANBAN CARD — compact, clickable
+   =========================== */
+
+.dndev-kanban-card {
+  cursor: pointer;
+}
+
+.dndev-kanban-card-inner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border-inline-start: 3px solid var(--muted-foreground);
+  background: var(--background);
+  border-top: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+  border-bottom: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+  border-inline-end: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+  transition: background var(--dur-fast, 100ms);
+}
+
+.dndev-kanban-card:hover .dndev-kanban-card-inner {
+  background: color-mix(in oklch, var(--muted) 40%, var(--background));
+}
+
+.dndev-kanban-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.dndev-kanban-card-title {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--foreground);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.dndev-kanban-card-meta {
+  font-size: 10px;
+  font-family: var(--font-mono, monospace);
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.dndev-kanban-card-overlay {
+  opacity: 0.9;
+  transform: rotate(2deg);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+}
+
+/* Grip handle */
+.dndev-kanban-grip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  min-height: 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: grab;
+  flex-shrink: 0;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity var(--dur-fast, 100ms);
+}
+
+.dndev-kanban-card:hover .dndev-kanban-grip { opacity: 1; }
+.dndev-kanban-grip:active { cursor: grabbing; }
+
+/* Add button */
+.dndev-kanban-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all var(--dur-fast, 100ms);
+}
+
+.dndev-kanban-add:hover {
+  color: var(--foreground);
+  border-color: var(--foreground);
+  border-style: solid;
+  background: var(--muted, rgba(128, 128, 128, 0.1));
+}
+
+/* ===========================
+   CARD DETAIL SHEET — slide from right
+   =========================== */
+
+.dndev-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.dndev-sheet {
+  width: min(440px, 90vw);
+  height: 100%;
+  background: var(--card);
+  border-inline-start: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  animation: dndev-sheet-in 200ms ease;
+}
+
+@keyframes dndev-sheet-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.dndev-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dndev-sheet-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: all var(--dur-fast, 100ms);
+}
+
+.dndev-sheet-close:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.dndev-sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dndev-sheet-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dndev-sheet-input {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-surface, 8px);
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color var(--dur-fast, 100ms);
+}
+
+.dndev-sheet-input:focus {
+  border-color: var(--primary);
+}
+
+.dndev-sheet-textarea {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-surface, 8px);
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color var(--dur-fast, 100ms);
+}
+
+.dndev-sheet-textarea:focus {
+  border-color: var(--primary);
+}
+
+.dndev-sheet-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--dur-fast, 100ms);
+}
+
+.dndev-sheet-option[data-active='true'] {
+  background: var(--foreground);
+  color: var(--background);
+  border-color: var(--foreground);
+}
+
+.dndev-sheet-option-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dndev-sheet-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+}
+
+/* ===========================
+   color-mix FALLBACKS
+   =========================== */
+
+@supports not (background: color-mix(in oklch, red 50%, blue)) {
+  .dndev-kanban-column[data-column='backlog'] { background: rgba(128, 128, 128, 0.06); }
+  .dndev-kanban-column[data-column='in_progress'] { background: rgba(245, 158, 11, 0.04); }
+  .dndev-kanban-column[data-column='review'] { background: rgba(59, 130, 246, 0.04); }
+  .dndev-kanban-column[data-column='done'] { background: rgba(34, 197, 94, 0.04); }
+}

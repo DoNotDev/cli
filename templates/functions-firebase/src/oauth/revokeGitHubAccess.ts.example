@@ -1,0 +1,14 @@
+// functions/src/oauth/revokeGitHubAccess.ts
+
+/**
+ * @fileoverview {{APP_NAME}} GitHub Access Revocation Wrapper
+ * @description Wrapper for framework's revokeGitHubAccess with {{APP_NAME}}-specific configuration
+ */
+
+import { revokeGitHubAccess as frameworkRevokeGitHubAccess } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} GitHub access revocation
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export const revokeGitHubAccess = frameworkRevokeGitHubAccess;

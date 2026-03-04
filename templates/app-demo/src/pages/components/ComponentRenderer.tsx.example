@@ -1,0 +1,607 @@
+// apps/demo/src/pages/components/ComponentRenderer.tsx
+// Data-driven component renderer - no special cases
+
+import { useState } from 'react';
+import type { ReactNode } from 'react';
+import {
+  Button,
+  Card,
+  Combobox,
+  Command,
+  Stack,
+  Text,
+  Select,
+  Input,
+  Spinner,
+  useToast,
+  TOAST_DURATIONS,
+  type CommandGroup,
+} from '@donotdev/components';
+
+import { PROP_VALUES } from './ComponentsData';
+import type { ComponentConfig } from './componentConfig';
+
+interface ComponentRendererProps {
+  config: ComponentConfig;
+  variantProps?: Record<string, any>;
+}
+
+const PROP_TYPE_TO_PROP_NAME: Record<string, string> = {
+  accordionItems: 'items',
+  tabsItems: 'items',
+  listItems: 'items',
+  navigationItems: 'items',
+  commandGroups: 'groups',
+  descriptionListItems: 'items',
+  demoItems: 'items',
+  avatarSrc: 'src',
+  avatarFallback: 'fallback',
+  selectOptions: 'options',
+  comboboxOptions: 'options',
+  radioGroupItems: 'items',
+  toggleGroupItems: 'items',
+};
+
+/**
+ * Generic state wrapper for controlled components
+ * Returns [value, onChange, additionalProps]
+ */
+function useComponentState(
+  config: ComponentConfig,
+  variantProps: Record<string, any>
+): [any, ((val: any) => void) | undefined, Record<string, any>] {
+  const { stateType, defaultStateValue } = config;
+
+  if (!stateType || stateType === 'custom') {
+    return [undefined, undefined, {}];
+  }
+
+  switch (stateType) {
+    case 'controlled-value': {
+      const [value, setValue] = useState<string | string[]>(
+        defaultStateValue ?? ''
+      );
+      return [value, setValue, {}];
+    }
+    case 'controlled-checked': {
+      const [checked, setChecked] = useState<boolean>(
+        defaultStateValue ?? false
+      );
+      return [checked, setChecked, {}];
+    }
+    case 'controlled-pressed': {
+      const [pressed, setPressed] = useState<boolean>(
+        defaultStateValue ?? false
+      );
+      return [pressed, setPressed, {}];
+    }
+    case 'controlled-range': {
+      const [value, setValue] = useState<number[]>(defaultStateValue ?? [2]);
+      return [value, setValue, {}];
+    }
+    case 'controlled-date': {
+      const [selected, setSelected] = useState<Date | undefined>(
+        defaultStateValue ?? new Date()
+      );
+      return [selected, setSelected, { mode: 'single' }];
+    }
+    case 'controlled-dates': {
+      const [selected, setSelected] = useState<Date[]>(defaultStateValue ?? []);
+      return [selected, setSelected, { mode: 'multiple' }];
+    }
+    case 'controlled-date-range': {
+      const [selected, setSelected] = useState<{ from?: Date; to?: Date }>(
+        defaultStateValue ?? {}
+      );
+      return [selected, setSelected, { mode: 'range' }];
+    }
+    default:
+      return [undefined, undefined, {}];
+  }
+}
+
+export function ComponentRenderer({
+  config,
+  variantProps = {},
+}: ComponentRendererProps) {
+  const Component = config.component;
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    config.id === 'calendar' && variantProps.mode === 'single'
+      ? new Date()
+      : undefined
+  );
+  const [selectedDates, setSelectedDates] = useState<Date[]>(
+    config.id === 'calendar' && variantProps.mode === 'multiple' ? [] : []
+  );
+  const [selectedRange, setSelectedRange] = useState<{
+    from?: Date;
+    to?: Date;
+  }>(config.id === 'calendar' && variantProps.mode === 'range' ? {} : {});
+  const [sheetOpen, setSheetOpen] = useState<boolean>(false);
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [alertDialogOpen, setAlertDialogOpen] = useState<boolean>(false);
+  const [commandDialogOpen, setCommandDialogOpen] = useState<boolean>(false);
+  const [tabCount, setTabCount] = useState<number>(2);
+  const [generatedTabsItems, setGeneratedTabsItems] = useState<Array<{
+    value: string;
+    label: string;
+    content: string;
+  }> | null>(null);
+  const [activeOverlayVariant, setActiveOverlayVariant] = useState<
+    string | null
+  >(null);
+
+  if (config.layoutDescription) {
+    return (
+      <Card
+        title={config.name}
+        variant="muted"
+        subtitle={
+          config.layoutDescription || `Layout component: ${config.name}`
+        }
+      >
+        <Text variant="muted">
+          {config.notes ||
+            'This is a layout component. Use it to structure your page content.'}
+        </Text>
+      </Card>
+    );
+  }
+
+  const componentProps: Record<string, any> = {
+    ...variantProps,
+    ...config.customProps,
+  };
+
+  if (config.propTypes) {
+    for (const propType of config.propTypes) {
+      const value = PROP_VALUES[propType as keyof typeof PROP_VALUES];
+      if (value !== undefined) {
+        const propName = PROP_TYPE_TO_PROP_NAME[propType] || propType;
+
+        if (propType === 'accordionItems' && Array.isArray(value)) {
+          componentProps[propName] = value.map((item) => {
+            if (
+              typeof item === 'object' &&
+              item !== null &&
+              'trigger' in item &&
+              typeof item.trigger === 'string'
+            ) {
+              const triggerContent = config.supportsCommonProps.icon ? (
+                <Stack direction="row" gap="tight" align="center">
+                  <PROP_VALUES.icon className="dndev-size-md" />
+                  <Text>{item.trigger}</Text>
+                </Stack>
+              ) : (
+                <Text>{item.trigger}</Text>
+              );
+              return {
+                ...item,
+                trigger: triggerContent,
+              };
+            }
+            return item;
+          });
+        } else if (propType === 'collapsibleContent') {
+          componentProps.children = value;
+        } else if (
+          propType === 'commandGroups' &&
+          config.id === 'command-dialog'
+        ) {
+          // CommandDialog needs Command component as children
+          // Type assertion: commandGroups propType always returns CommandGroup[]
+          componentProps.children = (
+            <Command groups={value as CommandGroup[]} />
+          );
+        } else if (propType === 'tabsItems' && Array.isArray(value)) {
+          // Use generated tabs if available, otherwise use default
+          const tabsToUse =
+            generatedTabsItems ||
+            (value as Array<{
+              value: string;
+              label: string;
+              content: string | ReactNode;
+            }>);
+          // Tabs needs items with content as ReactNode
+          if (tabsToUse && tabsToUse.length > 0) {
+            componentProps.items = tabsToUse.map((item) => ({
+              ...item,
+              content:
+                typeof item.content === 'string' ? (
+                  <Text>{item.content}</Text>
+                ) : (
+                  item.content
+                ),
+            }));
+            // Set default value to first tab if not provided
+            if (
+              !componentProps.defaultValue &&
+              !componentProps.value &&
+              tabsToUse[0]
+            ) {
+              componentProps.defaultValue = tabsToUse[0].value;
+            }
+          }
+        } else {
+          componentProps[propName] = value;
+        }
+      }
+    }
+  }
+
+  if (config.supportsCommonProps.content) {
+    const usesChildren = [
+      'button',
+      'badge',
+      'toggle',
+      'label',
+      'text',
+      'collapsible',
+      'dialog',
+      'sheet',
+      'popover',
+      'hover-card',
+    ].includes(config.id);
+    const shortLabelComponents = ['badge', 'button'];
+    const contentValue = shortLabelComponents.includes(config.id)
+      ? PROP_VALUES.shortLabel
+      : PROP_VALUES.content;
+    if (usesChildren) {
+      componentProps.children = contentValue;
+    } else if (config.id !== 'tooltip') {
+      componentProps.content = contentValue;
+    }
+  }
+
+  if (config.id === 'button' && config.supportsCommonProps.icon) {
+    componentProps.icon = PROP_VALUES.icon;
+  }
+
+  if (config.needsTrigger) {
+    const triggerText = config.triggerText || PROP_VALUES.trigger;
+    const buttonVariant =
+      variantProps.variant &&
+      config.variants?.variant?.includes(variantProps.variant)
+        ? variantProps.variant
+        : undefined;
+    const triggerButton = (
+      <Button icon={PROP_VALUES.icon} variant={buttonVariant}>
+        {triggerText}
+      </Button>
+    );
+
+    if (config.id === 'tooltip') {
+      componentProps.children = triggerButton;
+      if (config.supportsCommonProps.content) {
+        componentProps.content = PROP_VALUES.content;
+      }
+    } else {
+      componentProps.trigger = triggerButton;
+    }
+  }
+
+  // Generic state management for controlled components
+  const [stateValue, setStateValue, stateProps] = useComponentState(
+    config,
+    variantProps
+  );
+
+  // Wire up state to component props based on stateType
+  if (config.stateType && config.stateType !== 'custom') {
+    if (config.stateType === 'controlled-value') {
+      componentProps.value = stateValue;
+      componentProps.onValueChange = setStateValue;
+    } else if (config.stateType === 'controlled-checked') {
+      componentProps.checked = stateValue;
+      componentProps.onCheckedChange = setStateValue;
+    } else if (config.stateType === 'controlled-pressed') {
+      componentProps.pressed = stateValue;
+      componentProps.onPressedChange = setStateValue;
+    } else if (config.stateType === 'controlled-range') {
+      componentProps.value = stateValue;
+      componentProps.onValueChange = setStateValue;
+    } else if (config.stateType.startsWith('controlled-date')) {
+      componentProps.selected = stateValue;
+      componentProps.onSelect = setStateValue;
+      Object.assign(componentProps, stateProps);
+    }
+  }
+
+  // Custom rendering modes for special components
+  if (config.id === 'calendar') {
+    const mode = variantProps.mode || 'single';
+    componentProps.mode = mode;
+
+    if (mode === 'single') {
+      componentProps.selected = selectedDate;
+      componentProps.onSelect = setSelectedDate;
+    } else if (mode === 'multiple') {
+      componentProps.selected = selectedDates;
+      componentProps.onSelect = setSelectedDates;
+    } else if (mode === 'range') {
+      componentProps.selected = selectedRange;
+      componentProps.onSelect = setSelectedRange;
+    }
+  }
+
+  // Special handling for Pagination (needs state for currentPage)
+  if (config.id === 'pagination') {
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    return (
+      <Stack align="center" justify="center">
+        <Component
+          {...componentProps}
+          currentPage={currentPage}
+          totalPages={10}
+          onPageChange={setCurrentPage}
+        />
+      </Stack>
+    );
+  }
+
+  // Special handling for InfiniteScroll (truly infinite - loops through items)
+  if (config.id === 'infinite-scroll') {
+    const baseItems = componentProps.items || [];
+    const [displayedItems, setDisplayedItems] = useState<string[]>(baseItems);
+
+    const loadMore = () => {
+      // Instantly add more items by looping through base items
+      const currentIndex = displayedItems.length % baseItems.length;
+      const itemsToAdd = baseItems.slice(currentIndex, currentIndex + 5);
+      // If we need more items than available, loop back to start
+      const remainingNeeded = 5 - itemsToAdd.length;
+      const loopedItems =
+        remainingNeeded > 0 ? baseItems.slice(0, remainingNeeded) : [];
+      setDisplayedItems((prev) => [...prev, ...itemsToAdd, ...loopedItems]);
+    };
+
+    const renderItem = (item: string, index: number) => (
+      <Card title={item} variant="muted">
+        <Text variant="muted">
+          Item #{index + 1}: {item}
+        </Text>
+      </Card>
+    );
+
+    const { items: _, renderItem: __, ...restProps } = componentProps;
+
+    return (
+      <Component
+        items={displayedItems}
+        renderItem={renderItem}
+        loadMore={loadMore}
+        hasMore={true}
+        loading={false}
+        {...restProps}
+      />
+    );
+  }
+
+  // Render demo content if provided in config
+  if (config.demoContent && config.stateType === 'controlled-value') {
+    const demoValue = stateValue ?? config.defaultStateValue ?? '';
+    return (
+      <Stack gap="large" align="center">
+        <Component
+          {...componentProps}
+          value={demoValue}
+          onValueChange={(value: string | string[] | undefined) => {
+            if (value !== undefined && setStateValue) {
+              setStateValue(value);
+            }
+          }}
+        />
+        {config.demoContent(demoValue, setStateValue || (() => {}))}
+      </Stack>
+    );
+  }
+
+  // Special handling for Toaster (useToast hook demo)
+  if (config.id === 'toaster') {
+    const { toast } = useToast();
+    const [message, setMessage] = useState<string>('');
+    const [duration, setDuration] = useState<string>('5000');
+
+    const toastTypes: Array<{
+      type: 'default' | 'success' | 'error' | 'warning' | 'info';
+      label: string;
+    }> = [
+      { type: 'default', label: 'Default' },
+      { type: 'success', label: 'Success' },
+      { type: 'error', label: 'Error' },
+      { type: 'warning', label: 'Warning' },
+      { type: 'info', label: 'Info' },
+    ];
+
+    const durationOptions = [
+      { value: '0', label: 'Forever (0ms)' },
+      { value: '3000', label: '3 seconds' },
+      { value: '4000', label: '4 seconds' },
+      { value: '5000', label: '5 seconds' },
+      { value: '6000', label: '6 seconds' },
+      { value: '7000', label: '7 seconds' },
+    ];
+
+    const durationValue = parseInt(duration, 10);
+
+    return (
+      <Stack gap="large" align="center" justify="center">
+        <Stack className="dndev-w-full dndev-max-w-md">
+          <Stack direction="row" gap="tight" align="end">
+            <Input
+              placeholder="Enter toast message..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && message.trim()) {
+                  toast({
+                    ...(message.trim() ? { title: message } : {}),
+                    duration: durationValue,
+                  });
+                  setMessage('');
+                }
+              }}
+            />
+            <Button
+              onClick={() => {
+                if (message.trim()) {
+                  toast({
+                    ...(message.trim() ? { title: message } : {}),
+                    duration: durationValue,
+                  });
+                  setMessage('');
+                }
+              }}
+            >
+              Show Toast
+            </Button>
+          </Stack>
+          <Select
+            value={duration}
+            onValueChange={setDuration}
+            placeholder="Select duration..."
+            options={durationOptions}
+          />
+          <Text variant="muted" className="dndev-text-center">
+            Or try different toast types:
+          </Text>
+          <Stack direction="column" gap="tight" wrap="wrap">
+            {toastTypes.map(({ type, label }) => (
+              <Button
+                key={type}
+                variant={
+                  type === 'error'
+                    ? 'destructive'
+                    : type === 'success'
+                      ? 'primary'
+                      : 'outline'
+                }
+                onClick={() => {
+                  toast({
+                    title: `${label} Toast`,
+                    description:
+                      message.trim() || `This is a ${type} notification`,
+                    toastType: type,
+                    duration: durationValue,
+                  });
+                }}
+              >
+                {label}
+              </Button>
+            ))}
+          </Stack>
+        </Stack>
+      </Stack>
+    );
+  }
+
+  // Special handling for Sheet/Dialog/AlertDialog/CommandDialog (controlled state)
+  if (config.id === 'sheet') {
+    componentProps.open = sheetOpen;
+    componentProps.onOpenChange = setSheetOpen;
+  } else if (config.id === 'dialog') {
+    componentProps.open = dialogOpen;
+    componentProps.onOpenChange = setDialogOpen;
+  } else if (config.id === 'alert-dialog') {
+    componentProps.open = alertDialogOpen;
+    componentProps.onOpenChange = setAlertDialogOpen;
+  } else if (config.id === 'command-dialog') {
+    componentProps.open = commandDialogOpen;
+    componentProps.onOpenChange = setCommandDialogOpen;
+  }
+
+  const handleGenerateTabs = () => {
+    const count = Math.max(1, Math.min(50, tabCount));
+    const newTabs = Array.from({ length: count }, (_, i) => ({
+      value: `tab${i + 1}`,
+      label: `Tab ${i + 1}`,
+      content: `Content for Tab ${i + 1}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
+    }));
+    setGeneratedTabsItems(newTabs);
+  };
+
+  try {
+    if (config.id === 'tabs') {
+      return (
+        <Stack align="stretch">
+          <Stack direction="row" align="center">
+            <Input
+              type="number"
+              min={1}
+              max={50}
+              value={tabCount}
+              onChange={(e) => setTabCount(Number(e.target.value) || 2)}
+              style={{ width: '120px' }}
+            />
+            <Button onClick={handleGenerateTabs}>Generate Tabs</Button>
+          </Stack>
+          <Component {...componentProps} />
+        </Stack>
+      );
+    }
+    if (config.id === 'spinner') {
+      const currentVariant =
+        variantProps.variant || componentProps.variant || 'primary';
+      const isActive = activeOverlayVariant === currentVariant;
+      return (
+        <>
+          <Stack
+            align="center"
+            justify="center"
+            style={{ minHeight: '200px', position: 'relative', zIndex: 10000 }}
+          >
+            <Button
+              variant="ghost"
+              onClick={() => {
+                if (isActive) {
+                  setActiveOverlayVariant(null);
+                } else {
+                  setActiveOverlayVariant(currentVariant);
+                }
+              }}
+              icon={<Spinner variant={currentVariant as any} />}
+            >
+              {isActive ? 'Stop Overlay' : 'Start Overlay'}
+            </Button>
+          </Stack>
+          {isActive && (
+            <Component
+              {...componentProps}
+              overlay
+              variant={currentVariant as any}
+            />
+          )}
+        </>
+      );
+    }
+    if (config.id === 'hero-section') {
+      return <Component {...componentProps} />;
+    }
+
+    if (config.showStateLabel && config.stateType) {
+      let stateLabel = '';
+      if (config.stateType === 'controlled-pressed') {
+        stateLabel = stateValue ? 'On' : 'Off';
+      } else if (config.stateType === 'controlled-checked') {
+        stateLabel = stateValue ? 'On' : 'Off';
+      } else if (config.stateType === 'controlled-value') {
+        stateLabel = String(stateValue || '');
+      }
+
+      return (
+        <Stack direction="row" align="center">
+          <Component {...componentProps} />
+          <Text variant="muted">State: {stateLabel}</Text>
+        </Stack>
+      );
+    }
+
+    return (
+      <Stack align="center" justify="center">
+        <Component {...componentProps} />
+      </Stack>
+    );
+  } catch (error) {
+    return <Text variant="destructive">Error: {String(error)}</Text>;
+  }
+}

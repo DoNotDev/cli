@@ -1,0 +1,20 @@
+// functions/src/api/auth/getCustomClaims.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Get Custom Claims Wrapper
+ * @description Wrapper for framework's getCustomClaims with {{APP_NAME}}-specific configuration
+ */
+
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { getCustomClaims as frameworkGetCustomClaims } from '@donotdev/functions/vercel';
+
+/**
+ * {{APP_NAME}} custom claims retrieval
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  return frameworkGetCustomClaims(req, res);
+}

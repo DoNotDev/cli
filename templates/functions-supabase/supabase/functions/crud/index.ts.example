@@ -1,0 +1,16 @@
+// supabase/functions/crud/index.ts
+// Supabase Edge Function — CRUD Operations
+// Deploy: supabase functions deploy crud
+//
+// This single Edge Function handles all CRUD operations for all entities.
+// The SupabaseCallableProvider automatically routes CRUD calls here.
+
+import { createSupabaseCrudFunctions } from '@donotdev/functions/supabase';
+
+// Import your entities
+// import * as entities from '../_shared/entities.ts';
+const entities = {}; // TODO: Replace with your entity imports
+
+const { serve } = createSupabaseCrudFunctions(entities);
+
+Deno.serve(serve);

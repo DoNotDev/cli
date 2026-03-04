@@ -1,0 +1,126 @@
+/**
+ * @fileoverview Contact Entity — Guest-Created, Admin-Managed
+ *
+ * This entity demonstrates the PUBLIC FORM pattern:
+ * - Guests (unauthenticated) can CREATE (contact form submission)
+ * - Only admins can READ, UPDATE, DELETE (CRM inbox)
+ *
+ * COMMON USE CASES:
+ * - Contact forms, inquiry forms, support requests
+ * - Lead capture, newsletter signups
+ * - Any public submission that admins manage
+ *
+ * FIRESTORE PATH: `contacts/{contactId}`
+ */
+
+import { defineEntity } from '@donotdev/core';
+
+export const contactEntity = defineEntity({
+  name: 'Contact',
+  collection: 'contacts',
+  listFields: ['name', 'email', 'subject', 'status'],
+
+  // Guest can create (public form), only admins manage
+  access: {
+    create: 'guest',
+    read: 'admin',
+    update: 'admin',
+    delete: 'admin',
+  },
+
+  fields: {
+    // Public form fields — guests fill these on submission
+    name: {
+      name: 'name',
+      label: 'name',
+      type: 'text',
+      visibility: 'admin',
+      editable: 'admin',
+      validation: { required: true },
+    },
+
+    email: {
+      name: 'email',
+      label: 'email',
+      type: 'email',
+      visibility: 'admin',
+      editable: 'admin',
+      validation: { required: true },
+    },
+
+    phone: {
+      name: 'phone',
+      label: 'phone',
+      type: 'tel',
+      visibility: 'admin',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    subject: {
+      name: 'subject',
+      label: 'subject',
+      type: 'select',
+      visibility: 'admin',
+      editable: 'create-only',
+      validation: {
+        required: true,
+        options: [
+          { value: 'general', label: 'subject.general' },
+          { value: 'support', label: 'subject.support' },
+          { value: 'sales', label: 'subject.sales' },
+        ],
+      },
+    },
+
+    message: {
+      name: 'message',
+      label: 'message',
+      type: 'textarea',
+      visibility: 'admin',
+      editable: 'create-only',
+      validation: { required: true },
+    },
+
+    // GDPR consent — required on public forms in EU
+    gdprConsent: {
+      name: 'gdprConsent',
+      label: 'consent',
+      type: 'gdprConsent',
+      visibility: 'guest',
+      editable: 'create-only',
+      validation: { required: true },
+      options: {
+        fieldSpecific: {
+          privacyPolicyPath: '/legal/privacy',
+          termsPath: '/legal/terms',
+        },
+      },
+    },
+
+    // Admin-only fields for managing submissions
+    notes: {
+      name: 'notes',
+      label: 'notes',
+      type: 'textarea',
+      visibility: 'admin',
+      editable: 'admin',
+      validation: { required: false },
+    },
+
+    status: {
+      name: 'status',
+      label: 'status',
+      type: 'select',
+      visibility: 'admin',
+      editable: 'admin',
+      validation: {
+        options: [
+          // Framework adds: draft, available, deleted
+          // Custom statuses:
+          { value: 'responded', label: 'status.responded' },
+        ],
+      },
+    },
+  },
+});

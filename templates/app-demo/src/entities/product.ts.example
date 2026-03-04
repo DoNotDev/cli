@@ -1,0 +1,50 @@
+// apps/demo/src/entities/product.ts
+
+import { defineEntity } from '@donotdev/core';
+
+export const productEntity = defineEntity({
+  name: 'Product',
+  collection: 'products',
+  fields: {
+    name: {
+      name: 'name',
+      label: 'Name',
+      type: 'text',
+      visibility: 'user',
+      validation: { required: true, minLength: 3 },
+    },
+    description: {
+      name: 'description',
+      label: 'Description',
+      type: 'textarea',
+      visibility: 'user',
+    },
+    price: {
+      name: 'price',
+      label: 'Price',
+      type: 'number',
+      visibility: 'user',
+      validation: { required: true, min: 0 },
+    },
+    category: {
+      name: 'category',
+      label: 'Category',
+      type: 'select',
+      visibility: 'user',
+      validation: {
+        options: [
+          { value: 'electronics', label: 'Electronics' },
+          { value: 'clothing', label: 'Clothing' },
+          { value: 'food', label: 'Food & Drink' },
+          { value: 'other', label: 'Other' },
+        ],
+      },
+    },
+    image: {
+      name: 'image',
+      label: 'Image',
+      type: 'image',
+      visibility: 'user',
+    },
+  },
+});

@@ -1,0 +1,93 @@
+// apps/demo/src/pages/ShowcasePage.tsx
+
+import { useMemo, useState } from 'react';
+import { useNavigate } from '@donotdev/ui';
+import { Component } from 'lucide-react';
+
+import {
+  Badge,
+  Card,
+  Grid,
+  Input,
+  Section,
+  Stack,
+  Tabs,
+} from '@donotdev/components';
+
+import {
+  COMPONENT_CONFIGS,
+  getCSSFamilies,
+} from './components/componentConfig';
+
+import type { PageMeta } from '@donotdev/core';
+import type { CSSFamily } from './components/ComponentsData';
+
+export const meta: PageMeta = {
+  icon: <Component />,
+  preset: 'admin',
+};
+
+export default function ShowcasePage() {
+  const navigate = useNavigate();
+  const [selectedTab, setSelectedTab] = useState<CSSFamily | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const componentsInTab = useMemo(() => {
+    return COMPONENT_CONFIGS.filter((config) => {
+      if (selectedTab !== 'all' && config.cssFamily !== selectedTab)
+        return false;
+      return (
+        searchQuery === '' ||
+        config.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }).sort((a, b) => a.name.localeCompare(b.name));
+  }, [selectedTab, searchQuery]);
+
+  const cssFamilies = getCSSFamilies();
+
+  return (
+    <Stack gap="large">
+      <Stack direction="row" gap="medium" align="end" wrap="wrap">
+        <Input
+          placeholder="Filter components..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </Stack>
+
+      <Tabs
+        items={cssFamilies.map((family) => ({
+          value: family.id,
+          label: family.label,
+          content: null,
+        }))}
+        value={selectedTab}
+        onValueChange={(value) => setSelectedTab(value as CSSFamily | 'all')}
+      />
+
+      <Section
+        title={
+          cssFamilies.find((f) => f.id === selectedTab)?.label || 'Components'
+        }
+      >
+        <Grid cols={[1, 2, 3, 4]} gap="medium">
+          {componentsInTab.map((config) => (
+            <Card
+              key={config.id}
+              title={config.name}
+              clickable
+              onClick={() => navigate(`/showcase/${config.id}`)}
+            >
+              <Stack direction="row" justify="end">
+                <Badge variant="secondary">
+                  {cssFamilies.find((f) => f.id === config.cssFamily)?.label ||
+                    config.cssFamily}
+                </Badge>
+              </Stack>
+            </Card>
+          ))}
+        </Grid>
+      </Section>
+    </Stack>
+  );
+}

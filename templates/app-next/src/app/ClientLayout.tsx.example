@@ -1,0 +1,42 @@
+'use client';
+// src/app/ClientLayout.tsx
+
+import { NextJsAppProviders } from '@donotdev/ui/next';
+
+import '../config/providers';
+import { appConfig } from '../config/app';
+
+interface ClientLayoutProps {
+  children: React.ReactNode;
+}
+
+/**
+ * Client-side layout wrapper for Next.js App Router
+ * 
+ * Configuration-driven architecture with smart defaults.
+ * Layout preset comes from appConfig.preset (configured in config/app.ts).
+ * Layout prop is for breadcrumbs and slot customizations only.
+ * CSS variable overrides should be done in themes.css.
+ * Override only what you need - everything else has sensible defaults.
+ * 
+ * Theme detection happens client-side to avoid Next.js 16 race condition.
+ */
+export function ClientLayout({ children }: ClientLayoutProps) {
+  return (
+    <div id="root">
+      <NextJsAppProviders
+        config={appConfig}
+        layout={{
+          breadcrumbs: 'smart', // 'smart' | 'always' | 'never'
+          header: {
+            // end: () => <YourHeaderActions />,
+          },
+          // footer: () => <CustomFooter />,
+        }}
+      >
+        {children}
+      </NextJsAppProviders>
+    </div>
+  );
+}
+

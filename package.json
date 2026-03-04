@@ -1,0 +1,69 @@
+{
+  "name": "@donotdev/cli",
+  "version": "0.0.25",
+  "description": "Command-line interface for DoNotDev Framework",
+  "type": "module",
+  "private": false,
+  "bin": {
+    "dndev": "./dist/bin/dndev.js",
+    "donotdev": "./dist/bin/donotdev.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./package.json": "./package.json",
+    "./dependencies-matrix.json": "./dependencies-matrix.json"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "dependencies-matrix.json",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "dndev bundle --package @donotdev/cli",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "type-check": "bunx tsc --noEmit"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.0.1",
+    "@donotdev/tooling": "workspace:*",
+    "commander": "^14.0.3",
+    "fast-glob": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.14",
+    "typescript": "^5.8.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/donotdev/cli.git"
+  },
+  "keywords": [
+    "dndev",
+    "cli",
+    "framework",
+    "react",
+    "typescript",
+    "vite",
+    "nextjs",
+    "scaffolding"
+  ],
+  "author": "AMBROISE PARK Consulting",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "peerDependencies": {}
+}

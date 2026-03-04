@@ -1,0 +1,127 @@
+{
+  "description": "WAI-WAY context map - maps phases to required files. READ the scaffolded files, they contain inline documentation.",
+  "golden_rule": "THE SCAFFOLDED FILES ARE YOUR DOCUMENTATION. Read the file. Follow the pattern. Extend.",
+  "document_chain": {
+    "spec_template.md": "FORMAT — the empty shell the Extractor fills through conversation. NOT kept as-is.",
+    "docs/PRD.md": "OUTPUT — Product Requirements (journeys, rules, permissions). The WHAT.",
+    "docs/HLD.md": "OUTPUT — High-Level Design (preset, auth, pages, features). The HOW (big picture).",
+    "docs/LLD.md": "OUTPUT — Low-Level Design (per-entity specs, state machines, access). The HOW (detailed).",
+    ".dndev/implementation.md": "MACRO PLAN — checklist per phase. Versioned, archived per project version.",
+    ".dndev/captain-log.json": "SESSION HISTORY — auto-recorded on approve_phase. Never deleted.",
+    ".dndev/LESSONS.md": "GOTCHAS — tagged, scored, filtered by phase. Never deleted."
+  },
+  "phases": {
+    "0_brainstorm": {
+      "agent": "extractor",
+      "goal": "Gather requirements through conversation and produce validated specification documents",
+      "flow": "User idea → Agent questions (using spec_template.md format) → User validates → Agent splits into PRD + HLD + LLD",
+      "done_when": "docs/PRD.md + docs/HLD.md + docs/LLD.md complete and validated by user",
+      "read_files": [
+        "guides/wai-way/spec_template.md",
+        "guides/wai-way/prd_template.md",
+        "guides/wai-way/hld_template.md",
+        "guides/wai-way/lld_template.md",
+        "guides/wai-way/presets_guide.md",
+        "guides/wai-way/entity_patterns.md",
+        "guides/wai-way/page_patterns.md"
+      ],
+      "output": "docs/PRD.md, docs/HLD.md, docs/LLD.md, .dndev/implementation.md"
+    },
+    "1_scaffold": {
+      "agent": "extractor",
+      "goal": "Running app with all routes defined as interactive prototype stubs",
+      "done_when": "All routes listed, all *Page.tsx files created with correct PageMeta, clickable prototype",
+      "read_files": [
+        "docs/PRD.md",
+        "docs/HLD.md",
+        "src/pages/HomePage.tsx",
+        "src/config/app.ts",
+        "guides/wai-way/page_patterns.md"
+      ],
+      "output": "All *Page.tsx files created with PageMeta, clickable prototype"
+    },
+    "2_entities": {
+      "agent": "architect",
+      "goal": "Define all data models from LLD",
+      "done_when": "All entities defined with fields, access, visibility. Exported from index.ts",
+      "read_files": [
+        "docs/LLD.md",
+        "entities/ExampleEntity.ts",
+        "entities/index.ts",
+        "guides/wai-way/entity_patterns.md"
+      ],
+      "output": "All entities defined in entities/"
+    },
+    "3_compose": {
+      "agent": "builder",
+      "goal": "Build pages with components (hardcoded strings)",
+      "done_when": "All pages functional, CRUD uses EntityList/EntityFormRenderer, strings hardcoded",
+      "read_files": [
+        "docs/PRD.md",
+        "docs/HLD.md",
+        "src/pages/ListPageExample.tsx",
+        "src/pages/FormPageExample.tsx",
+        "src/pages/HomePage.tsx",
+        "guides/wai-way/page_patterns.md"
+      ],
+      "output": "All pages functional with hardcoded content"
+    },
+    "4_configure_test": {
+      "agent": "polisher",
+      "goal": "Generate tests, firestore rules, CI/CD, finalize config",
+      "done_when": "Tests pass, firestore.rules generated, config complete, mobile responsive",
+      "read_files": [
+        "docs/PRD.md",
+        "docs/LLD.md",
+        "entities/index.ts",
+        "src/config/app.ts",
+        "src/config/legal.ts",
+        "guides/dndev/SETUP_TESTING.md"
+      ],
+      "output": "Test files, firestore.rules, CI/CD, configured app"
+    }
+  },
+  "key_files": {
+    "spec_documents": {
+      "docs/PRD.md": "Product Requirements — journeys, rules, permissions (produced by P0)",
+      "docs/HLD.md": "High-Level Design — preset, auth, pages, features (produced by P0)",
+      "docs/LLD.md": "Low-Level Design — per-entity specs, state machines, access (produced by P0)"
+    },
+    "spec_formats": {
+      "guides/wai-way/spec_template.md": "Conversation FORMAT — empty shell agent fills through questions",
+      "guides/wai-way/prd_template.md": "Output FORMAT for PRD.md",
+      "guides/wai-way/hld_template.md": "Output FORMAT for HLD.md",
+      "guides/wai-way/lld_template.md": "Output FORMAT for LLD.md",
+      "guides/wai-way/presets_guide.md": "Preset decision matrix",
+      "guides/wai-way/entity_patterns.md": "Common entity schemas",
+      "guides/wai-way/page_patterns.md": "Common page structures"
+    },
+    "operational": {
+      ".dndev/implementation.md": "Active macro plan — checklist per phase (versioned)",
+      ".dndev/captain-log.json": "Full session history — auto-recorded (never deleted)",
+      ".dndev/LESSONS.md": "Decisions, gotchas, anti-patterns (never deleted)"
+    },
+    "config": {
+      "src/config/app.ts": "App name, preset, features, auth routes",
+      "src/config/legal.ts": "Company info, legal compliance",
+      ".env": "Firebase config, API keys"
+    },
+    "pages": {
+      "src/pages/HomePage.tsx": "PageMeta pattern, basic page structure",
+      "src/pages/ListPageExample.tsx": "EntityList CRUD pattern",
+      "src/pages/FormPageExample.tsx": "EntityFormRenderer pattern"
+    },
+    "entities": {
+      "entities/ExampleEntity.ts": "defineEntity pattern, field types, access rules",
+      "entities/index.ts": "Entity exports"
+    },
+    "styling": {
+      "src/themes.css": "CSS variables, light/dark themes",
+      "src/globals.css": "Font overrides"
+    }
+  },
+  "workflow": {
+    "summary": "BRAINSTORM (→ PRD + HLD + LLD) → SCAFFOLD → ENTITIES → COMPOSE → CONFIGURE + TEST",
+    "critical_rule": "spec_template.md is the FORMAT. P0 produces PRD + HLD + LLD. Validated documents = mechanical build."
+  }
+}

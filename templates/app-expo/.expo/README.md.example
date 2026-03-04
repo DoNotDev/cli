@@ -1,0 +1,5 @@
+# .expo directory
+
+This directory contains Expo-specific files and caches.
+
+**Do not commit this directory** - it's already in `.gitignore`.

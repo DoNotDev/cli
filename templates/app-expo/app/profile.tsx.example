@@ -1,0 +1,76 @@
+/**
+ * @fileoverview Profile Page
+ * @description User profile page for {{appName}}
+ *
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import { View, StyleSheet } from 'react-native';
+import { Text, Card, Stack, Button } from '@donotdev/expo';
+import { useAuth } from '@donotdev/auth';
+import { useNavigate } from '@donotdev/expo';
+
+/**
+ * Profile page component
+ */
+export default function ProfilePage() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  if (!user) {
+    navigate('/signin');
+    return null;
+  }
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  return (
+    <View style={styles.container}>
+      <Stack spacing={24} style={styles.content}>
+        <Text level="h1">Profile</Text>
+        
+        <Card title="Account Information">
+          <Stack spacing={12}>
+            <View>
+              <Text level="small" style={styles.label}>Email</Text>
+              <Text level="body">{user.email}</Text>
+            </View>
+            
+            {user.displayName && (
+              <View>
+                <Text level="small" style={styles.label}>Display Name</Text>
+                <Text level="body">{user.displayName}</Text>
+              </View>
+            )}
+          </Stack>
+        </Card>
+        
+        <Button onPress={handleSignOut} variant="destructive">
+          Sign Out
+        </Button>
+      </Stack>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 16,
+  },
+  content: {
+    maxWidth: 600,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  label: {
+    opacity: 0.7,
+    marginBottom: 4,
+  },
+});

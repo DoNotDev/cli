@@ -1,0 +1,68 @@
+/**
+ * @fileoverview Overlay center slot — lets pages inject content into CockpitLayout's overlay bar
+ *
+ * CockpitLayout renders OverlaySlotTarget (a DOM node). Pages render OverlaySlotPortal
+ * which portals its children into that DOM node. No state loops — pure React portals.
+ */
+
+import { createContext, useContext, useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+
+import type { ReactNode } from 'react';
+
+// ============================================================================
+// CONTEXT — shares the target DOM element
+// ============================================================================
+
+const OverlaySlotContext = createContext<HTMLDivElement | null>(null);
+
+// ============================================================================
+// PROVIDER (used by CockpitLayout)
+// ============================================================================
+
+export function OverlaySlotProvider({ children }: { children: ReactNode }) {
+  const [target, setTarget] = useState<HTMLDivElement | null>(null);
+
+  return (
+    <OverlaySlotContext.Provider value={target}>
+      {children}
+      {/* Hidden mount point — CockpitLayout moves this into the overlay bar */}
+      <div ref={setTarget} style={{ display: 'contents' }} />
+    </OverlaySlotContext.Provider>
+  );
+}
+
+// ============================================================================
+// TARGET (rendered by CockpitLayout in the overlay bar)
+// ============================================================================
+
+/** Renders the overlay slot target where portaled content appears */
+export function OverlaySlotTarget() {
+  const ref = useRef<HTMLDivElement>(null);
+  const target = useContext(OverlaySlotContext);
+
+  // Move the provider's mount point into this target element
+  useEffect(() => {
+    if (!ref.current || !target) return;
+    ref.current.appendChild(target);
+    return () => {
+      // Move back to avoid orphan
+      if (ref.current && target.parentNode === ref.current) {
+        ref.current.removeChild(target);
+      }
+    };
+  }, [target]);
+
+  return <div ref={ref} className="dndev-cockpit-overlays-center" />;
+}
+
+// ============================================================================
+// PORTAL (used by pages to inject content)
+// ============================================================================
+
+/** Portal children into the overlay center slot */
+export function OverlaySlotPortal({ children }: { children: ReactNode }) {
+  const target = useContext(OverlaySlotContext);
+  if (!target) return null;
+  return createPortal(children, target);
+}

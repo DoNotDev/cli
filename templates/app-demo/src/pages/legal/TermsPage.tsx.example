@@ -1,0 +1,23 @@
+// apps/demo/src/pages/legal/TermsPage.tsx
+
+import { FileText } from 'lucide-react';
+
+import { TermsOfServiceTemplate } from '@donotdev/templates';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const meta: PageMeta = {
+  icon: <FileText />,
+  hideFromMenu: true,
+};
+
+export default function TermsPage() {
+  return (
+    <TermsOfServiceTemplate
+      companyName="Demo Company"
+      websiteUrl="https://demo.example.com"
+      legalEmail="legal@demo.example.com"
+      companyAddress="123 Demo Street, Paris, France"
+    />
+  );
+}

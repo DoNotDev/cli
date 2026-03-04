@@ -1,0 +1,144 @@
+/**
+ * @fileoverview Generic hook for reading .dndev/ and project files via the file API.
+ *
+ * Fetches `GET /api/dndev/file?path=<filePath>` on mount.
+ * Auto-reloads when the file changes on disk (via HMR WebSocket).
+ * Companion `writeDndevFile` posts content back to the generic write endpoint.
+ *
+ * HMR-safe: all module-level state stored in import.meta.hot.data
+ * to survive Vite module re-evaluations without duplicating handlers.
+ */
+
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+// ============================================================================
+// HMR-SAFE listener registry
+// ============================================================================
+
+type ListenerMap = Map<string, Set<() => void>>;
+
+/**
+ * Get the shared listeners Map. Stored in import.meta.hot.data so it
+ * survives Vite HMR module re-evaluations.
+ */
+function getListeners(): ListenerMap {
+  if (import.meta.hot) {
+    if (!import.meta.hot.data.listeners) {
+      import.meta.hot.data.listeners = new Map<string, Set<() => void>>();
+    }
+    return import.meta.hot.data.listeners as ListenerMap;
+  }
+  return fallbackListeners;
+}
+
+/** Production fallback (no HMR) */
+const fallbackListeners: ListenerMap = new Map();
+
+// Register the HMR handler exactly once (flag in hot.data survives reloads)
+if (import.meta.hot && !import.meta.hot.data.dndevFileHmr) {
+  import.meta.hot.data.dndevFileHmr = true;
+  import.meta.hot.on('dndev:file-changed', (event: { path: string }) => {
+    const listeners = getListeners();
+    const cbs = listeners.get(event.path);
+    if (cbs) for (const cb of cbs) cb();
+  });
+}
+
+function registerHmrListener(filePath: string, callback: () => void): () => void {
+  const listeners = getListeners();
+  if (!listeners.has(filePath)) listeners.set(filePath, new Set());
+  listeners.get(filePath)!.add(callback);
+
+  return () => {
+    const current = getListeners();
+    current.get(filePath)?.delete(callback);
+    if (current.get(filePath)?.size === 0) current.delete(filePath);
+  };
+}
+
+// ============================================================================
+// HOOK
+// ============================================================================
+
+interface UseDndevFileResult<T> {
+  data: T | null;
+  loading: boolean;
+  error: string | null;
+  reload: () => Promise<void>;
+}
+
+export function useDndevFile<T>(
+  filePath: string | null,
+  parser: (raw: unknown) => T,
+  options?: { fallback?: T },
+): UseDndevFileResult<T> {
+  const fallbackRef = useRef(options?.fallback ?? null);
+  const parserRef = useRef(parser);
+  parserRef.current = parser;
+  const fetchingRef = useRef(false);
+
+  const [data, setData] = useState<T | null>(fallbackRef.current);
+  const [loading, setLoading] = useState(!!filePath);
+  const [error, setError] = useState<string | null>(null);
+
+  const reload = useCallback(async () => {
+    if (!filePath || fetchingRef.current) return;
+    fetchingRef.current = true;
+
+    try {
+      const res = await fetch(
+        `/api/dndev/file?path=${encodeURIComponent(filePath)}`,
+      );
+      if (res.ok) {
+        const json = await res.json();
+        setData(parserRef.current(json.content));
+        setError(null);
+      } else if (res.status === 404) {
+        setData(fallbackRef.current);
+        setError(null);
+      } else {
+        setError(`HTTP ${res.status}`);
+      }
+    } catch (err) {
+      setError(String(err));
+    }
+    fetchingRef.current = false;
+    setLoading(false);
+  }, [filePath]);
+
+  // Fetch on mount / filePath change
+  useEffect(() => {
+    if (!filePath) {
+      setData(fallbackRef.current);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    reload();
+  }, [filePath, reload]);
+
+  // HMR subscription
+  useEffect(() => {
+    if (!filePath) return;
+    return registerHmrListener(filePath, reload);
+  }, [filePath, reload]);
+
+  return { data, loading, error, reload };
+}
+
+// ============================================================================
+// WRITE HELPER
+// ============================================================================
+
+export async function writeDndevFile(filePath: string, content: unknown): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/dndev/file?path=${encodeURIComponent(filePath)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "platform": "firebase",
+  "strictness": "enforced",
+  "features": ["crud", "auth", "i18n", "billing", "oauth", "functions"],
+  "region": "europe-west1"
+}

@@ -1,0 +1,147 @@
+/**
+ * @fileoverview Phase Detail — expanded view for selected phase
+ *
+ * Shows blueprint, agent, done-when criteria. Action buttons at the bottom
+ * inject MCP commands into the AI agent terminal.
+ */
+
+import { Play, CheckCircle2, Eye } from 'lucide-react';
+
+import { Badge, Button, Card, DescriptionList, Label, Stack, Text } from '@donotdev/components';
+
+import { PHASE_BLUEPRINTS, getPhaseStatus } from './phaseData';
+import { useDoNotDashStore } from '../../stores/dndevStore';
+
+import type { ProtocolData, ProgressSection } from './phaseData';
+
+// ============================================================================
+// PROPS
+// ============================================================================
+
+interface PhaseDetailProps {
+  phaseId: number;
+  protocol: ProtocolData;
+  progressSections: ProgressSection[];
+  onOpenReview: () => void;
+}
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
+
+export function PhaseDetail({
+  phaseId,
+  protocol,
+  progressSections,
+  onOpenReview,
+}: PhaseDetailProps) {
+  const bp = PHASE_BLUEPRINTS[phaseId];
+  if (!bp) return null;
+
+  const status = getPhaseStatus(phaseId, protocol);
+  const isCurrentPhase = protocol.currentPhase === phaseId;
+  const phaseData = protocol.phases?.[phaseId];
+
+  // Description list items
+  const descItems = [
+    { label: 'Agent', value: isCurrentPhase && protocol.agent ? protocol.agent : bp.agent },
+    { label: 'Blueprint', value: bp.blueprint },
+    { label: 'Done when', value: bp.doneWhen },
+  ];
+
+  if (protocol.currentModule && isCurrentPhase) {
+    descItems.push({ label: 'Module', value: protocol.currentModule });
+  }
+
+  if (phaseData?.startedAt) {
+    descItems.push({ label: 'Started', value: new Date(phaseData.startedAt).toLocaleString() });
+  }
+
+  if (phaseData?.completedAt) {
+    descItems.push({ label: 'Completed', value: new Date(phaseData.completedAt).toLocaleString() });
+  }
+
+  return (
+    <Card>
+      <Stack gap="tight">
+        {/* Header */}
+        <Stack direction="row" align="center" justify="between">
+          <Text level="h6" weight="semibold">Phase {bp.id}: {bp.name}</Text>
+          <Badge variant={STATUS_BADGE_VARIANT[status]}>{status}</Badge>
+        </Stack>
+
+        {/* Blueprint details */}
+        <DescriptionList items={descItems} />
+
+        {/* Actions */}
+        <PhaseActions
+          phaseId={phaseId}
+          status={status}
+          pendingReview={!!protocol.pendingReview && isCurrentPhase}
+          onOpenReview={onOpenReview}
+        />
+      </Stack>
+    </Card>
+  );
+}
+
+const STATUS_BADGE_VARIANT = {
+  completed: 'success',
+  active: 'warning',
+  pending: 'muted',
+} as const;
+
+// ============================================================================
+// PHASE ACTIONS — inject MCP commands into terminal
+// ============================================================================
+
+function PhaseActions({
+  phaseId,
+  status,
+  pendingReview,
+  onOpenReview,
+}: {
+  phaseId: number;
+  status: 'pending' | 'active' | 'completed';
+  pendingReview: boolean;
+  onOpenReview: () => void;
+}) {
+  const inject = (prompt: string) => {
+    useDoNotDashStore.getState().injectPrompt(prompt, { mode: 'ai-agent' });
+  };
+
+  if (pendingReview) {
+    return (
+      <Button variant="default" icon={Eye} onClick={onOpenReview}>
+        Review
+      </Button>
+    );
+  }
+
+  if (status === 'active') {
+    return (
+      <Button
+        variant="default"
+        icon={CheckCircle2}
+        onClick={() => inject(`Use the complete_phase MCP tool to submit phase ${phaseId} for review`)}
+      >
+        Complete Phase
+      </Button>
+    );
+  }
+
+  if (status === 'pending') {
+    return (
+      <Button
+        variant="outline"
+        icon={Play}
+        onClick={() => inject(`Use the start_phase MCP tool to begin phase ${phaseId}`)}
+      >
+        Start Phase
+      </Button>
+    );
+  }
+
+  // Completed
+  return <Label icon={CheckCircle2} plain>Phase completed</Label>;
+}

@@ -1,0 +1,41 @@
+// apps/demo/src/pages/ChangelogPage.tsx
+
+import { History } from 'lucide-react';
+
+import { WhatsNewTemplate } from '@donotdev/templates';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const meta: PageMeta = {
+  icon: <History />,
+  preset: 'docs',
+};
+
+export default function ChangelogPage() {
+  return (
+    <WhatsNewTemplate
+      changelog={[
+        {
+          version: '1.0.0',
+          date: '2026-01-15',
+          type: 'major',
+          title: 'Initial Release',
+          description: 'First public release of the demo app.',
+          changes: [
+            {
+              type: 'added',
+              items: [
+                'Condition builder with when() API',
+                'Multi-step workflow engine',
+              ],
+            },
+            {
+              type: 'changed',
+              items: ['Entity form renderer supports dynamic fields'],
+            },
+          ],
+        },
+      ]}
+    />
+  );
+}

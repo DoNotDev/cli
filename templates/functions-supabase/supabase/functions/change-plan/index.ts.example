@@ -1,0 +1,11 @@
+// supabase/functions/change-plan/index.ts
+// Supabase Edge Function — Change Subscription Plan
+// Deploy: supabase functions deploy change-plan
+
+import { createChangePlan } from '@donotdev/functions/supabase';
+
+// Import your billing config
+// import { billingConfig } from '../_shared/billingConfig.ts';
+const billingConfig = {}; // TODO: Replace with your StripeBackConfig
+
+Deno.serve(createChangePlan(billingConfig));

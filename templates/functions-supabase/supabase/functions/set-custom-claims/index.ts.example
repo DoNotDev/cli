@@ -1,0 +1,7 @@
+// supabase/functions/set-custom-claims/index.ts
+// Supabase Edge Function — Set Custom Claims (app_metadata)
+// Deploy: supabase functions deploy set-custom-claims
+
+import { createSetCustomClaims } from '@donotdev/functions/supabase';
+
+Deno.serve(createSetCustomClaims());

@@ -1,0 +1,20 @@
+// functions/src/api/billing/refreshSubscriptionStatus.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Subscription Status Wrapper
+ * @description Wrapper for framework's refreshSubscriptionStatus with {{APP_NAME}}-specific configuration
+ */
+
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { refreshSubscriptionStatus as frameworkRefreshSubscriptionStatus } from '@donotdev/functions/vercel';
+
+/**
+ * {{APP_NAME}} subscription status refresh
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  return frameworkRefreshSubscriptionStatus(req, res);
+}

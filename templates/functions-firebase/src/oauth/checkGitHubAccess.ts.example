@@ -1,0 +1,14 @@
+// functions/src/oauth/checkGitHubAccess.ts
+
+/**
+ * @fileoverview {{APP_NAME}} GitHub Access Check Wrapper
+ * @description Wrapper for framework's checkGitHubAccess with {{APP_NAME}}-specific configuration
+ */
+
+import { checkGitHubAccess as frameworkCheckGitHubAccess } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} GitHub access checking
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export const checkGitHubAccess = frameworkCheckGitHubAccess;

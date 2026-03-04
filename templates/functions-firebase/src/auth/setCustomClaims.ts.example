@@ -1,0 +1,21 @@
+// functions/src/auth/setCustomClaims.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Set Custom Claims Wrapper
+ * @description Wrapper for framework's setCustomClaims with {{APP_NAME}}-specific configuration
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import { setCustomClaims as frameworkSetCustomClaims } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} custom claims setting
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ *
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+export const setCustomClaims = frameworkSetCustomClaims;

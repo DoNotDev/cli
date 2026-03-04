@@ -1,0 +1,20 @@
+// functions/src/api/crud/updateEntity.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Update Entity Wrapper
+ * @description Wrapper for framework's updateEntity with {{APP_NAME}}-specific configuration
+ */
+
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { updateEntity as frameworkUpdateEntity } from '@donotdev/functions/vercel';
+
+/**
+ * {{APP_NAME}} entity update
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  return frameworkUpdateEntity(req, res);
+}

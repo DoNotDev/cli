@@ -1,0 +1,7 @@
+// supabase/functions/remove-custom-claims/index.ts
+// Supabase Edge Function — Remove Custom Claims from app_metadata
+// Deploy: supabase functions deploy remove-custom-claims
+
+import { createRemoveCustomClaims } from '@donotdev/functions/supabase';
+
+Deno.serve(createRemoveCustomClaims());

@@ -1,0 +1,88 @@
+// apps/demo/src/pages/ConditionalFormPage.tsx
+
+import { SlidersHorizontal } from 'lucide-react';
+
+import { Card, Tabs } from '@donotdev/components';
+import { EntityFormRenderer } from '@donotdev/ui';
+
+import { quoteEntity } from '../entities/quote';
+import { bookingEntity } from '../entities/booking';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const meta: PageMeta = {
+  icon: <SlidersHorizontal />,
+  title: 'Conditional Forms',
+  preset: 'admin',
+};
+
+/**
+ * Conditional Forms Demo — shows field visibility driven by `when()` conditions.
+ *
+ * Two examples:
+ * 1. Insurance Quote — fields appear/disappear based on product type
+ * 2. Booking — complex conditions with .or() combinator
+ */
+export default function ConditionalFormPage() {
+  return (
+    <div style={{ maxWidth: 640, margin: '0 auto' }}>
+      <Card
+        title="Conditional Forms"
+        content="Fields appear, hide, or become required based on other field values. Powered by when() condition builder."
+      >
+        <Tabs
+          items={[
+            {
+              value: 'quote',
+              label: 'Insurance Quote',
+              content: (
+                <Card
+                  title="Insurance Quote"
+                  content='Select a product type to see conditional fields appear. "Car" shows license plate, "Home" shows address, both show estimated value.'
+                >
+                  <EntityFormRenderer
+                    entity={quoteEntity}
+                    operation="create"
+                    onSubmit={async (data) => {
+                      alert(
+                        `Quote submitted: ${JSON.stringify(data, null, 2)}`
+                      );
+                    }}
+                    submitText="Get Quote"
+                    cancelText={null}
+                    warnOnUnsavedChanges={false}
+                    hideVisibilityInfo
+                  />
+                </Card>
+              ),
+            },
+            {
+              value: 'booking',
+              label: 'Booking',
+              content: (
+                <Card
+                  title="Booking Form"
+                  content='"Group" shows group size, "Corporate" shows company name. Invoice address appears for corporate OR groups with 10+ people.'
+                >
+                  <EntityFormRenderer
+                    entity={bookingEntity}
+                    operation="create"
+                    onSubmit={async (data) => {
+                      alert(
+                        `Booking submitted: ${JSON.stringify(data, null, 2)}`
+                      );
+                    }}
+                    submitText="Book Now"
+                    cancelText={null}
+                    warnOnUnsavedChanges={false}
+                    hideVisibilityInfo
+                  />
+                </Card>
+              ),
+            },
+          ]}
+        />
+      </Card>
+    </div>
+  );
+}

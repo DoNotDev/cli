@@ -1,0 +1,46 @@
+/**
+ * @fileoverview Application Configuration (Expo)
+ *
+ * THIS FILE IS YOUR MAIN CONFIGURATION. Update the values below.
+ *
+ * QUICK START:
+ * 1. Set APP_NAME and APP_SHORT_NAME
+ * 2. Run `bun dev` - everything else is automatic
+ */
+
+import type { AppConfig } from '@donotdev/core';
+
+// ============================================================================
+// APP IDENTITY - Update these values
+// ============================================================================
+
+export const APP_NAME = '{{appName}}';
+export const APP_SHORT_NAME = '{{appShortName}}';
+export const APP_DESCRIPTION = 'Built with DoNotDev Framework';
+
+// ============================================================================
+// MAIN CONFIGURATION
+// ============================================================================
+
+export const appConfig: AppConfig = {
+  app: {
+    name: APP_NAME,
+    shortName: APP_SHORT_NAME,
+    description: APP_DESCRIPTION,
+  },
+
+  // ==========================================================================
+  // FEATURES - Uncomment to enable
+  // ==========================================================================
+  features: {
+    // debug: true, // Enable debug tools in development
+  },
+
+  // ==========================================================================
+  // AUTH CONFIG - Uncomment to customize
+  // ==========================================================================
+  // auth: {
+  //   authRoute: '/signin',
+  //   profilePath: '/profile',
+  // },
+};

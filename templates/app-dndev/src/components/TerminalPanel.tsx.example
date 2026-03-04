@@ -1,0 +1,737 @@
+/**
+ * @fileoverview Terminal panel — real PTY via WebSocket + node-pty sidecar
+ *
+ * WebSocket on port 24681. JSON protocol for control + data.
+ * Each tab spawns an interactive shell (real PTY) at the monorepo root.
+ *
+ * HMR-safe: all module-level state stored in import.meta.hot.data
+ *
+ * When `embedded` is true, terminal renders inline as a flex child
+ * (used by CockpitLayout). No fixed positioning, no manual drag resize.
+ */
+
+import { useRef, useEffect, useState } from 'react';
+import {
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Terminal,
+  SquareTerminal,
+  Cpu,
+  Circle,
+  X,
+  Plus,
+  Maximize2,
+  Minimize2,
+} from 'lucide-react';
+import { Terminal as XTerm } from '@xterm/xterm';
+import { FitAddon } from '@xterm/addon-fit';
+import { WebLinksAddon } from '@xterm/addon-web-links';
+
+import { useDoNotDashStore } from '../stores/dndevStore';
+
+import type { ReactNode } from 'react';
+import type { TabConfig } from '../stores/dndevStore';
+
+const ICON_MAP: Record<string, typeof Terminal> = {
+  cpu: Cpu,
+  terminal: Terminal,
+  'square-terminal': SquareTerminal,
+};
+
+function TabIcon({ icon }: { icon: string }) {
+  const Icon = ICON_MAP[icon] ?? Terminal;
+  return <Icon size={14} />;
+}
+
+// ============================================================================
+// WebSocket — single connection, survives HMR, auto-reconnects
+// ============================================================================
+
+/** @type {number} Max reconnect delay in ms (caps exponential backoff) */
+const WS_MAX_RECONNECT_DELAY = 8000;
+/** @type {number} Base reconnect delay in ms */
+const WS_BASE_RECONNECT_DELAY = 500;
+
+/** Delay first PTY spawn to let Windows ConPTY settle (avoids AttachConsole race) */
+const INITIAL_SPAWN_DELAY_MS = 1000;
+/** Tracks which tabs have completed their initial spawn delay */
+const spawnDelayDone = new Set<string>();
+
+/** Client-side crash recovery: auto-reconnect tabs that exit with non-zero code */
+const TAB_RECONNECT_MAX = 3;
+const TAB_RECONNECT_DELAY = 800;
+const tabReconnectAttempts = new Map<string, number>();
+const tabReconnectTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+function scheduleTabReconnect(tab: string): void {
+  const attempts = (tabReconnectAttempts.get(tab) ?? 0) + 1;
+  if (attempts > TAB_RECONNECT_MAX) {
+    console.warn(`[terminal] tab "${tab}" exhausted ${TAB_RECONNECT_MAX} client reconnect attempts`);
+    tabReconnectAttempts.delete(tab);
+    return;
+  }
+  tabReconnectAttempts.set(tab, attempts);
+  console.log(`[terminal] auto-reconnecting tab "${tab}" (${attempts}/${TAB_RECONNECT_MAX}) in ${TAB_RECONNECT_DELAY}ms`);
+
+  // Clear any pending timer for this tab
+  const prev = tabReconnectTimers.get(tab);
+  if (prev) clearTimeout(prev);
+
+  tabReconnectTimers.set(tab, setTimeout(() => {
+    tabReconnectTimers.delete(tab);
+    connectTab(tab);
+  }, TAB_RECONNECT_DELAY));
+}
+
+/** Reconnection state — module-level so it survives HMR */
+let wsReconnectAttempt = 0;
+let wsReconnectTimer: ReturnType<typeof setTimeout> | null = null;
+
+function getWs(): WebSocket | null {
+  if (import.meta.hot) return (import.meta.hot.data.terminalWs as WebSocket) ?? null;
+  return fallbackWs;
+}
+
+function setWs(ws: WebSocket | null): void {
+  if (import.meta.hot) import.meta.hot.data.terminalWs = ws;
+  else fallbackWs = ws;
+}
+
+let fallbackWs: WebSocket | null = null;
+
+function ensureWs(): WebSocket {
+  let ws = getWs();
+  if (ws && ws.readyState <= 1) return ws;
+
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${protocol}//${window.location.hostname}:24681`);
+  setWs(ws);
+
+  ws.onopen = () => {
+    console.log('[terminal] connected to', ws!.url);
+    wsReconnectAttempt = 0;
+  };
+
+  ws.onmessage = (event) => {
+    try {
+      const msg = JSON.parse(event.data);
+      const tab = msg.tab as string;
+
+      switch (msg.type) {
+        case 'started':
+          getConnectedTabs().add(tab);
+          useDoNotDashStore.getState().setSessionConnected(tab, true);
+          // Reset reconnect counter on successful start
+          tabReconnectAttempts.delete(tab);
+          { const t = tabReconnectTimers.get(tab); if (t) { clearTimeout(t); tabReconnectTimers.delete(tab); } }
+          break;
+        case 'output': {
+          const entry = getTerminals().get(tab);
+          if (entry) entry.term.write(msg.data);
+          break;
+        }
+        case 'exit': {
+          const entry = getTerminals().get(tab);
+          getConnectedTabs().delete(tab);
+          useDoNotDashStore.getState().setSessionConnected(tab, false);
+          // Non-zero exit = crash → auto-reconnect silently
+          if (msg.code !== 0) {
+            scheduleTabReconnect(tab);
+          } else {
+            if (entry) entry.term.writeln(`\r\n[Process exited with code ${msg.code}]`);
+          }
+          break;
+        }
+        case 'error': {
+          getConnectedTabs().delete(tab);
+          useDoNotDashStore.getState().setSessionConnected(tab, false);
+          // Auto-reconnect on spawn errors too
+          scheduleTabReconnect(tab);
+          break;
+        }
+      }
+    } catch (err) { console.warn('[terminal] failed to parse WS message:', err); }
+  };
+
+  ws.onerror = (e) => console.error('[terminal] ws error', e);
+
+  ws.onclose = (e) => {
+    console.log('[terminal] disconnected code=' + e.code, 'reason=' + e.reason);
+    setWs(null);
+
+    // Mark all tabs as disconnected
+    for (const tab of getConnectedTabs()) {
+      useDoNotDashStore.getState().setSessionConnected(tab, false);
+    }
+    getConnectedTabs().clear();
+
+    // Auto-reconnect with exponential backoff (capped)
+    if (wsReconnectTimer) clearTimeout(wsReconnectTimer);
+    const delay = Math.min(WS_BASE_RECONNECT_DELAY * 2 ** wsReconnectAttempt, WS_MAX_RECONNECT_DELAY);
+    wsReconnectAttempt++;
+    console.log(`[terminal] reconnecting in ${delay}ms (attempt ${wsReconnectAttempt})`);
+    wsReconnectTimer = setTimeout(() => {
+      wsReconnectTimer = null;
+      ensureWs();
+    }, delay);
+  };
+
+  return ws;
+}
+
+/**
+ * Send a JSON message over the WebSocket.
+ * If the socket isn't open yet, queues the send for when it opens.
+ * @param msg - Message payload (will be JSON-stringified)
+ */
+function wsSend(msg: Record<string, unknown>): void {
+  const ws = ensureWs();
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify(msg));
+  } else {
+    ws.addEventListener('open', () => ws.send(JSON.stringify(msg)), { once: true });
+  }
+}
+
+// ============================================================================
+// HMR-safe module-level state
+// ============================================================================
+
+interface TerminalEntry {
+  term: XTerm;
+  fit: FitAddon;
+  opened: boolean;
+  container: HTMLDivElement | null;
+}
+
+function getTerminals(): Map<string, TerminalEntry> {
+  if (import.meta.hot) {
+    if (!import.meta.hot.data.terminals) {
+      import.meta.hot.data.terminals = new Map<string, TerminalEntry>();
+    }
+    return import.meta.hot.data.terminals as Map<string, TerminalEntry>;
+  }
+  return fallbackTerminals;
+}
+
+function getConnectedTabs(): Set<string> {
+  if (import.meta.hot) {
+    if (!import.meta.hot.data.connectedTabs) {
+      import.meta.hot.data.connectedTabs = new Set<string>();
+    }
+    return import.meta.hot.data.connectedTabs as Set<string>;
+  }
+  return fallbackConnected;
+}
+
+const fallbackTerminals = new Map<string, TerminalEntry>();
+const fallbackConnected = new Set<string>();
+const lastSize = new Map<string, string>();
+
+function getOrCreateTerminal(tab: string): TerminalEntry {
+  const terminals = getTerminals();
+  const existing = terminals.get(tab);
+  if (existing) return existing;
+
+  const term = new XTerm({
+    cursorBlink: true,
+    cursorInactiveStyle: 'none',
+    fontSize: 13,
+    fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', monospace",
+    theme: {
+      background: '#0a0a0a',
+      foreground: '#e4e4e7',
+      cursor: '#e4e4e7',
+      selectionBackground: '#27272a',
+    },
+    allowProposedApi: true,
+  });
+
+  const fit = new FitAddon();
+  term.loadAddon(fit);
+  term.loadAddon(new WebLinksAddon());
+
+  term.onData((data) => {
+    if (getConnectedTabs().has(tab)) {
+      wsSend({ type: 'input', tab, data });
+    }
+  });
+
+  const entry: TerminalEntry = { term, fit, opened: false, container: null };
+  terminals.set(tab, entry);
+  return entry;
+}
+
+/**
+ * Dispose a terminal entry — xterm instance, DOM container, fit rAF, size cache.
+ * Call when a tab is permanently removed (not just hidden).
+ * @param tab - Tab identifier to dispose
+ */
+function disposeTerminal(tab: string): void {
+  const terminals = getTerminals();
+  const entry = terminals.get(tab);
+  if (!entry) return;
+
+  // Cancel any pending fit + PTY resize timers
+  const fitTimers = getFitTimers();
+  const ft = fitTimers.get(tab);
+  if (ft) clearTimeout(ft);
+  fitTimers.delete(tab);
+
+  const ptyTimers = getPtyResizeTimers();
+  const pt = ptyTimers.get(tab);
+  if (pt) clearTimeout(pt);
+  ptyTimers.delete(tab);
+
+  // Dispose xterm (releases all addons, buffers, DOM listeners)
+  try { entry.term.dispose(); } catch { /* already disposed */ }
+
+  // Remove DOM container
+  if (entry.container) {
+    entry.container.remove();
+    entry.container = null;
+  }
+
+  // Clean up maps
+  terminals.delete(tab);
+  lastSize.delete(tab);
+}
+
+/**
+ * Per-tab debounce timers for fit scheduling.
+ * Timer-based (not rAF) so we don't hammer xterm mid-drag.
+ */
+function getFitTimers(): Map<string, ReturnType<typeof setTimeout>> {
+  if (import.meta.hot) {
+    if (!import.meta.hot.data.fitTimers) {
+      import.meta.hot.data.fitTimers = new Map<string, ReturnType<typeof setTimeout>>();
+    }
+    return import.meta.hot.data.fitTimers as Map<string, ReturnType<typeof setTimeout>>;
+  }
+  return fallbackFitTimers;
+}
+const fallbackFitTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+/** Visual fit debounce — adapts xterm grid to container. Safe, no PTY side-effects. */
+const FIT_DEBOUNCE_MS = 80;
+/** PTY resize debounce — tells the shell about new dimensions. Shell redraws on this,
+ *  so it must only fire once after dragging fully stops to avoid duplicate output. */
+const PTY_RESIZE_DEBOUNCE_MS = 400;
+
+function getPtyResizeTimers(): Map<string, ReturnType<typeof setTimeout>> {
+  if (import.meta.hot) {
+    if (!import.meta.hot.data.ptyResizeTimers) {
+      import.meta.hot.data.ptyResizeTimers = new Map<string, ReturnType<typeof setTimeout>>();
+    }
+    return import.meta.hot.data.ptyResizeTimers as Map<string, ReturnType<typeof setTimeout>>;
+  }
+  return fallbackPtyResizeTimers;
+}
+const fallbackPtyResizeTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+/**
+ * Schedule a fit + resize for a tab. Two-phase debounce:
+ * 1. Visual fit (80ms) — recalculates xterm grid to match container. Pure client-side.
+ * 2. PTY resize (400ms) — tells shell the new dimensions. Only fires after drag settles
+ *    to prevent the shell from redrawing mid-drag (which causes duplicate rows).
+ */
+function scheduleFit(tab: string, entry: TerminalEntry): void {
+  const fitTimers = getFitTimers();
+
+  const existing = fitTimers.get(tab);
+  if (existing) clearTimeout(existing);
+
+  fitTimers.set(tab, setTimeout(() => {
+    fitTimers.delete(tab);
+    try {
+      entry.fit.fit();
+    } catch { /* container might be detached */ }
+
+    // Schedule PTY resize separately with longer debounce
+    schedulePtyResize(tab, entry);
+  }, FIT_DEBOUNCE_MS));
+}
+
+/** Notify PTY of new dimensions — heavily debounced to avoid shell redraw spam. */
+function schedulePtyResize(tab: string, entry: TerminalEntry): void {
+  const timers = getPtyResizeTimers();
+  const prev = timers.get(tab);
+  if (prev) clearTimeout(prev);
+
+  timers.set(tab, setTimeout(() => {
+    timers.delete(tab);
+    try {
+      const cols = entry.term.cols;
+      const rows = entry.term.rows;
+      if (cols < 2 || rows < 2) return;
+      const key = `${cols}x${rows}`;
+      if (lastSize.get(tab) !== key) {
+        lastSize.set(tab, key);
+        if (getConnectedTabs().has(tab)) {
+          wsSend({ type: 'resize', tab, cols, rows });
+        }
+      }
+    } catch { /* detached */ }
+  }, PTY_RESIZE_DEBOUNCE_MS));
+}
+
+function connectTab(tab: string): void {
+  if (getConnectedTabs().has(tab)) return;
+  const entry = getTerminals().get(tab);
+  const cols = entry?.term.cols || 120;
+  const rows = entry?.term.rows || 30;
+  // Record the size we're starting with so the first fit() doesn't send a redundant
+  // resize — that causes the shell to redraw its prompt and duplicate the first line.
+  lastSize.set(tab, `${cols}x${rows}`);
+  wsSend({ type: 'start', tab, cols, rows });
+}
+
+/**
+ * Kill the PTY for a tab, optionally restarting it.
+ * @param tab - Tab identifier
+ * @param options.restart - If true, reconnects after a short delay
+ */
+function killTab(tab: string, { restart = false }: { restart?: boolean } = {}): void {
+  wsSend({ type: 'kill', tab });
+  getConnectedTabs().delete(tab);
+  useDoNotDashStore.getState().setSessionConnected(tab, false);
+  const entry = getTerminals().get(tab);
+  if (entry) {
+    entry.term.clear();
+    if (restart) {
+      // Small delay so sidecar finishes cleanup before we reconnect
+      setTimeout(() => connectTab(tab), 200);
+    } else {
+      entry.term.writeln('[Process killed]');
+    }
+  }
+}
+
+// ============================================================================
+// Component
+// ============================================================================
+
+interface TerminalPanelProps {
+  /** When true, renders inline (flex child). No fixed positioning. */
+  embedded?: boolean;
+  /** Layout direction — determines chevron orientation for collapse/expand. */
+  direction?: 'horizontal' | 'vertical';
+}
+
+export function TerminalPanel({ embedded, direction = 'vertical' }: TerminalPanelProps): ReactNode {
+  const tabs = useDoNotDashStore((s) => s.tabs);
+  const activeTab = useDoNotDashStore((s) => s.activeTab);
+  const isExpanded = useDoNotDashStore((s) => s.isExpanded);
+  const isFullscreen = useDoNotDashStore((s) => s.isFullscreen);
+  const sessions = useDoNotDashStore((s) => s.sessions);
+  const pendingPrompt = useDoNotDashStore((s) => s.pendingPrompt);
+  const pendingTab = useDoNotDashStore((s) => s.pendingTab);
+
+  const xtermRef = useRef<HTMLDivElement>(null);
+  const [spawning, setSpawning] = useState(false);
+
+  // fullscreen: always visible (CSS overlays everything)
+  // otherwise: store-controlled expand/collapse (works in embedded too — collapses to tabbar)
+  const effectiveExpanded = isFullscreen || isExpanded;
+
+  // WebSocket on mount
+  useEffect(() => { ensureWs(); }, []);
+
+  // Mount xterm DOM + auto-connect
+  useEffect(() => {
+    if (!effectiveExpanded || !xtermRef.current) return;
+
+    const wrapper = xtermRef.current;
+    const entry = getOrCreateTerminal(activeTab);
+
+    if (!entry.container) {
+      const div = document.createElement('div');
+      div.className = 'dndev-terminal-tab-pane';
+      // Sizing handled by .dndev-terminal-tab-pane CSS rule
+      entry.container = div;
+    }
+
+    // Detach from old parent before re-appending (prevents DOM orphans on tab switch)
+    if (entry.container.parentNode && entry.container.parentNode !== wrapper) {
+      entry.container.parentNode.removeChild(entry.container);
+    }
+
+    if (!wrapper.contains(entry.container)) {
+      wrapper.appendChild(entry.container);
+    }
+
+    if (!entry.opened) {
+      try {
+        entry.term.open(entry.container);
+        entry.opened = true;
+        // Refit after layout settles — initial rAF can fire before panels are sized
+        setTimeout(() => scheduleFit(activeTab, entry), 150);
+        // Refit after fonts load — FitAddon computes cols from char width
+        document.fonts.ready.then(() => scheduleFit(activeTab, entry));
+      } catch (err) {
+        console.error(`[terminal] failed to open xterm for tab "${activeTab}":`, err);
+      }
+    }
+
+    for (const [tab, e] of getTerminals()) {
+      if (tab === activeTab) {
+        if (e.container) e.container.style.display = 'block';
+      } else {
+        // Blur hidden terminals to prevent ghost cursors on focus/blur cycles
+        e.term.blur();
+        if (e.container) e.container.style.display = 'none';
+      }
+    }
+
+    // Auto-connect if not already running
+    if (!getConnectedTabs().has(activeTab)) {
+      if (spawnDelayDone.has(activeTab)) {
+        connectTab(activeTab);
+      } else {
+        // Delay first spawn to let ConPTY settle (Windows AttachConsole race)
+        setSpawning(true);
+        const timer = setTimeout(() => {
+          spawnDelayDone.add(activeTab);
+          setSpawning(false);
+          connectTab(activeTab);
+        }, INITIAL_SPAWN_DELAY_MS);
+        return () => clearTimeout(timer);
+      }
+    }
+
+    scheduleFit(activeTab, entry);
+    entry.term.focus();
+  }, [activeTab, effectiveExpanded]);
+
+  // Pending prompt injection
+  useEffect(() => {
+    if (!pendingPrompt) return;
+
+    if (!getConnectedTabs().has(pendingTab)) {
+      connectTab(pendingTab);
+    }
+
+    // Track whether the prompt was consumed by the immediate attempt
+    let consumed = false;
+
+    const tryInject = () => {
+      if (consumed) return;
+      if (getConnectedTabs().has(pendingTab)) {
+        consumed = true;
+        // All current injectPrompt call sites target AI agent tabs (Claude CLI),
+        // where the text is a prompt — NOT shell input. No shell escaping needed.
+        wsSend({ type: 'input', tab: pendingTab, data: pendingPrompt + '\n' });
+        useDoNotDashStore.getState().consumePrompt();
+        // Focus the terminal so user can interact immediately (e.g. hit Enter)
+        getTerminals().get(pendingTab)?.term.focus();
+      }
+    };
+
+    tryInject();
+    // Retry once after 500ms if the tab wasn't connected yet
+    const timer = setTimeout(tryInject, 500);
+    return () => clearTimeout(timer);
+  }, [pendingPrompt, pendingTab]);
+
+  // Resize observer — refit terminal when panel resizes
+  useEffect(() => {
+    if (!effectiveExpanded || !xtermRef.current) return;
+    const entry = getOrCreateTerminal(activeTab);
+    const observer = new ResizeObserver(() => scheduleFit(activeTab, entry));
+    observer.observe(xtermRef.current);
+    return () => observer.disconnect();
+  }, [activeTab, effectiveExpanded]);
+
+  // Refit on fullscreen toggle
+  useEffect(() => {
+    if (!effectiveExpanded) return;
+    const entry = getTerminals().get(activeTab);
+    if (entry) scheduleFit(activeTab, entry);
+  }, [isFullscreen, effectiveExpanded, activeTab]);
+
+  function handleTabClick(tab: TabConfig) {
+    useDoNotDashStore.getState().setActiveTab(tab.id);
+    if (!isExpanded) useDoNotDashStore.getState().setExpanded(true);
+  }
+
+  function handleKill(tabId: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    killTab(tabId, { restart: true });
+  }
+
+  function handleClose(tabId: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    killTab(tabId);
+    // Dispose xterm instance + DOM to prevent memory leaks
+    disposeTerminal(tabId);
+    useDoNotDashStore.getState().removeTab(tabId);
+  }
+
+  const isAiAgentTab = (tabId: string) => tabs.find((t) => t.id === tabId)?.mode === 'ai-agent';
+
+  // App picker state
+  const [showAppPicker, setShowAppPicker] = useState(false);
+  const [availableApps, setAvailableApps] = useState<{ name: string; packageName: string }[]>([]);
+  const appPickerRef = useRef<HTMLDivElement>(null);
+
+  // Close app picker on blur
+  useEffect(() => {
+    if (!showAppPicker) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (appPickerRef.current && !appPickerRef.current.contains(e.target as Node)) {
+        setShowAppPicker(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showAppPicker]);
+
+  async function openAppPicker() {
+    if (showAppPicker) {
+      setShowAppPicker(false);
+      return;
+    }
+    try {
+      const res = await fetch('/api/dndev/apps');
+      const json = await res.json();
+      setAvailableApps(json.apps ?? []);
+    } catch {
+      setAvailableApps([]);
+    }
+    setShowAppPicker(true);
+  }
+
+  return (
+    <div
+      className="dndev-terminal-panel"
+      data-embedded={embedded || undefined}
+      data-expanded={effectiveExpanded}
+    >
+      <div className="dndev-terminal-tabbar">
+        <div className="dndev-terminal-tabs">
+          {tabs.map((tab) => {
+            const connected = sessions[tab.id]?.isConnected ?? false;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                className="dndev-terminal-tab"
+                data-active={activeTab === tab.id}
+                onClick={() => handleTabClick(tab)}
+              >
+                <TabIcon icon={tab.icon} />
+                <span>{tab.label}</span>
+                <Circle
+                  size={6}
+                  fill={connected ? 'var(--success, #22c55e)' : 'var(--muted-foreground)'}
+                  stroke="none"
+                />
+                {connected && (
+                  <span
+                    className="dndev-terminal-tab-close"
+                    onClick={(e) => isAiAgentTab(tab.id) ? handleKill(tab.id, e) : handleClose(tab.id, e)}
+                    role="button"
+                    tabIndex={-1}
+                    aria-label={isAiAgentTab(tab.id) ? `Kill ${tab.label}` : `Close ${tab.label}`}
+                  >
+                    <X size={10} />
+                  </span>
+                )}
+                {!connected && !isAiAgentTab(tab.id) && (
+                  <span
+                    className="dndev-terminal-tab-close"
+                    style={{ opacity: 1 }}
+                    onClick={(e) => handleClose(tab.id, e)}
+                    role="button"
+                    tabIndex={-1}
+                    aria-label={`Remove ${tab.label}`}
+                  >
+                    <X size={10} />
+                  </span>
+                )}
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            className="dndev-terminal-tab-add"
+            onClick={() => useDoNotDashStore.getState().addShellTab()}
+            aria-label="Add shell tab"
+          >
+            <Plus size={14} />
+          </button>
+          <div style={{ position: 'relative' }} ref={appPickerRef}>
+            <button
+              type="button"
+              className="dndev-terminal-tab-add"
+              onClick={openAppPicker}
+              aria-label="Launch app dev server"
+            >
+              <Cpu size={14} />
+            </button>
+            {showAppPicker && (
+              <div className="dndev-terminal-app-picker">
+                {availableApps.length === 0 ? (
+                  <div className="dndev-terminal-app-picker-empty">No apps found</div>
+                ) : (
+                  availableApps.map((app) => (
+                    <button
+                      key={app.name}
+                      type="button"
+                      className="dndev-terminal-app-picker-item"
+                      onClick={() => {
+                        useDoNotDashStore.getState().addAppTab(app.name);
+                        setShowAppPicker(false);
+                      }}
+                    >
+                      <Cpu size={12} />
+                      <span>{app.name}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="dndev-terminal-actions">
+          {effectiveExpanded && (
+            <button
+              type="button"
+              className="dndev-terminal-toggle"
+              onClick={() => useDoNotDashStore.getState().toggleFullscreen()}
+              aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            >
+              {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+            </button>
+          )}
+          <button
+            type="button"
+            className="dndev-terminal-toggle"
+            onClick={() => useDoNotDashStore.getState().toggleExpanded()}
+            aria-label={isExpanded ? 'Collapse terminal' : 'Expand terminal'}
+          >
+            {direction === 'horizontal'
+              ? (isExpanded ? <ChevronRight size={16} /> : <ChevronLeft size={16} />)
+              : (isExpanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />)
+            }
+          </button>
+        </div>
+      </div>
+
+      {effectiveExpanded && (
+        <div className="dndev-terminal-content">
+          {spawning && (
+            <div className="dndev-terminal-loader">
+              <Terminal size={16} />
+              <span>Starting terminal…</span>
+            </div>
+          )}
+          <div ref={xtermRef} className="dndev-terminal-xterm-host" />
+        </div>
+      )}
+    </div>
+  );
+}

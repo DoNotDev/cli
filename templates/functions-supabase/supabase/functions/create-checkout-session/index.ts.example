@@ -1,0 +1,11 @@
+// supabase/functions/create-checkout-session/index.ts
+// Supabase Edge Function — Stripe Checkout Session
+// Deploy: supabase functions deploy create-checkout-session
+
+import { createCheckoutSession } from '@donotdev/functions/supabase';
+
+// Import your billing config
+// import { billingConfig } from '../_shared/billingConfig.ts';
+const billingConfig = {}; // TODO: Replace with your StripeBackConfig
+
+Deno.serve(createCheckoutSession(billingConfig));

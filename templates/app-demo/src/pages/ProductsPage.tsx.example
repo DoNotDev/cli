@@ -1,0 +1,19 @@
+// apps/demo/src/pages/ProductsPage.tsx
+
+import { Package } from 'lucide-react';
+
+import { ProductCardListTemplate } from '@donotdev/templates';
+
+import { productEntity } from '../entities/product';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const meta: PageMeta = {
+  icon: <Package />,
+  auth: true,
+  preset: 'admin',
+};
+
+export default function ProductsPage() {
+  return <ProductCardListTemplate entity={productEntity} />;
+}

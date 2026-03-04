@@ -1,0 +1,7 @@
+// supabase/functions/get-user-auth-status/index.ts
+// Supabase Edge Function — Get User Auth Status
+// Deploy: supabase functions deploy get-user-auth-status
+
+import { createGetUserAuthStatus } from '@donotdev/functions/supabase';
+
+Deno.serve(createGetUserAuthStatus());

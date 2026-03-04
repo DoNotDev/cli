@@ -1,0 +1,20 @@
+// functions/src/api/crud/createEntity.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Create Entity Wrapper
+ * @description Wrapper for framework's createEntity with {{APP_NAME}}-specific configuration
+ */
+
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { createEntity as frameworkCreateEntity } from '@donotdev/functions/vercel';
+
+/**
+ * {{APP_NAME}} entity creation
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  return frameworkCreateEntity(req, res);
+}

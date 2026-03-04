@@ -1,0 +1,10 @@
+// functions/src/billing/index.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Billing Functions
+ * @description Exports all billing-related functions for the {{APP_NAME}} app
+ */
+
+export { processPaymentSuccess } from './processPaymentSuccess';
+export { refreshSubscriptionStatus } from './refreshSubscriptionStatus';
+export { stripeWebhook } from './handleStripeWebhook';

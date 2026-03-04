@@ -1,0 +1,14 @@
+// functions/src/oauth/refreshToken.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Refresh Token Wrapper
+ * @description Wrapper for framework's refreshToken with {{APP_NAME}}-specific configuration
+ */
+
+import { refreshToken as frameworkRefreshToken } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} OAuth token refresh
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export const refreshToken = frameworkRefreshToken;

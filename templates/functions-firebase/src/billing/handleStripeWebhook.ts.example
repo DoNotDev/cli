@@ -1,0 +1,24 @@
+// functions/src/billing/handleStripeWebhook.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Stripe Webhook Wrapper
+ * @description Wrapper for framework's createStripeWebhookHandler with {{APP_NAME}}-specific configuration
+ */
+
+import { createStripeWebhookHandler } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} Stripe webhook handler
+ * Configured with {{APP_NAME}}-specific product types and settings
+ */
+export const stripeWebhook = createStripeWebhookHandler({
+  productTypes: {
+    // Add your product types here
+    // Example:
+    // premium_plan: {
+    //   tier: 'premium',
+    //   subscriptionEnd: '2099-12-31T23:59:59.000Z',
+    //   githubRepo: { owner: 'your-org', repo: 'your-repo' },
+    // },
+  },
+});

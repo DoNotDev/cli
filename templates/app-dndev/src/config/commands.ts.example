@@ -1,0 +1,171 @@
+/**
+ * @fileoverview Command registry — quick actions for the cockpit
+ *
+ * Consumer defaults map to scaffolded skills (.claude/commands/*.md.example)
+ * and `dndev` CLI commands.
+ *
+ * Override API:
+ *   setCommand('typecheck', 'dn tc');
+ *   addAction({ id: 'lint', ... });
+ *   removeAction('setup');
+ */
+
+import {
+  ClipboardList,
+  FileCode,
+  Flame,
+  Layers,
+  Lightbulb,
+  MonitorPlay,
+  Play,
+  Rocket,
+  Settings,
+  TestTube,
+  Wrench,
+} from 'lucide-react';
+
+import type { TabMode } from '../stores/dndevStore';
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+export interface QuickAction {
+  /** Unique key */
+  id: string;
+  /** Lucide icon component */
+  icon: typeof FileCode;
+  /** Short label (1-2 words) */
+  label: string;
+  /** One-sentence description of what this does */
+  description: string;
+  /** Shell command or /skill to execute */
+  command: string;
+  /** Where to run: shell tab or ai-agent */
+  target: TabMode;
+}
+
+// ============================================================================
+// CONSUMER DEFAULTS — WAI-WAY skills + operational commands
+// ============================================================================
+
+const registry = new Map<string, QuickAction>([
+  // ---- WAI-WAY Phase Skills ----
+  ['brainstorm', {
+    id: 'brainstorm',
+    icon: Lightbulb,
+    label: 'Brainstorm',
+    description: 'Extract requirements, produce PRD/HLD/LLD.',
+    command: '/brainstorm',
+    target: 'ai-agent',
+  }],
+  ['design', {
+    id: 'design',
+    icon: Layers,
+    label: 'Design',
+    description: 'Architecture and design from validated specs.',
+    command: '/design',
+    target: 'ai-agent',
+  }],
+  ['build', {
+    id: 'build',
+    icon: Play,
+    label: 'Build',
+    description: 'Compose pages with framework components.',
+    command: '/build',
+    target: 'ai-agent',
+  }],
+  ['polish', {
+    id: 'polish',
+    icon: Wrench,
+    label: 'Polish',
+    description: 'Tests, security rules, CI/CD, production config.',
+    command: '/polish',
+    target: 'ai-agent',
+  }],
+
+  // ---- Review & Quality ----
+  ['grill', {
+    id: 'grill',
+    icon: Flame,
+    label: 'Grill',
+    description: 'Staff-engineer code review with security depth.',
+    command: '/grill',
+    target: 'ai-agent',
+  }],
+  ['techdebt', {
+    id: 'techdebt',
+    icon: ClipboardList,
+    label: 'Tech Debt',
+    description: 'End-of-session tech debt sweep.',
+    command: '/techdebt',
+    target: 'ai-agent',
+  }],
+
+  // ---- Operational Commands ----
+  ['typecheck', {
+    id: 'typecheck',
+    icon: FileCode,
+    label: 'Typecheck',
+    description: 'Validate TypeScript types across your project.',
+    command: 'dndev type-check',
+    target: 'shell',
+  }],
+  ['test', {
+    id: 'test',
+    icon: TestTube,
+    label: 'Tests',
+    description: 'Run your test suites and report failures.',
+    command: 'dndev test',
+    target: 'shell',
+  }],
+  ['dev', {
+    id: 'dev',
+    icon: MonitorPlay,
+    label: 'Dev',
+    description: 'Start the development server.',
+    command: 'dndev dev',
+    target: 'shell',
+  }],
+  ['deploy', {
+    id: 'deploy',
+    icon: Rocket,
+    label: 'Deploy',
+    description: 'Ship to production.',
+    command: 'dndev deploy',
+    target: 'shell',
+  }],
+  ['setup', {
+    id: 'setup',
+    icon: Settings,
+    label: 'Setup',
+    description: 'Configure environment and validate deps.',
+    command: 'dndev setup',
+    target: 'shell',
+  }],
+]);
+
+// ============================================================================
+// API
+// ============================================================================
+
+/** Get all registered actions */
+export function getActions(): QuickAction[] {
+  return [...registry.values()];
+}
+
+/** Override a default action's command */
+export function setCommand(id: string, command: string): void {
+  const action = registry.get(id);
+  if (action) action.command = command;
+}
+
+/** Add a custom action */
+export function addAction(action: QuickAction): void {
+  registry.set(action.id, action);
+}
+
+/** Remove an action */
+export function removeAction(id: string): void {
+  registry.delete(id);
+}

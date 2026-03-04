@@ -1,0 +1,21 @@
+// functions/src/auth/removeCustomClaims.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Remove Custom Claims Wrapper
+ * @description Wrapper for framework's removeCustomClaims with {{APP_NAME}}-specific configuration
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import { removeCustomClaims as frameworkRemoveCustomClaims } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} custom claims removal
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ *
+ * @version 0.0.1
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+export const removeCustomClaims = frameworkRemoveCustomClaims;

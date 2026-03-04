@@ -1,0 +1,17 @@
+// functions/src/oauth/index.ts
+
+/**
+ * @fileoverview {{APP_NAME}} OAuth Functions
+ * @description Exports all OAuth-related functions for the {{APP_NAME}} app
+ */
+
+// Generic OAuth functions
+export { exchangeToken } from './exchangeToken';
+export { getConnections } from './getConnections';
+export { disconnect } from './disconnect';
+export { refreshToken } from './refreshToken';
+
+// GitHub-specific OAuth functions
+export { grantGitHubAccess } from './grantGitHubAccess';
+export { revokeGitHubAccess } from './revokeGitHubAccess';
+export { checkGitHubAccess } from './checkGitHubAccess';

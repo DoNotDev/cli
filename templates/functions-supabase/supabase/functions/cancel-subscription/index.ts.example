@@ -1,0 +1,7 @@
+// supabase/functions/cancel-subscription/index.ts
+// Supabase Edge Function — Cancel Subscription
+// Deploy: supabase functions deploy cancel-subscription
+
+import { createCancelSubscription } from '@donotdev/functions/supabase';
+
+Deno.serve(createCancelSubscription());

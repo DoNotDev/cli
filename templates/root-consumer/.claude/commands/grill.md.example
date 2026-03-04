@@ -1,0 +1,108 @@
+---
+description: Critical staff-engineer code review — flags problems before shipping
+---
+
+**Phase gate: only use after Phase 3 (COMPOSE) is complete.**
+
+Act as a skeptical staff engineer doing a blocking code review.
+
+Target: the last modified files in this session, or files passed as argument.
+
+Evaluate for:
+- Architectural anti-patterns (coupling, wrong abstraction layer, violation of existing conventions)
+- Missing edge cases (null/undefined, empty arrays, concurrent updates, auth failure paths)
+- Security issues (injection, unvalidated input at system boundaries, exposed secrets)
+- Over-engineering (abstractions not earned by current requirements)
+- Missing or incorrect TypeScript types
+- @donotdev component usage without `lookup_symbol` verification
+
+Rules:
+- NEVER suggest fixes. Report problems only.
+- NEVER skip BLOCKER items to be polite.
+- If there are no issues at a severity level, omit that level entirely.
+- **Quality > quantity. 15 real issues >>> 60 padded items.**
+
+## Output — 3-step lifecycle
+
+The grill report is a **living queue**. Each run cleans up resolved items, archives them, then appends new findings.
+
+### Step 1 — Clean up + archive
+
+Read existing `.dndev/grill-report.json`. If it exists and has items:
+
+1. Separate items into **resolved** (`status` = `fixed`, `resolved`, or `rejected`) and **surviving** (`pending`, `fixing`, or any other status).
+2. Append a history entry to `.dndev/grill-history.json` (read existing array or start with `[]`):
+```json
+{
+  "date": "<now ISO>",
+  "gitSha": "<short git HEAD>",
+  "target": "<previous report target>",
+  "verdict": "<previous report verdict>",
+  "blockers": <previous blocker count>,
+  "warnings": <previous warning count>,
+  "notes": <previous note count>,
+  "total": <previous items.length>,
+  "resolved": <resolved count>,
+  "carried": <surviving count>
+}
+```
+3. Keep the surviving items — they carry over into the updated report.
+
+If no existing report or no items, skip this step.
+
+### Step 2 — Scan
+
+Produce new findings from the target files. **Deduplicate** against surviving items from Step 1: if a new finding matches an existing item on `file` + `line` + `issue` (fuzzy match on issue text), skip it.
+
+### Step 3 — Write report
+
+Merge surviving items from Step 1 + new findings from Step 2. Re-number `id` fields sequentially starting at 1. Write to `.dndev/grill-report.json`:
+
+```json
+{
+  "generated": "<now ISO>",
+  "gitSha": "<short git HEAD>",
+  "target": "<description of what was reviewed>",
+  "verdict": "SHIP" | "DO NOT SHIP",
+  "items": [
+    {
+      "id": 1,
+      "severity": "blocker" | "warn" | "note",
+      "file": "src/pages/Foo.tsx",
+      "line": 42,
+      "issue": "Short description of the problem",
+      "context": "Optional: why this matters, what could go wrong",
+      "category": "security" | "architecture" | "edge-case" | "types" | "dead-code" | "consistency" | "dx" | "docs" | "performance",
+      "status": "pending",
+      "verified": true
+    }
+  ]
+}
+```
+
+Verdict is based on the **merged** items (carried + new). If any blocker exists → DO NOT SHIP.
+
+### Field rules
+
+- `gitSha` — Run `git rev-parse --short HEAD`. Required.
+- `verified` — Always `true` in final output.
+- New items always get `status: "pending"`. Carried items keep their existing status.
+
+### Fixing findings
+
+When asked to fix grill findings (not during a scan — during a separate fix request):
+
+1. Apply the code fix.
+2. Update `.dndev/grill-report.json`: set `status: "fixed"` on each resolved item.
+3. Set `lastReviewed` to current ISO timestamp.
+
+This ensures the report reflects reality. Next grill run archives fixed items to history.
+
+### General rules
+
+- NEVER suggest fixes. Report problems only — during a scan.
+- NEVER skip BLOCKER items.
+- **Quality > quantity. 15 real issues >>> 60 padded items** (for new findings — carried items don't count toward this cap).
+- Group by file, sort by line number.
+- After writing, print: `Cleaned N resolved items → history. Carried M items. Added K new findings. Total: T items.`
+- Print verdict: SHIP / DO NOT SHIP.

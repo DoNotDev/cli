@@ -1,0 +1,7 @@
+// supabase/functions/delete-account/index.ts
+// Supabase Edge Function — Account Deletion
+// Deploy: supabase functions deploy delete-account
+
+import { createDeleteAccount } from '@donotdev/functions/supabase';
+
+Deno.serve(createDeleteAccount());

@@ -1,0 +1,14 @@
+// functions/src/crud/listEntities.ts
+
+/**
+ * @fileoverview {{APP_NAME}} List Entities Wrapper
+ * @description Wrapper for framework's listEntities with {{APP_NAME}}-specific configuration
+ */
+
+import { listEntities as frameworkListEntities } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} entities listing
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export const listEntities = frameworkListEntities;

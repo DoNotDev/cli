@@ -1,0 +1,355 @@
+/**
+ * @fileoverview Terminal sidecar — real PTY via node-pty + WebSocket.
+ * Runs under Node (not Bun) to guarantee node-pty native addon works.
+ *
+ * @description Self-contained process: owns a WebSocket server + PTY lifecycle.
+ * Spawned by DndevPlugin.js with: spawn('node', [thisFile], { cwd: appRoot })
+ *
+ * Protocol (JSON over WebSocket):
+ *   Client → Server: start, input, resize, kill
+ *   Server → Client: started, output, exit, error
+ *
+ * @env {string} TERMINAL_PORT - WebSocket port (default: 24681)
+ * @env {string} TERMINAL_CWD  - Working directory for shells (default: process.cwd())
+ * @env {string} TERMINAL_SHELL - Override shell binary (e.g. 'pwsh.exe', 'zsh')
+ */
+
+'use strict';
+
+const path = require('path');
+const { createRequire } = require('module');
+
+const appRequire = createRequire(path.join(__dirname, 'package.json'));
+const pty = appRequire('node-pty');
+const { WebSocketServer } = appRequire('ws');
+
+// ============================================================================
+// SHELL CONFIG — override via TERMINAL_SHELL env
+// ============================================================================
+
+/** Windows fallback chain: WSL (best dev UX) > PowerShell 7 > PowerShell 5 > cmd */
+const WIN_SHELL_CHAIN = ['wsl.exe', 'pwsh.exe', 'powershell.exe', 'cmd.exe'];
+
+/**
+ * Check if a shell binary is available on the system.
+ * @param {string} binary
+ * @returns {boolean}
+ */
+function shellExists(binary) {
+  try {
+    require('child_process').execSync(
+      process.platform === 'win32' ? `where ${binary}` : `which ${binary}`,
+      { stdio: 'ignore', timeout: 3000 }
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Resolve the shell binary to spawn.
+ * Priority: TERMINAL_SHELL env > platform auto-detect
+ * @returns {string}
+ */
+function resolveShell() {
+  if (process.env.TERMINAL_SHELL) return process.env.TERMINAL_SHELL;
+
+  if (process.platform === 'win32') {
+    for (const shell of WIN_SHELL_CHAIN) {
+      if (shellExists(shell)) return shell;
+    }
+    return 'cmd.exe';
+  }
+
+  return process.env.SHELL || '/bin/bash';
+}
+
+/**
+ * Build a clean env for the child shell.
+ * Strips node/bun/turbo internals. On Windows, ensures HOME/SHELL aren't 'undefined'.
+ * @returns {Record<string, string>}
+ */
+function buildCleanEnv() {
+  const cleanEnv = Object.fromEntries(
+    Object.entries(process.env).filter(([k, v]) =>
+      v !== undefined &&
+      !k.startsWith('NODE_CHANNEL') &&
+      !k.startsWith('TURBO_') &&
+      !k.startsWith('BUN_') &&
+      k !== 'NODE_OPTIONS' &&
+      k !== 'FORCE_COLOR'
+    )
+  );
+  cleanEnv.FORCE_COLOR = '1';
+  cleanEnv.TERM = 'xterm-256color';
+
+  // Windows: HOME and SHELL don't exist natively — set sane defaults
+  if (process.platform === 'win32') {
+    if (!cleanEnv.HOME) cleanEnv.HOME = cleanEnv.USERPROFILE || '';
+    if (!cleanEnv.SHELL) delete cleanEnv.SHELL;
+  }
+
+  return cleanEnv;
+}
+
+/**
+ * Resolve cwd for the shell.
+ * IMPORTANT: cwd is passed to node-pty's spawn(), which runs on the host OS.
+ * On Windows, this MUST be a native Windows path (e.g. C:\ws\dndev).
+ * WSL automatically maps the Windows cwd to /mnt/c/... inside the Linux shell.
+ * @returns {string} Working directory path (native OS path)
+ */
+function resolveCwd() {
+  const cwd = process.env.TERMINAL_CWD;
+  if (!cwd) {
+    throw new Error('TERMINAL_CWD env is required — set it in DndevPlugin.js');
+  }
+  return cwd;
+}
+
+/**
+ * Validate a tab name — prevents log injection and memory abuse.
+ * @param {unknown} tab
+ * @returns {boolean}
+ */
+function isValidTab(tab) {
+  return typeof tab === 'string' && tab.length > 0 && tab.length <= 64 && /^[\w-]+$/.test(tab);
+}
+
+/**
+ * Clamp cols/rows to safe integer ranges for node-pty.
+ * @param {unknown} value
+ * @param {number} fallback
+ * @param {number} [min=1]
+ * @param {number} [max=500]
+ * @returns {number}
+ */
+function clampDimension(value, fallback, min = 1, max = 500) {
+  const n = typeof value === 'number' ? Math.floor(value) : fallback;
+  return Math.max(min, Math.min(max, n));
+}
+
+// ============================================================================
+// CRASH GUARD — auto-respawn on immediate PTY death (ConPTY race condition)
+// ============================================================================
+
+/** @type {number} If PTY dies within this window, treat as crash */
+const CRASH_THRESHOLD_MS = 3000;
+/** @type {number} Max auto-respawn retries per tab */
+const MAX_RETRIES = 2;
+/** @type {Map<string, { count: number }>} Track crash retries per tab */
+const spawnAttempts = new Map();
+/** @type {Set<string>} Tabs killed intentionally — suppress duplicate onExit broadcast */
+const killedTabs = new Set();
+/** @type {Set<string>} Tabs with a pending crash-guard respawn timer */
+const pendingRespawns = new Set();
+
+// ============================================================================
+// INIT
+// ============================================================================
+
+// Guard: node-pty requires real Node, not Bun
+if (typeof globalThis.Bun !== 'undefined') {
+  console.error('[sidecar] FATAL: running under Bun — node-pty requires real Node. execPath=' + process.execPath);
+  process.exit(1);
+}
+
+const PORT = parseInt(process.env.TERMINAL_PORT || '24681', 10);
+if (!Number.isFinite(PORT) || PORT < 1 || PORT > 65535) {
+  console.error(`[sidecar] FATAL: invalid TERMINAL_PORT: ${process.env.TERMINAL_PORT}`);
+  process.exit(1);
+}
+
+console.error('[sidecar] Node ' + process.version + ' pid=' + process.pid);
+
+/** @type {Map<string, import('node-pty').IPty>} Active PTY processes by tab id */
+const ptys = new Map();
+const wss = new WebSocketServer({ port: PORT });
+
+/**
+ * Broadcast a JSON message to all connected WebSocket clients.
+ * @param {Record<string, unknown>} msg
+ */
+function broadcast(msg) {
+  const data = JSON.stringify(msg);
+  for (const client of wss.clients) {
+    if (client.readyState === 1) client.send(data);
+  }
+}
+
+/**
+ * Spawn a PTY for the given tab. Handles crash-respawn internally.
+ * Wrapped in try/catch so failures in the setTimeout retry path don't crash the sidecar.
+ * @param {string} tab - Tab identifier
+ * @param {number} cols - Terminal columns
+ * @param {number} rows - Terminal rows
+ */
+function spawnPty(tab, cols, rows) {
+  try {
+    const shell = resolveShell();
+    const cleanEnv = buildCleanEnv();
+    const cwd = resolveCwd();
+    const safeCols = clampDimension(cols, 120);
+    const safeRows = clampDimension(rows, 30);
+
+    console.error(`[sidecar] spawning: ${shell} cwd=${cwd} cols=${safeCols} rows=${safeRows}`);
+
+    const p = pty.spawn(shell, [], {
+      name: 'xterm-256color',
+      cols: safeCols,
+      rows: safeRows,
+      cwd,
+      env: cleanEnv,
+    });
+
+    const spawnedAt = Date.now();
+    console.error(`[sidecar] PTY "${tab}" spawned: pid=${p.pid}`);
+    ptys.set(tab, p);
+    broadcast({ type: 'started', tab });
+
+    p.onData((data) => {
+      broadcast({ type: 'output', tab, data });
+    });
+
+    p.onExit(({ exitCode, signal }) => {
+      console.error(`[sidecar] PTY "${tab}" exited: code=${exitCode} signal=${signal} pid=${p.pid}`);
+      ptys.delete(tab);
+
+      // If killed intentionally via 'kill' command, the handler already broadcast 'exit'
+      if (killedTabs.has(tab)) {
+        killedTabs.delete(tab);
+        return;
+      }
+
+      const livedMs = Date.now() - spawnedAt;
+
+      // Crash guard: if the PTY died almost instantly, auto-respawn
+      if (livedMs < CRASH_THRESHOLD_MS && exitCode !== 0) {
+        const attempts = spawnAttempts.get(tab) || { count: 0 };
+        attempts.count++;
+        spawnAttempts.set(tab, attempts);
+
+        if (attempts.count <= MAX_RETRIES) {
+          console.error(`[sidecar] PTY "${tab}" crashed after ${livedMs}ms — auto-respawn ${attempts.count}/${MAX_RETRIES}`);
+          pendingRespawns.add(tab);
+          setTimeout(() => {
+            pendingRespawns.delete(tab);
+            // If client already reconnected during the delay, skip
+            if (ptys.has(tab)) return;
+            spawnPty(tab, safeCols, safeRows);
+          }, 300);
+          return;
+        }
+        console.error(`[sidecar] PTY "${tab}" exhausted ${MAX_RETRIES} retries — giving up`);
+      }
+
+      // Normal exit or retries exhausted — notify client
+      spawnAttempts.delete(tab);
+      broadcast({ type: 'exit', tab, code: exitCode });
+    });
+  } catch (err) {
+    console.error(`[sidecar] PTY "${tab}" spawn failed:`, err.message);
+    ptys.delete(tab);
+    spawnAttempts.delete(tab);
+    broadcast({ type: 'error', tab, message: `Spawn failed: ${err.message}` });
+  }
+}
+
+// ============================================================================
+// WEBSOCKET SERVER
+// ============================================================================
+
+wss.on('connection', (ws) => {
+  // Tell new client about already-running tabs
+  for (const tab of ptys.keys()) {
+    ws.send(JSON.stringify({ type: 'started', tab }));
+  }
+
+  ws.on('message', (raw) => {
+    try {
+      const msg = JSON.parse(raw.toString());
+
+      // Validate tab name on all messages that carry one
+      if (msg.tab !== undefined && !isValidTab(msg.tab)) return;
+
+      switch (msg.type) {
+        case 'start': {
+          if (ptys.has(msg.tab)) {
+            ws.send(JSON.stringify({ type: 'started', tab: msg.tab }));
+            return;
+          }
+          // If crash guard is about to respawn, let client take over instead
+          if (pendingRespawns.has(msg.tab)) {
+            pendingRespawns.delete(msg.tab);
+          }
+          spawnAttempts.delete(msg.tab);
+          spawnPty(
+            msg.tab,
+            clampDimension(msg.cols, 120),
+            clampDimension(msg.rows, 30),
+          );
+          break;
+        }
+        case 'input':
+          ptys.get(msg.tab)?.write(msg.data);
+          break;
+        case 'resize': {
+          const p = ptys.get(msg.tab);
+          if (p) {
+            p.resize(
+              clampDimension(msg.cols, 80),
+              clampDimension(msg.rows, 24),
+            );
+          }
+          break;
+        }
+        case 'kill': {
+          const p = ptys.get(msg.tab);
+          if (p) {
+            killedTabs.add(msg.tab);
+            p.kill();
+            ptys.delete(msg.tab);
+          }
+          spawnAttempts.delete(msg.tab);
+          broadcast({ type: 'exit', tab: msg.tab, code: -1 });
+          break;
+        }
+      }
+    } catch (err) {
+      console.error('[sidecar] message error:', err.message);
+    }
+  });
+});
+
+wss.on('listening', () => {
+  const msg = `[dndev] terminal ready on ws://localhost:${PORT}`;
+  console.log(msg);
+  if (process.send) process.send({ type: 'ready', port: PORT });
+});
+
+wss.on('error', (err) => {
+  console.error('[sidecar] ws server error:', err.message);
+  if (err.code === 'EADDRINUSE') {
+    console.error(`[sidecar] port ${PORT} in use — exiting (DndevPlugin will retry)`);
+    process.exit(1);
+  }
+});
+
+// ============================================================================
+// CLEANUP
+// ============================================================================
+
+function cleanup() {
+  for (const [, p] of ptys) {
+    try { p.kill(); } catch { /* already dead */ }
+  }
+  ptys.clear();
+  wss.close(() => process.exit(0));
+  // Fallback if wss.close hangs
+  setTimeout(() => process.exit(0), 1000);
+}
+
+process.on('SIGTERM', cleanup);
+process.on('SIGINT', cleanup);
+process.on('disconnect', cleanup);

@@ -1,0 +1,14 @@
+// functions/src/crud/getEntity.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Get Entity Wrapper
+ * @description Wrapper for framework's getEntity with {{APP_NAME}}-specific configuration
+ */
+
+import { getEntity as frameworkGetEntity } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} entity retrieval
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export const getEntity = frameworkGetEntity;

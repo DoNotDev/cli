@@ -1,0 +1,20 @@
+// functions/src/api/oauth/disconnect.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Disconnect OAuth Wrapper
+ * @description Wrapper for framework's disconnect with {{APP_NAME}}-specific configuration
+ */
+
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { disconnect as frameworkDisconnect } from '@donotdev/functions/vercel';
+
+/**
+ * {{APP_NAME}} OAuth disconnection
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  return frameworkDisconnect(req, res);
+}

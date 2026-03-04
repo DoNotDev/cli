@@ -1,0 +1,24 @@
+import { defineViteConfig } from '@donotdev/core/vite';
+import { appConfig } from './src/config/app';
+
+export default defineViteConfig({
+  appConfig,
+  dndev: true,
+  debug: false,
+  optimizeDeps: {
+    include: [
+      '@dnd-kit/core',
+      '@dnd-kit/sortable',
+      '@dnd-kit/utilities',
+      'react-markdown',
+      'remark-gfm'
+    ],
+  },
+  server: {
+    port: 3174,
+    https: false,
+    watch: {
+      ignored: ['**/.dndev/**'],
+    },
+  },
+});

@@ -1,0 +1,20 @@
+// functions/src/api/auth/removeCustomClaims.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Remove Custom Claims Wrapper
+ * @description Wrapper for framework's removeCustomClaims with {{APP_NAME}}-specific configuration
+ */
+
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { removeCustomClaims as frameworkRemoveCustomClaims } from '@donotdev/functions/vercel';
+
+/**
+ * {{APP_NAME}} custom claims removal
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  return frameworkRemoveCustomClaims(req, res);
+}

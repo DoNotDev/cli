@@ -1,0 +1,8 @@
+{
+  "imports": {
+    "@donotdev/functions/supabase": "npm:@donotdev/functions/supabase",
+    "@donotdev/core/server": "npm:@donotdev/core/server",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js",
+    "valibot": "npm:valibot"
+  }
+}

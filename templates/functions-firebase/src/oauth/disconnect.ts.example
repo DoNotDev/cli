@@ -1,0 +1,14 @@
+// functions/src/oauth/disconnect.ts
+
+/**
+ * @fileoverview {{APP_NAME}} Disconnect OAuth Wrapper
+ * @description Wrapper for framework's disconnect with {{APP_NAME}}-specific configuration
+ */
+
+import { disconnect as frameworkDisconnect } from '@donotdev/functions/firebase';
+
+/**
+ * {{APP_NAME}} OAuth disconnection
+ * Wraps the framework function with {{APP_NAME}}-specific configuration
+ */
+export const disconnect = frameworkDisconnect;

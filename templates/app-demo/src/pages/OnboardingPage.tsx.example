@@ -1,0 +1,47 @@
+// apps/demo/src/pages/OnboardingPage.tsx
+
+import { UserPlus } from 'lucide-react';
+
+import { EntityWorkflow } from '@donotdev/ui';
+
+import { onboardingWorkflow } from '../entities/onboarding';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const meta: PageMeta = {
+  icon: <UserPlus />,
+  title: 'Onboarding Wizard',
+  preset: 'admin',
+};
+
+/**
+ * Onboarding Wizard Demo — shows multi-step workflow with:
+ * - Step navigation via Stepper
+ * - Per-step entity forms
+ * - Skippable steps (Preferences)
+ * - Conditional steps (Billing only if company size > 10)
+ * - Auto-persistence to localStorage
+ */
+export default function OnboardingPage() {
+  return (
+    <div style={{ maxWidth: 640, margin: '0 auto' }}>
+      <h1>Customer Onboarding</h1>
+      <p
+        style={{
+          color: 'var(--foreground-muted)',
+          marginBottom: 'var(--gap-lg)',
+        }}
+      >
+        Multi-step workflow with conditional steps and auto-save. Try setting
+        company size &gt; 10 to see the Billing step appear.
+      </p>
+
+      <EntityWorkflow
+        workflow={onboardingWorkflow}
+        onComplete={async (data) => {
+          alert(`Onboarding complete!\n\n${JSON.stringify(data, null, 2)}`);
+        }}
+      />
+    </div>
+  );
+}

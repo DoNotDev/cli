@@ -1,0 +1,85 @@
+/**
+ * @fileoverview Example CRUD List Page
+ *
+ * COPY THIS FILE and rename (e.g., ProductsListPage.tsx, CustomersListPage.tsx)
+ *
+ * HOW IT WORKS:
+ * 1. Import your entity definition
+ * 2. Use EntityList component - it handles everything:
+ *    - Fetching data (optimized via listFields)
+ *    - Table columns (respects field visibility by role)
+ *    - Search, sort, pagination
+ *    - Create/Edit/Delete actions
+ */
+
+import { Package } from 'lucide-react';
+
+import { EntityList } from '@donotdev/ui';
+import { useAuth } from '@donotdev/auth';
+import type { PageMeta } from '@donotdev/core';
+import { PageContainer } from '@donotdev/ui';
+
+// Import your entity from root-level entities folder
+// import { productEntity } from 'entities/Product';
+
+// Placeholder - replace with your entity import
+const productEntity = null as any;
+
+// ============================================================================
+// PAGE METADATA
+// ============================================================================
+
+export const NAMESPACE = 'products';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <Package />,
+  route: '/products',
+  auth: { required: true, role: 'admin' }, // Admin-only page
+};
+
+// ============================================================================
+// PAGE COMPONENT
+// ============================================================================
+
+export default function ProductsListPage() {
+  const user = useAuth('user');
+
+  // Zero-Config: EntityList handles everything automatically:
+  // - Fetches data using entity's listFields (optimized query)
+  // - Renders columns based on field definitions
+  // - Applies visibility rules based on user role
+  // - Includes search, sort, pagination
+  // - Add/Edit/Delete buttons with proper permissions
+  // - Automatic routing: edit/view -> /products/:id, create -> /products/new
+
+  return (
+    <PageContainer>
+      <EntityList
+        entity={productEntity}
+        userRole={user?.role}
+        // Optional: basePath="/admin/products" or onClick={(id) => openSheet(id)}
+      />
+    </PageContainer>
+  );
+}
+
+// ============================================================================
+// ALTERNATIVE: Card Grid Layout
+// ============================================================================
+//
+// For a card-based grid instead of table:
+//
+// import { EntityCardList } from '@donotdev/ui';
+//
+// export default function ProductsGridPage() {
+//   return (
+//     <PageContainer>
+//       <EntityCardList
+//         entity={productEntity}
+//         // Optional: custom card rendering
+//         // renderCard={(item) => <CustomProductCard product={item} />}
+//       />
+//     </PageContainer>
+//   );
+// }

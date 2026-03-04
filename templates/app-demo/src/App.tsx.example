@@ -1,0 +1,32 @@
+// apps/demo/src/App.tsx
+
+/**
+ * @fileoverview Main application component for the demo app
+ * @description Root component that configures the application with Vite providers and layout.
+ * @version 0.0.5
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+
+import { ViteAppProviders } from '@donotdev/ui/vite';
+
+import { appConfig } from './config/app';
+
+/**
+ * Main application component
+ *
+ * Configuration-driven architecture with smart defaults.
+ * Layout preset comes from appConfig.preset (configured in config/app.ts).
+ * Routes are automatically discovered from src/pages/*Page.tsx files.
+ *
+ * Note: HomePage.tsx in src/pages/ is automatically used for the root route "/"
+ *
+ * @version 0.0.5
+ * @since 0.0.1
+ * @author AMBROISE PARK Consulting
+ */
+export function App() {
+  return (
+    <ViteAppProviders config={appConfig} layout={{ breadcrumbs: 'smart' }} />
+  );
+}
