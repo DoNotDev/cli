@@ -27,6 +27,25 @@ export const appConfig: AppConfig = {
 **Firebase:** Enable providers in Firebase Console → Authentication → Sign-in method
 **Supabase:** Enable providers in Supabase Dashboard → Authentication → Providers
 
+### Redirect URLs (Supabase only)
+
+After OAuth (Google, GitHub, etc.), Supabase redirects the user back to your app. You must tell Supabase which URLs are allowed.
+
+**Supabase Dashboard → Authentication → URL Configuration:**
+
+| Setting | Value |
+|---------|-------|
+| **Site URL** | Your **production** URL (e.g., `https://myapp.vercel.app`) |
+| **Redirect URLs** | All URLs where auth should work (see below) |
+
+**Add to Redirect URLs:**
+- `http://localhost:5173` — local Vite dev
+- `http://localhost:3000` — local Next.js dev
+- `https://myapp.vercel.app` — production
+- `https://*-yourteam.vercel.app` — Vercel preview deploys
+
+> **Site URL must be production.** It's the fallback when no redirect URL matches. If it's `localhost:3000`, your deployed app redirects to localhost after OAuth.
+
 ---
 
 ## Advanced: Protected Routes

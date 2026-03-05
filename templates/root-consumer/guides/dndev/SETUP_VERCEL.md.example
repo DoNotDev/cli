@@ -192,12 +192,36 @@ dndev emu start
 
 ---
 
+## Auth Redirect URLs (Supabase)
+
+After deploying, configure Supabase so OAuth (Google, GitHub, etc.) redirects back to your Vercel URL instead of `localhost`.
+
+**Supabase Dashboard → Authentication → URL Configuration:**
+
+| Setting | Value |
+|---------|-------|
+| **Site URL** | Your production URL (e.g., `https://myapp.vercel.app`) |
+| **Redirect URLs** | Add all deployment URLs where auth should work |
+
+**Redirect URLs to add:**
+
+- `http://localhost:5173` — local Vite dev
+- `http://localhost:3000` — local Next.js dev
+- `https://myapp.vercel.app` — production
+- `https://*-yourteam.vercel.app` — Vercel preview deploys (wildcard)
+- `https://mycustomdomain.com` — custom domain (if applicable)
+
+> **Site URL is the fallback.** If the `redirectTo` sent by your app doesn't match any entry in Redirect URLs, Supabase falls back to Site URL. If Site URL is `localhost:3000`, your deployed app will redirect to localhost after OAuth. **Always set Site URL to production.**
+
+---
+
 ## Custom Domain
 
 1. Vercel Dashboard → Settings → Domains
 2. Add your domain
 3. Update DNS records as instructed by Vercel
 4. If using Firebase Auth: update your `FIREBASE_AUTH_DOMAIN` env var to your custom domain
+5. If using Supabase Auth: add your custom domain to **Supabase Dashboard → Authentication → Redirect URLs** and update **Site URL**
 
 ---
 
