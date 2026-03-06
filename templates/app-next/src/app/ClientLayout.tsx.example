@@ -1,6 +1,15 @@
 'use client';
 // src/app/ClientLayout.tsx
 
+// Import generated configs first to set globalThis._DNDEV_CONFIG_ before any hooks run
+// Each handler writes to its own file to avoid overwrites
+import '../config/dndev-config-route.js';
+import '../config/dndev-config-theme.js';
+import '../config/dndev-config-i18n.js';
+import '../config/dndev-config-pwa.js';
+import '../config/dndev-config-asset.js';
+import '../config/dndev-config-seo.js';
+
 import { NextJsAppProviders } from '@donotdev/ui/next';
 
 import '../config/providers';

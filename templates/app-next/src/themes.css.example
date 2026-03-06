@@ -21,6 +21,9 @@
   /* --radius-interactive: var(--radius-none); */
   /* --radius-surface: var(--radius-md); */
   /* --radius-floating: var(--radius-none); */
+
+  /* Form placeholders (Select, Input, Combobox, etc.) */
+  /* --placeholder: rgb(from var(--muted-foreground) r g b / 0.6); */
 }
 
 /* ===========================

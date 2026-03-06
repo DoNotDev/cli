@@ -38,7 +38,6 @@
   --card-foreground: #f97316;
   --popover: #000000;
   --popover-foreground: #ffffff;
-  --surface-1: #0a0a0a;
 
   /* 4. Text on Colors */
   --primary-foreground: #ffffff;
@@ -139,7 +138,6 @@
   --card-foreground: #1c1917;
   --popover: #ffffff;
   --popover-foreground: #1c1917;
-  --surface-1: #faf8f5;
 
   /* 4. Text on Colors */
   --primary-foreground: #ffffff;
@@ -206,7 +204,6 @@
   --card-foreground: #c8e6c9;
   --popover: #222228;
   --popover-foreground: #c8e6c9;
-  --surface-1: #1e1e24;
 
   /* 4. Text on Colors */
   --primary-foreground: #0f172a;

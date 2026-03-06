@@ -29,6 +29,7 @@
   --border: #e4e4e7;
   --input: #e4e4e7;
   --ring: var(--primary);
+  /* --placeholder: rgb(from var(--muted-foreground) r g b / 0.6); */
   --card: #ffffff;
   --card-foreground: #09090b;
   --popover: #ffffff;
