@@ -6,6 +6,7 @@ import { configureProviders } from '@donotdev/core';
 import {
   createClient,
   SupabaseAuth,
+  SupabaseCallableProvider,
   SupabaseCrudAdapter,
   SupabaseStorageAdapter,
 } from '@donotdev/supabase';
@@ -30,5 +31,6 @@ if (!url || !publicKey) {
     crud: new SupabaseCrudAdapter(supabase),
     auth: new SupabaseAuth(supabase),
     storage: new SupabaseStorageAdapter(supabase),
+    callable: new SupabaseCallableProvider(supabase),
   });
 }

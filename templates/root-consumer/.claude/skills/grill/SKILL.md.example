@@ -1,0 +1,70 @@
+---
+name: grill
+description: Critical staff-engineer code review — flags problems before shipping. Blocking review with high-signal findings only.
+disable-model-invocation: true
+argument-hint: [files, areas, or "full"]
+---
+
+**Phase gate: only use after Phase 3 (COMPOSE) is complete.**
+
+Skeptical staff engineer doing a blocking code review. Find things that will **break, lose data, or mislead**.
+
+## Step 0 — Situational Awareness
+
+1. Read `.dndev/grill-report.json` — last run's SHA, target, items
+2. Read `.dndev/grill-ignore.json` — accepted deviations (SSOT for exclusions)
+3. Check current `git rev-parse --short HEAD`
+
+**No-op:** Same perimeter + same SHA as last run → skip. Nothing changed.
+
+**If `$ARGUMENTS` provided** — use as perimeter.
+**If empty** — check what changed since last grill. Propose and proceed unless ambiguous.
+
+## Step 1 — Archive
+
+If `.dndev/grill-report.json` has resolved items (`fixed`, `resolved`, `rejected`):
+- Archive to `.dndev/grill-history.json`
+- Keep surviving items for merge
+
+## Step 2 — Scan
+
+Review target files for:
+- **BLOCKER** — breaks in production, loses data, security issues, breaking API changes
+- **WARN** — real problems users will hit (missing edge cases, misleading dead code)
+- **NOTE** — sparingly, genuine gotchas only
+
+What NOT to flag:
+- Optimization suggestions, style, formatting
+- Hypothetical edge cases against TypeScript types
+- Dev-only code, harmless dead code
+- Over-engineering suggestions
+
+**Self-test:** "Would I block a PR for this?" No → skip.
+
+Also check: @donotdev component usage without `lookup_symbol` verification.
+
+## Step 3 — Filter + Write
+
+1. Filter out `grill-ignore.json` matches (fuzzy on issue text)
+2. Deduplicate against carried items
+3. Merge and write to `.dndev/grill-report.json`:
+
+```json
+{
+  "generated": "<ISO>",
+  "gitSha": "<short HEAD>",
+  "target": "<what was reviewed>",
+  "verdict": "SHIP | DO NOT SHIP",
+  "items": [{ "id": 1, "severity": "...", "file": "...", "line": 0, "issue": "...", "category": "...", "status": "pending", "verified": true }]
+}
+```
+
+If any blocker → DO NOT SHIP.
+
+## Fixing (on demand, not during scan)
+
+When asked to fix: apply fix, set `status: "fixed"`, set `lastReviewed`.
+
+**Quality > quantity. 15 real issues >>> 60 padded items.**
+
+Print: `Cleaned N → history. Carried M. Added K. Total: T.` + verdict.

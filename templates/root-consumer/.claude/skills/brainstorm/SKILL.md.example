@@ -1,0 +1,58 @@
+---
+name: brainstorm
+description: Extract requirements and generate complete HLD through interactive conversation. First step in the WAI-WAY workflow.
+argument-hint: [app idea or requirement]
+disable-model-invocation: true
+---
+
+# Brainstorm — Requirements Extraction
+
+**WORKFLOW:** `/brainstorm` → `/design` → `/build` → `/polish`
+
+## Step 0 — Start Phase (MANDATORY)
+
+```
+start_phase(0)
+```
+Do NOT proceed without this call.
+
+## Step 1 — Extract
+
+**Input:** $ARGUMENTS
+
+Ask probing questions **one at a time**. Use MCP to discover framework capabilities.
+
+| Extract | Questions |
+|---------|-----------|
+| **Vision** | What is this app? Who uses it? |
+| **Users** | Roles? Permissions? |
+| **Entities** | What "things" exist? Fields? Relations? |
+| **Features** | What can users DO? MVP vs V2? |
+| **Pages** | Screens? Routes? Access levels? |
+| **Constraints** | Platform? Languages? Auth? Integrations? |
+| **Native vs Custom** | What uses framework defaults? What needs custom? |
+
+Rules:
+- One question at a time — wait for answer
+- Probe vague answers: "What does 'manage' mean?"
+- Challenge scope: "What's the minimum to launch?"
+- Summarize progress every 3-4 exchanges
+- Never guess — ask
+
+## Step 2 — Generate HLD
+
+When all targets extracted, write to `docs/HLD.md` with: Vision, Users, Entities (fields + types + access), Features (MVP/V2), Pages (routes + access), Constraints, Native vs Custom, Open Questions.
+
+**Validation before completing:**
+- [ ] No empty sections or TBDs
+- [ ] All entities have fields, states, permissions
+- [ ] All business rules documented
+- [ ] User has validated
+
+## Step 3 — Complete Phase
+
+```
+complete_phase({ files: ["docs/HLD.md"], summary: "HLD complete — N entities, N pages, N features" })
+```
+
+Wait for user `approve_phase()` → then proceed to `/design`.

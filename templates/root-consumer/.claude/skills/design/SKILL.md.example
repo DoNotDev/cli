@@ -1,0 +1,46 @@
+---
+name: design
+description: Architecture and design workflow. Creates technical plan / LLD. Use BEFORE /build, AFTER /brainstorm. Activates WAI-WAY Phase 1-2.
+argument-hint: [requirement or question]
+disable-model-invocation: true
+---
+
+# Design — Architecture & Planning
+
+**WORKFLOW:** `/brainstorm` → `/design` → `/build` → `/polish`
+
+## Step 0 — Start Phase (MANDATORY)
+
+```
+start_phase(1)   # SCAFFOLD (routes, page stubs)
+start_phase(2)   # ENTITIES (data models, fields, access)
+```
+Pick the appropriate phase. Do NOT proceed without this call.
+
+## Step 1 — Analyze
+
+**Input:** $ARGUMENTS
+
+1. Read constraints from `CLAUDE.md` and framework docs
+2. Search codebase for existing patterns
+3. **Always `lookup_symbol`** when referencing @donotdev components — verify API exists before planning
+4. Import convention: always `@donotdev/<package>` top-level, never sub-paths
+
+## Step 2 — Design
+
+Produce a design document. For the output template, see [output-template.md](output-template.md).
+
+Rules:
+- **NEVER write code** — only design and plan
+- **ALWAYS analyze existing patterns** — don't reinvent
+- **ALWAYS consider trade-offs** — no solution is perfect
+- **ALWAYS identify impacts** — what breaks if we change this?
+- **ALWAYS prepare for /build** — design must be actionable
+
+## Step 3 — Complete Phase
+
+```
+complete_phase({ files: ["...affected files..."], summary: "Description of what was designed" })
+```
+
+Wait for user `approve_phase()` → then proceed to `/build`.

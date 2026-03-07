@@ -1,0 +1,50 @@
+---
+name: build
+description: Implement features using framework defaults. Use AFTER /design. Activates WAI-WAY Phase 3 COMPOSE.
+argument-hint: [requirement or LLD reference]
+disable-model-invocation: true
+---
+
+# Build — Compose the App
+
+**WORKFLOW:** `/brainstorm` → `/design` → `/build` → `/polish`
+
+## Step 0 — Start Phase (MANDATORY)
+
+```
+start_phase(3)
+```
+Do NOT write code without this call.
+
+## Step 1 — Prepare
+
+**Input:** $ARGUMENTS (LLD from `/design` or direct requirement)
+
+1. Read LLD if it exists
+2. **STOP before every `@donotdev` import** → call `lookup_symbol({ symbol: "Name" })`. No exceptions. Do NOT guess props, hooks, or APIs.
+3. Import convention: always `@donotdev/<package>` — never sub-paths. Only exceptions: `@donotdev/core/server`, `@donotdev/core/vite`, `@donotdev/core/next`, `@donotdev/core/functions`.
+
+## Step 2 — Build in phases
+
+1. **Entities** — create entity files
+2. **Routes** — create route config
+3. **Auth** — if needed
+4. **Pages** — using framework defaults only (no styling, no customization)
+5. **Custom components** — if any
+6. **Integration** — wire everything together
+
+Rules:
+- Framework defaults ONLY — styling deferred to `/polish`
+- Hardcode all strings — i18n deferred to `/polish`
+- Run `dndev tc` after every file change — fix errors immediately
+- Validate each phase before proceeding
+
+## Step 3 — Complete Phase
+
+When all pages built and `dndev tc` passes:
+
+```
+complete_phase({ files: ["src/pages/...all files..."], summary: "N pages composed, all type-checking" })
+```
+
+Wait for user `approve_phase()` → then proceed to `/polish`.
