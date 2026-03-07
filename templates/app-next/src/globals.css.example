@@ -1,9 +1,10 @@
 /* Next.js app globals.css */
-@import '@donotdev/ui/dndev.css';
+@import '@donotdev/ui/dndev-next.css';
 
 @import './themes.css';
 
 /**
  * Font choices (--font-family, --font-sans, etc.) belong in themes.css.
- * Fonts (Inter, Space Grotesk, Playfair, Roboto) are bundled via @donotdev/ui; no external fetch, no public/fonts required.
+ * Fonts are served from public/fonts/ (auto-copied by framework discovery).
+ * dndev-next.css = font-stripped variant — use this for Next.js, NOT dndev.css.
  */ 
