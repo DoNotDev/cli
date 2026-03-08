@@ -47,15 +47,10 @@
 
 ## Common Components
 
-- **AppLoading** - App-level loading component.
 - **FeatureDisabled** - Component shown when features are disabled.
 - **Icon** - Icon component wrapper.
-- **Loader** - Loading spinner component.
-- **LoadingMessage** - Loading message with variants (processing, saving, uploading, etc.).
-- **LoadingOverlay** - Overlay component for loading states.
-- **LoadingScreen** - Full-screen loading component.
 - **ProgressBar** - Progress bar component.
-- **Skeleton** - Skeleton loading component.
+- **Skeleton** - Skeleton loading component (consumer use, not used internally).
 - **FeatureCard** - Feature showcase card component.
 - **TechBento** - Tech stack showcase component.
 

@@ -173,7 +173,7 @@ export default function HomePage() {
       {/* NEXT STEPS                                                       */}
       {/* ================================================================ */}
 
-      <Section title="Start Building" tone="muted" align="center">
+      <Section title="Start Building" tone="muted" textAlign="center">
         <Stack align="center">
           <Text level="body">
             Once setup is complete, use WAI-WAY to build your app:

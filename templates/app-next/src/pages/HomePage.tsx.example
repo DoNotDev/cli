@@ -60,7 +60,7 @@ export default function HomePage() {
       />
 
       {/* Layout Switcher */}
-      <Section title="Try Our Layouts" tone="muted" align="center">
+      <Section title="Try Our Layouts" tone="muted" textAlign="center">
         <Text>
           Pick a layout and see it change live. Set your preferred layout in
           config/app.ts

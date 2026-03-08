@@ -15,7 +15,7 @@
 | [Pricing](#pricing) | Plan comparison | PricingTable, Section |
 | [Settings](#settings) | User preferences | Section, form components |
 | [Profile](#profile) | User profile display/edit | Section, Card, Avatar |
-| [Detail Page](#detail-page) | Single item display (non-edit) | Section, Card, Grid |
+| [Detail Page](#detail-page) | Single item display (non-edit) | Section (bleed), ImageGallery, Card, Grid |
 | [Analytics](#analytics) | Charts and metrics | Section, Grid, Card, charts |
 
 ---
@@ -26,7 +26,8 @@
 
 ```tsx
 import { useEffect, useState } from 'react';
-import { PageContainer, Loader, useNavigate } from '@donotdev/ui';
+import { Spinner } from '@donotdev/components';
+import { PageContainer, useNavigate } from '@donotdev/ui';
 import { Section, Card, Grid, Stack, Button, Text, Badge } from '@donotdev/components';
 import type { PageMeta } from '@donotdev/core';
 import { ChartBar, Plus, ArrowRight } from 'lucide-react';
@@ -65,7 +66,7 @@ export default function DashboardPage() {
             {/* KPI Cards */}
             <Section title="Overview" gridCols={[1, 2, 3, 3]}>
                 <Card variant="glass" title="Total Items">
-                    {loading ? <Loader /> : (
+                    {loading ? <Spinner overlay /> : (
                         <Text level="h2">{metrics?.totalItems ?? 0}</Text>
                     )}
                 </Card>
@@ -94,7 +95,7 @@ export default function DashboardPage() {
 - Quick actions at top (cards with onClick)
 - KPI cards in grid
 - Alert/attention sections with actions
-- Loading states with `<Loader />`
+- Loading states with `<Spinner overlay />`
 
 ---
 
@@ -243,7 +244,7 @@ export default function CarPage() {
 
 ```tsx
 import { PageContainer, useNavigate } from '@donotdev/ui';
-import { HeroSection, Section, Card, Grid, Button } from '@donotdev/components';
+import { HeroSection, Section, CallToAction, Card, Grid, Button } from '@donotdev/components';
 import type { PageMeta } from '@donotdev/core';
 import { Home } from 'lucide-react';
 
@@ -260,18 +261,17 @@ export default function HomePage() {
 
     return (
         <PageContainer>
+            {/* Hero with background image — bleed for full-viewport-width */}
             <HeroSection
+                bleed
+                backgroundImage="/images/hero.jpg"
                 title="Your App Name"
                 subtitle="One-line value proposition"
-                primaryAction={{
-                    label: "Get Started",
-                    onClick: () => navigate('/signup'),
-                }}
-                secondaryAction={{
-                    label: "Learn More",
-                    onClick: () => navigate('/about'),
-                }}
-            />
+                fullHeight
+            >
+                <Button onClick={() => navigate('/signup')}>Get Started</Button>
+                <Button variant="outline" onClick={() => navigate('/about')}>Learn More</Button>
+            </HeroSection>
 
             <Section title="Features">
                 <Grid cols={[1, 2, 3, 3]} gap="large">
@@ -298,23 +298,24 @@ export default function HomePage() {
                 </Grid>
             </Section>
 
-            <Section>
-                <Card variant="primary" align="center">
-                    <Text level="h2">Ready to get started?</Text>
-                    <Button size="large" onClick={() => navigate('/signup')}>
-                        Start Free Trial
-                    </Button>
-                </Card>
-            </Section>
+            {/* Full-width CTA with background image */}
+            <CallToAction
+                bleed
+                backgroundImage="/images/cta-bg.jpg"
+                title="Ready to get started?"
+                subtitle="Start your free trial today"
+                primaryAction={<Button onClick={() => navigate('/signup')}>Start Free Trial</Button>}
+            />
         </PageContainer>
     );
 }
 ```
 
 **Key patterns:**
-- `HeroSection` at top with CTAs
+- `HeroSection bleed backgroundImage` at top for immersive hero banner
 - Feature grid with `Card` components
-- Final CTA section
+- `CallToAction bleed backgroundImage` for full-width CTA with image
+- `Section bleed` for any full-width content (galleries, maps, videos)
 - HARDCODE strings first, i18n later
 
 ---
@@ -366,7 +367,7 @@ export default function PricingPage() {
 
     return (
         <PageContainer>
-            <Section title="Choose Your Plan" align="center">
+            <Section title="Choose Your Plan" textAlign="center">
                 <PricingTable plans={plans} />
             </Section>
         </PageContainer>
@@ -518,8 +519,10 @@ export default function ProfilePage() {
 
 ```tsx
 import { useEffect, useState } from 'react';
-import { PageContainer, Loader, useNavigate } from '@donotdev/ui';
+import { Spinner } from '@donotdev/components';
+import { PageContainer, useNavigate } from '@donotdev/ui';
 import { Section, Card, Grid, Stack, Text, Button, Badge } from '@donotdev/components';
+import { ImageGallery } from '@donotdev/components';
 import { useCrud } from '@donotdev/crud';
 import { productEntity } from 'entities/product';
 import type { PageMeta } from '@donotdev/core';
@@ -546,18 +549,20 @@ export default function ProductDetailPage() {
         }
     }, [id, get]);
 
-    if (loading) return <PageContainer><Loader /></PageContainer>;
+    if (loading) return <PageContainer><Spinner overlay /></PageContainer>;
     if (!product) return <PageContainer><Text>Product not found</Text></PageContainer>;
 
     return (
         <PageContainer>
+            {/* Full-width image gallery — bleed breaks out of content constraints */}
+            {product.images?.length > 0 && (
+                <Section bleed>
+                    <ImageGallery images={product.images} />
+                </Section>
+            )}
+
             <Section>
                 <Grid cols={[1, 1, 2, 2]} gap="large">
-                    {/* Image */}
-                    <Card>
-                        <img src={product.image} alt={product.name} />
-                    </Card>
-
                     {/* Details */}
                     <Stack direction="column">
                         <Text level="h1">{product.name}</Text>
@@ -583,7 +588,8 @@ export default function ProductDetailPage() {
 
 ```tsx
 import { useEffect, useState } from 'react';
-import { PageContainer, Loader } from '@donotdev/ui';
+import { Spinner } from '@donotdev/components';
+import { PageContainer } from '@donotdev/ui';
 import { Section, Card, Grid, Stack, Text } from '@donotdev/components';
 import type { PageMeta } from '@donotdev/core';
 import { TrendingUp } from 'lucide-react';
@@ -604,7 +610,7 @@ export default function AnalyticsPage() {
         fetchAnalytics().then(setData).finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <PageContainer><Loader /></PageContainer>;
+    if (loading) return <PageContainer><Spinner overlay /></PageContainer>;
 
     return (
         <PageContainer>
@@ -672,6 +678,36 @@ export const meta: PageMeta = {
     hideFromMenu: true,            // Don't show in sidebar/nav
 };
 ```
+
+---
+
+## Full-Width Bleed (Breakthrough)
+
+**When content needs to span the full viewport width**, use the `bleed` prop on Section, HeroSection, or CallToAction. This breaks out of `PageContainer` content constraints — no manual CSS needed.
+
+```tsx
+// Image gallery spanning full width (real estate, car listings, etc.)
+<Section bleed>
+  <ImageGallery images={listing.images} />
+</Section>
+
+// Hero banner with background image
+<HeroSection bleed backgroundImage="/hero.jpg" title="Welcome" fullHeight>
+  <Button>Get Started</Button>
+</HeroSection>
+
+// CTA with background image
+<CallToAction bleed backgroundImage="/cta.jpg" title="Join Us" primaryAction={<Button>Sign Up</Button>} />
+
+// Any content — map, video, testimonial wall
+<Section bleed>
+  <MyMapComponent />
+</Section>
+```
+
+**How it works:** CSS `width: 100vw; margin-inline: calc(50% - 50vw)` — works at any nesting depth.
+
+**`backgroundImage` prop** (HeroSection, CallToAction only): Adds a cover image with a dark gradient overlay (`::before` pseudo-element) so text remains readable. Text automatically turns white.
 
 ---
 

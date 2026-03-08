@@ -11,11 +11,11 @@
 ## Layout Components
 
 These are the only ways one should handle layout to get to quick results functionality wide.
-- **Section** - Layout section with title, grid, and tone system for organizing content.
+- **Section** - Layout section with title, grid, tone system, and `bleed` prop for full-viewport-width content (images, maps, galleries).
 - **Grid** - CSS Grid layout primitive with responsive column control.
 - **Stack** - Flexbox layout for arranging items in rows or columns.
-- **HeroSection** - Hero banner section with title, subtitle, and gradient backgrounds.
-- **CallToAction** - Conversion-focused section with primary and secondary actions.
+- **HeroSection** - Hero banner with title, subtitle, gradient backgrounds, `bleed` for full-width, and `backgroundImage` for cover images with overlay.
+- **CallToAction** - Conversion-focused section with actions, `bleed` for full-width, and `backgroundImage` for cover images with overlay.
 
 ---
 
