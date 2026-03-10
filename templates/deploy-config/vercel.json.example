@@ -1,5 +1,4 @@
-{{#isNextjs}}
-{
+{{#isNextjs}}{
   "framework": "nextjs",
   "installCommand": "bun install",{{#includeFunctions}}
   "functions": {
@@ -19,7 +18,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'{{#needsAuth}} https://accounts.google.com https://apis.google.com{{/needsAuth}}{{#needsBilling}} https://js.stripe.com{{/needsBilling}}; style-src 'self' 'unsafe-inline'{{#needsBilling}} https://fonts.googleapis.com{{/needsBilling}}; img-src 'self' data: blob: https:; font-src 'self' data:{{#needsBilling}} https://fonts.gstatic.com{{/needsBilling}}; connect-src 'self'{{#needsAuth}} https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://*.googleapis.com https://{{firebaseProjectId}}.firebaseio.com{{/needsAuth}}{{#needsBilling}} https://api.stripe.com{{/needsBilling}}; frame-src 'none'{{#needsAuth}} https://accounts.google.com{{/needsAuth}}{{#needsBilling}} https://js.stripe.com https://hooks.stripe.com{{/needsBilling}}; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self'{{#isFirebase}}{{#needsAuth}} https://accounts.google.com https://apis.google.com{{/needsAuth}}{{/isFirebase}}{{#needsBilling}} https://js.stripe.com{{/needsBilling}}; style-src 'self' 'unsafe-inline'{{#needsBilling}} https://fonts.googleapis.com{{/needsBilling}}; img-src 'self' data: blob: https:; font-src 'self' data:{{#needsBilling}} https://fonts.gstatic.com{{/needsBilling}}; connect-src 'self'{{#isFirebase}}{{#needsAuth}} https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://*.googleapis.com https://{{firebaseProjectId}}.firebaseio.com{{/needsAuth}}{{/isFirebase}}{{#isSupabase}} https://*.supabase.co wss://*.supabase.co{{/isSupabase}}{{#needsBilling}} https://api.stripe.com{{/needsBilling}}; frame-src 'none'{{#isFirebase}}{{#needsAuth}} https://accounts.google.com{{/needsAuth}}{{/isFirebase}}{{#needsBilling}} https://js.stripe.com https://hooks.stripe.com{{/needsBilling}}; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
         },
         {
           "key": "X-Content-Type-Options",
@@ -40,6 +39,15 @@
         {
           "key": "Permissions-Policy",
           "value": "geolocation=(), microphone=(), camera=()"
+        }
+      ]
+    },
+    {
+      "source": "/_next/static/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     },
@@ -193,17 +201,17 @@
   "env": {
     "STRIPE_SECRET_KEY": "@stripe-secret-key",
     "STRIPE_WEBHOOK_SECRET": "@stripe-webhook-secret",
-    "STRIPE_PUBLISHABLE_KEY": "@stripe-publishable-key",
+    "STRIPE_PUBLISHABLE_KEY": "@stripe-publishable-key"{{#isFirebase}},
     "FIREBASE_ADMIN_PRIVATE_KEY": "@firebase-admin-private-key",
     "FIREBASE_PROJECT_ID": "@firebase-project-id",
-    "FIREBASE_CLIENT_EMAIL": "@firebase-client-email"{{#needsOAuth}},
+    "FIREBASE_CLIENT_EMAIL": "@firebase-client-email"{{/isFirebase}}{{#isSupabase}},
+    "SUPABASE_URL": "@supabase-url",
+    "SUPABASE_SERVICE_ROLE_KEY": "@supabase-service-role-key"{{/isSupabase}}{{#needsOAuth}},
     "GITHUB_PERSONAL_ACCESS_TOKEN": "@github-token",
     "GITHUB_REPO_OWNER": "@github-repo-owner",
     "GITHUB_REPO_NAME": "@github-repo-name"{{/needsOAuth}}
   }{{/includeFunctions}}
-}
-{{/isNextjs}}{{^isNextjs}}
-{
+}{{/isNextjs}}{{^isNextjs}}{
   "buildCommand": "bun run build",
   "outputDirectory": "dist",
   "installCommand": "bun install",{{#includeFunctions}}
@@ -234,7 +242,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'{{#needsAuth}} https://accounts.google.com https://apis.google.com{{/needsAuth}}{{#needsBilling}} https://js.stripe.com{{/needsBilling}}; style-src 'self' 'unsafe-inline'{{#needsBilling}} https://fonts.googleapis.com{{/needsBilling}}; img-src 'self' data: blob: https:; font-src 'self' data:{{#needsBilling}} https://fonts.gstatic.com{{/needsBilling}}; connect-src 'self'{{#needsAuth}} https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://*.googleapis.com https://{{firebaseProjectId}}.firebaseio.com{{/needsAuth}}{{#needsBilling}} https://api.stripe.com{{/needsBilling}}; frame-src 'none'{{#needsAuth}} https://accounts.google.com{{/needsAuth}}{{#needsBilling}} https://js.stripe.com https://hooks.stripe.com{{/needsBilling}}; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self'{{#isFirebase}}{{#needsAuth}} https://accounts.google.com https://apis.google.com{{/needsAuth}}{{/isFirebase}}{{#needsBilling}} https://js.stripe.com{{/needsBilling}}; style-src 'self' 'unsafe-inline'{{#needsBilling}} https://fonts.googleapis.com{{/needsBilling}}; img-src 'self' data: blob: https:; font-src 'self' data:{{#needsBilling}} https://fonts.gstatic.com{{/needsBilling}}; connect-src 'self'{{#isFirebase}}{{#needsAuth}} https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://*.googleapis.com https://{{firebaseProjectId}}.firebaseio.com{{/needsAuth}}{{/isFirebase}}{{#isSupabase}} https://*.supabase.co wss://*.supabase.co{{/isSupabase}}{{#needsBilling}} https://api.stripe.com{{/needsBilling}}; frame-src 'none'{{#isFirebase}}{{#needsAuth}} https://accounts.google.com{{/needsAuth}}{{/isFirebase}}{{#needsBilling}} https://js.stripe.com https://hooks.stripe.com{{/needsBilling}}; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
         },
         {
           "key": "X-Content-Type-Options",
@@ -408,13 +416,14 @@
   "env": {
     "STRIPE_SECRET_KEY": "@stripe-secret-key",
     "STRIPE_WEBHOOK_SECRET": "@stripe-webhook-secret",
-    "STRIPE_PUBLISHABLE_KEY": "@stripe-publishable-key",
+    "STRIPE_PUBLISHABLE_KEY": "@stripe-publishable-key"{{#isFirebase}},
     "FIREBASE_ADMIN_PRIVATE_KEY": "@firebase-admin-private-key",
     "FIREBASE_PROJECT_ID": "@firebase-project-id",
-    "FIREBASE_CLIENT_EMAIL": "@firebase-client-email"{{#needsOAuth}},
+    "FIREBASE_CLIENT_EMAIL": "@firebase-client-email"{{/isFirebase}}{{#isSupabase}},
+    "SUPABASE_URL": "@supabase-url",
+    "SUPABASE_SERVICE_ROLE_KEY": "@supabase-service-role-key"{{/isSupabase}}{{#needsOAuth}},
     "GITHUB_PERSONAL_ACCESS_TOKEN": "@github-token",
     "GITHUB_REPO_OWNER": "@github-repo-owner",
     "GITHUB_REPO_NAME": "@github-repo-name"{{/needsOAuth}}
   }{{/includeFunctions}}
-}
-{{/isNextjs}}
+}{{/isNextjs}}
