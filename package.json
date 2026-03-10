@@ -1,6 +1,6 @@
 {
   "name": "@donotdev/cli",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "Command-line interface for DoNotDev Framework",
   "type": "module",
   "private": false,
