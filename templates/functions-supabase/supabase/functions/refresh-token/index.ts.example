@@ -1,0 +1,7 @@
+// supabase/functions/refresh-token/index.ts
+// Supabase Edge Function — OAuth Token Refresh
+// Deploy: supabase functions deploy refresh-token
+
+import { createRefreshToken } from '@donotdev/functions/supabase';
+
+Deno.serve(createRefreshToken());

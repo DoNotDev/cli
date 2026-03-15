@@ -51,6 +51,37 @@ complete_phase({ files: ["...affected files..."], summary: "Description of what 
 ```
 Wait for user to call `approve_phase()` before moving on.
 
+### Step 0b: Scope Challenge (MANDATORY - before any design)
+
+Before designing anything, challenge the scope. This prevents over-engineering and ensures we're not building what already exists.
+
+**Run these checks silently (no user interaction needed):**
+
+1. **What already exists?** Search the framework with `search_framework()` and `lookup_symbol()`. List everything that already solves part of this requirement. If 80%+ exists, the design might just be "compose existing pieces."
+
+2. **Minimum viable change?** What is the absolute smallest change that solves the requirement? One file? One function? A config change?
+
+3. **File count smell test:** If the design would touch 8+ files, flag it:
+   > "This design touches N files. That's a smell. Is there a simpler approach, or is this genuinely complex?"
+
+**Then present the scope assessment and ask user to pick a mode:**
+
+> **Scope assessment:**
+> - Already exists: [what we found]
+> - Minimum viable: [smallest possible change]
+> - Files affected: [count + list]
+>
+> **Mode:**
+> - **REDUCTION** - Compose existing pieces, minimal new code
+> - **HOLD SCOPE** - Build exactly what's requested, nothing more
+> - **EXPANSION** - Solve the broader problem (more files, new abstractions)
+>
+> Recommend: [REDUCTION/HOLD/EXPANSION] because [reason].
+
+**After user picks a mode, commit to it fully.** Your job becomes making the chosen scope succeed, not lobbying for a different one.
+
+---
+
 ### Step 1: Architect Phase
 
 **Deploy:** `/agents architect` (WAI-WAY architect role)

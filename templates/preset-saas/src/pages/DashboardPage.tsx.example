@@ -1,0 +1,195 @@
+'use client';
+// {{appName}} - Dashboard Page
+
+import {
+  LayoutDashboard,
+  DollarSign,
+  Users,
+  ShoppingCart,
+  TrendingUp,
+  Plus,
+  FileText,
+  Send,
+  Download,
+  Activity,
+  ArrowUpRight,
+  ArrowDownRight,
+} from 'lucide-react';
+
+import {
+  Badge,
+  BADGE_VARIANT,
+  Button,
+  BUTTON_VARIANT,
+  Card,
+  CARD_VARIANT,
+  Grid,
+  HeroSection,
+  List,
+  Section,
+  Stack,
+  Text,
+} from '@donotdev/components';
+import { useTranslation } from '@donotdev/core';
+import { PageContainer, Link } from '@donotdev/ui';
+import { useAuth } from '@donotdev/auth';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const NAMESPACE = 'dashboard';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <LayoutDashboard />,
+  auth: true,
+  preset: 'admin',
+};
+
+const statsData = [
+  {
+    label: 'Monthly Revenue',
+    value: '$12,450',
+    change: '+14.2%',
+    trend: 'up' as const,
+    icon: DollarSign,
+  },
+  {
+    label: 'Active Users',
+    value: '2,340',
+    change: '+7.1%',
+    trend: 'up' as const,
+    icon: Users,
+  },
+  {
+    label: 'New Orders',
+    value: '184',
+    change: '-3.2%',
+    trend: 'down' as const,
+    icon: ShoppingCart,
+  },
+  {
+    label: 'Conversion Rate',
+    value: '3.24%',
+    change: '+1.8%',
+    trend: 'up' as const,
+    icon: TrendingUp,
+  },
+];
+
+const recentActivity = [
+  { text: 'New subscription: Pro plan - john@example.com', time: '2 min ago' },
+  { text: 'Payment received: $29.00 from sarah@company.co', time: '15 min ago' },
+  { text: 'User upgraded: Free to Pro - mike@startup.io', time: '1 hour ago' },
+  { text: 'Support ticket resolved: #1284', time: '2 hours ago' },
+  { text: 'New sign-up: alex@enterprise.com', time: '3 hours ago' },
+  { text: 'Invoice generated: INV-2024-0891', time: '4 hours ago' },
+  { text: 'Webhook delivered: subscription.updated', time: '5 hours ago' },
+];
+
+export default function DashboardPage() {
+  const { t } = useTranslation(NAMESPACE);
+  const user = useAuth('user');
+
+  const displayName = user?.displayName ?? t('dashboard.defaultUser', 'there');
+
+  return (
+    <PageContainer>
+      <HeroSection
+        title={t('dashboard.hero.title', 'Welcome back, {{name}}', { name: displayName })}
+        subtitle={t('dashboard.hero.subtitle', 'Here is what is happening with your business today.')}
+      />
+
+      <Section title={t('dashboard.stats.title', 'Key Metrics')}>
+        <Grid cols={[1, 2, 4, 4]} gap="medium">
+          {statsData.map((stat) => (
+            <Card
+              key={stat.label}
+              icon={stat.icon}
+              title={stat.value}
+              subtitle={stat.label}
+              footer={
+                <Stack direction="row" align="center" gap="tight">
+                  {stat.trend === 'up' ? (
+                    <ArrowUpRight style={{ width: 'var(--icon-xs)', height: 'var(--icon-xs)', color: 'var(--success)' }} />
+                  ) : (
+                    <ArrowDownRight style={{ width: 'var(--icon-xs)', height: 'var(--icon-xs)', color: 'var(--destructive)' }} />
+                  )}
+                  <Text
+                    level="caption"
+                    variant={stat.trend === 'up' ? 'success' : 'destructive'}
+                  >
+                    {stat.change}
+                  </Text>
+                  <Text level="caption" variant="muted">
+                    {t('dashboard.stats.vsLastMonth', 'vs last month')}
+                  </Text>
+                </Stack>
+              }
+            />
+          ))}
+        </Grid>
+      </Section>
+
+      <Grid cols={[1, 1, 2, 2]} gap="medium">
+        <Section title={t('dashboard.activity.title', 'Recent Activity')}>
+          <Card
+            content={
+              <Stack gap="tight">
+                {recentActivity.map((item, i) => (
+                  <Stack key={i} direction="row" justify="space-between" align="center" gap="medium">
+                    <Stack direction="row" align="center" gap="tight">
+                      <Activity
+                        style={{
+                          width: 'var(--icon-xs)',
+                          height: 'var(--icon-xs)',
+                          color: 'var(--muted-foreground)',
+                          flexShrink: 0,
+                        }}
+                      />
+                      <Text level="small">{item.text}</Text>
+                    </Stack>
+                    <Text level="caption" variant="muted" style={{ whiteSpace: 'nowrap' }}>
+                      {item.time}
+                    </Text>
+                  </Stack>
+                ))}
+              </Stack>
+            }
+          />
+        </Section>
+
+        <Section title={t('dashboard.quickActions.title', 'Quick Actions')}>
+          <Stack gap="medium">
+            <Card
+              title={t('dashboard.quickActions.newProject', 'Create New Project')}
+              subtitle={t('dashboard.quickActions.newProjectDesc', 'Start a new project from scratch or use a template.')}
+              icon={Plus}
+              clickable
+              footer={
+                <Button variant={BUTTON_VARIANT.PRIMARY} icon={Plus} fullWidth>
+                  {t('dashboard.quickActions.newProjectBtn', 'New Project')}
+                </Button>
+              }
+            />
+            <Grid cols={[1, 2, 2, 2]} gap="tight">
+              <Button variant={BUTTON_VARIANT.OUTLINE} icon={FileText}>
+                {t('dashboard.quickActions.viewReports', 'View Reports')}
+              </Button>
+              <Button variant={BUTTON_VARIANT.OUTLINE} icon={Send}>
+                {t('dashboard.quickActions.sendInvite', 'Invite Member')}
+              </Button>
+              <Button variant={BUTTON_VARIANT.OUTLINE} icon={Download}>
+                {t('dashboard.quickActions.exportData', 'Export Data')}
+              </Button>
+              <Link path="/settings">
+                <Button variant={BUTTON_VARIANT.GHOST} fullWidth>
+                  {t('dashboard.quickActions.settings', 'Settings')}
+                </Button>
+              </Link>
+            </Grid>
+          </Stack>
+        </Section>
+      </Grid>
+    </PageContainer>
+  );
+}

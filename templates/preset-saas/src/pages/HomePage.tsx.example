@@ -1,0 +1,270 @@
+'use client';
+// {{appName}} - Home Page
+
+import {
+  Zap,
+  Shield,
+  Rocket,
+  Home,
+  UserPlus,
+  Settings,
+  Play,
+  Quote,
+  Check,
+} from 'lucide-react';
+
+import {
+  Badge,
+  BADGE_VARIANT,
+  Button,
+  BUTTON_VARIANT,
+  CallToAction,
+  Card,
+  CARD_VARIANT,
+  HeroSection,
+  Marquee,
+  Roadmap,
+  Section,
+  Stack,
+  Text,
+} from '@donotdev/components';
+import { useTranslation } from '@donotdev/core';
+import { FeatureCard, Link, PageContainer } from '@donotdev/ui';
+
+import type { PageMeta, RoadmapStep } from '@donotdev/core';
+
+export const NAMESPACE = 'home';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <Home />,
+};
+
+const testimonials = [
+  {
+    name: 'Sarah K.',
+    role: 'CTO @ Fintech',
+    text: 'We shipped our MVP in under a month. Authentication, billing, CRUD - everything just worked.',
+  },
+  {
+    name: 'Marco R.',
+    role: 'Solo Founder',
+    text: 'I replaced an entire stack of tools with one platform. Best decision I made this year.',
+  },
+  {
+    name: 'Priya N.',
+    role: 'Engineering Lead',
+    text: 'The developer experience is outstanding. Our team onboarding time dropped by 60%.',
+  },
+  {
+    name: 'James L.',
+    role: 'Agency Director',
+    text: 'We deliver client projects in days now, not weeks. The ROI is impossible to ignore.',
+  },
+  {
+    name: 'Yuki T.',
+    role: 'Indie Hacker',
+    text: 'Dark mode, i18n, accessibility - all handled. I just focus on my product.',
+  },
+  {
+    name: 'Elena M.',
+    role: 'Staff Engineer',
+    text: 'Finally a platform that scales with the team instead of against it.',
+  },
+];
+
+const pricingTiers = [
+  {
+    name: 'Starter',
+    price: 'Free',
+    description: 'For individuals and side projects',
+    features: ['1 project', 'Community support', 'Basic analytics', '1 GB storage'],
+    variant: CARD_VARIANT.DEFAULT,
+  },
+  {
+    name: 'Pro',
+    price: '$29/mo',
+    description: 'For growing teams and startups',
+    features: ['Unlimited projects', 'Priority support', 'Advanced analytics', '50 GB storage', 'Custom domain', 'Team collaboration'],
+    variant: CARD_VARIANT.ACCENT,
+  },
+  {
+    name: 'Enterprise',
+    price: 'Custom',
+    description: 'For organizations at scale',
+    features: ['Everything in Pro', 'Dedicated support', 'SSO & SAML', 'Unlimited storage', 'SLA guarantee', 'On-premise option'],
+    variant: CARD_VARIANT.DEFAULT,
+  },
+];
+
+export default function HomePage() {
+  const { t } = useTranslation(NAMESPACE);
+
+  const featureCards = [
+    {
+      icon: Zap,
+      title: t('home.features.speed.title', 'Lightning Fast'),
+      subtitle: t('home.features.speed.subtitle', 'Built for performance'),
+      content: [
+        'Sub-second page loads',
+        'Optimized asset delivery',
+        'Edge-first architecture',
+      ],
+    },
+    {
+      icon: Shield,
+      title: t('home.features.security.title', 'Enterprise Security'),
+      subtitle: t('home.features.security.subtitle', 'Security built in'),
+      content: [
+        'End-to-end encryption',
+        'Role-based access control',
+        'SOC 2 compliant infrastructure',
+      ],
+    },
+    {
+      icon: Rocket,
+      title: t('home.features.scale.title', 'Scales With You'),
+      subtitle: t('home.features.scale.subtitle', 'From MVP to enterprise'),
+      content: [
+        'Auto-scaling infrastructure',
+        'Global CDN distribution',
+        'Zero-downtime deployments',
+      ],
+    },
+  ];
+
+  const steps: RoadmapStep[] = [
+    {
+      phase: t('home.howItWorks.step1.phase', 'Step 1'),
+      icon: UserPlus,
+      title: t('home.howItWorks.step1.title', 'Create Your Account'),
+      subtitle: t('home.howItWorks.step1.description', 'Sign up in seconds. No credit card required.'),
+    },
+    {
+      phase: t('home.howItWorks.step2.phase', 'Step 2'),
+      icon: Settings,
+      title: t('home.howItWorks.step2.title', 'Configure Your Project'),
+      subtitle: t('home.howItWorks.step2.description', 'Set up your workspace, invite your team, and connect your tools.'),
+    },
+    {
+      phase: t('home.howItWorks.step3.phase', 'Step 3'),
+      icon: Play,
+      title: t('home.howItWorks.step3.title', 'Launch & Grow'),
+      subtitle: t('home.howItWorks.step3.description', 'Go live in minutes. Monitor, iterate, and scale with confidence.'),
+    },
+  ];
+
+  return (
+    <PageContainer>
+      <HeroSection
+        badge={t('home.hero.badge', 'Now in Public Beta')}
+        title={t('home.hero.title', 'Build Better Products with {{appShortName}}')}
+        subtitle={t('home.hero.subtitle', 'The all-in-one platform that helps teams ship faster, collaborate smarter, and scale without friction.')}
+      />
+
+      <Section
+        title={t('home.features.title', 'Why {{appShortName}}?')}
+        gridCols={[1, 1, 3, 3]}
+      >
+        {featureCards.map((f) => (
+          <FeatureCard
+            key={f.title}
+            variant={CARD_VARIANT.GLASS}
+            icon={f.icon}
+            title={f.title}
+            subtitle={f.subtitle}
+            content={f.content}
+          />
+        ))}
+      </Section>
+
+      <Section title={t('home.howItWorks.title', 'How It Works')} tone="ghost">
+        <Roadmap steps={steps} />
+      </Section>
+
+      <Section title={t('home.pricing.title', 'Simple, Transparent Pricing')} tone="muted">
+        <Stack gap="medium" direction="row" wrap justify="center">
+          {pricingTiers.map((tier) => (
+            <Card
+              key={tier.name}
+              variant={tier.variant}
+              title={tier.name}
+              subtitle={tier.description}
+              content={tier.features}
+              footer={
+                <Stack gap="tight" align="center">
+                  <Text level="h3" variant={tier.variant === CARD_VARIANT.ACCENT ? 'accent' : 'default'}>
+                    {tier.price}
+                  </Text>
+                  <Button
+                    variant={tier.variant === CARD_VARIANT.ACCENT ? BUTTON_VARIANT.PRIMARY : BUTTON_VARIANT.OUTLINE}
+                    fullWidth
+                  >
+                    {tier.price === 'Custom'
+                      ? t('home.pricing.contact', 'Contact Sales')
+                      : t('home.pricing.getStarted', 'Get Started')}
+                  </Button>
+                </Stack>
+              }
+            />
+          ))}
+        </Stack>
+      </Section>
+
+      <Section title={t('home.testimonials.title', 'Trusted by Developers')} tone="ghost">
+        <Marquee
+          items={testimonials}
+          renderItem={(_item) => {
+            const item = _item as (typeof testimonials)[number];
+            return (
+              <Card style={{ minWidth: 280, maxWidth: 340 }}>
+                <Stack gap="tight" style={{ padding: 'var(--gap-md)' }}>
+                  <Quote
+                    style={{
+                      width: 'var(--icon-sm)',
+                      height: 'var(--icon-sm)',
+                      color: 'var(--muted-foreground)',
+                      opacity: 0.5,
+                    }}
+                  />
+                  <Text level="small" italic>
+                    &ldquo;{item.text}&rdquo;
+                  </Text>
+                  <Stack gap="none">
+                    <Text level="small" weight="semibold">
+                      {item.name}
+                    </Text>
+                    <Text level="caption" variant="muted">
+                      {item.role}
+                    </Text>
+                  </Stack>
+                </Stack>
+              </Card>
+            );
+          }}
+          speed={300}
+          pauseOnHover
+          gap="medium"
+          behavior="infinite"
+          ariaLabel={t('home.testimonials.ariaLabel', 'Customer testimonials')}
+        />
+      </Section>
+
+      <CallToAction
+        tone="accent"
+        title={t('home.cta.title', 'Ready to Get Started?')}
+        subtitle={t('home.cta.subtitle', 'Join thousands of teams already building with {{appShortName}}. Free to start, no credit card required.')}
+        primaryAction={
+          <Button variant={BUTTON_VARIANT.PRIMARY}>
+            {t('home.cta.primary', 'Start Free Trial')}
+          </Button>
+        }
+        secondaryAction={
+          <Button variant={BUTTON_VARIANT.OUTLINE}>
+            {t('home.cta.secondary', 'Book a Demo')}
+          </Button>
+        }
+      />
+    </PageContainer>
+  );
+}

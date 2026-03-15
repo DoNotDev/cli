@@ -12,7 +12,7 @@
  *   dndev seed --only products,users — seed specific entities only
  *   dndev seed --seed 123   — reproducible output with fixed random seed
  *
- * @version 0.0.1
+ * @version 0.1.0
  * @since 0.0.1
  * @author AMBROISE PARK Consulting
  */

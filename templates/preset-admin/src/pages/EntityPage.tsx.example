@@ -1,0 +1,84 @@
+/**
+ * @fileoverview Generic CRUD Entity Management Page
+ *
+ * COPY THIS FILE for each entity you want to manage in the admin panel.
+ * Rename the file and component to match your entity (e.g., ProductsPage, OrdersPage).
+ *
+ * HOW IT WORKS:
+ * 1. Import your entity definition
+ * 2. EntityList handles everything: data fetching, columns, search, sort,
+ *    pagination, create/edit/delete actions, and role-based visibility
+ * 3. Routing is automatic: edit -> /<entity>/:id, create -> /<entity>/new
+ *
+ * For the detail/form page, see FormPageExample.tsx.example in app-vite templates.
+ */
+
+import { Package } from 'lucide-react';
+
+import { useAuth } from '@donotdev/auth';
+import type { PageMeta } from '@donotdev/core';
+import { PageContainer, EntityList } from '@donotdev/ui';
+
+// ============================================================================
+// ENTITY IMPORT
+// ============================================================================
+
+// Import your entity from root-level entities folder:
+// import { productEntity } from 'entities/Product';
+
+// Placeholder - replace with your entity import
+const yourEntity = null as any;
+
+// ============================================================================
+// PAGE METADATA
+// ============================================================================
+
+// Change NAMESPACE to match your entity (e.g., 'products', 'orders', 'customers')
+export const NAMESPACE = 'entities';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <Package />,
+  route: '/entities', // Change to your entity route (e.g., '/products')
+  auth: { required: true, role: 'admin' },
+  preset: 'admin',
+};
+
+// ============================================================================
+// PAGE COMPONENT
+// ============================================================================
+
+export default function EntityPage() {
+  const user = useAuth('user');
+
+  // EntityList provides zero-config CRUD management:
+  // - Fetches data using entity's listFields (optimized query)
+  // - Renders columns based on field definitions
+  // - Applies visibility rules based on user role
+  // - Includes search, sort, pagination
+  // - Add/Edit/Delete buttons with proper permissions
+  // - Automatic routing to detail/form pages
+
+  return (
+    <PageContainer>
+      <EntityList
+        entity={yourEntity}
+        userRole={user?.role}
+      />
+    </PageContainer>
+  );
+}
+
+// ============================================================================
+// NEXT STEPS
+// ============================================================================
+//
+// 1. Create your entity definition in src/entities/YourEntity.ts
+//    See the entity docs or use WAI-WAY Phase 2 to generate it.
+//
+// 2. Create a detail/form page for create/edit operations.
+//    Copy FormPageExample.tsx.example and adapt it.
+//
+// 3. Update NAMESPACE, meta.route, and meta.icon to match your entity.
+//
+// 4. Add i18n keys for your entity labels and field names.

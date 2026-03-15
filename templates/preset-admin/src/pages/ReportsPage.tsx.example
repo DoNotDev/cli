@@ -1,0 +1,243 @@
+/**
+ * @fileoverview Reports & Analytics - Stats, chart placeholders, and export history.
+ *
+ * Replace chart placeholders with your charting library (Recharts, Chart.js, etc.).
+ * Connect stats and export data to your backend.
+ */
+
+import { useState } from 'react';
+
+import {
+  BarChart3,
+  TrendingUp,
+  TrendingDown,
+  Users,
+  ShoppingCart,
+  Eye,
+  Download,
+} from 'lucide-react';
+
+import {
+  Section,
+  Card,
+  Grid,
+  Stack,
+  Text,
+  Select,
+  DataTable,
+  Badge,
+} from '@donotdev/components';
+import { useTranslation } from '@donotdev/core';
+import type { PageMeta } from '@donotdev/core';
+import { PageContainer } from '@donotdev/ui';
+
+// ============================================================================
+// PAGE METADATA
+// ============================================================================
+
+export const NAMESPACE = 'reports';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <BarChart3 />,
+  auth: { required: true, role: 'admin' },
+  preset: 'admin',
+};
+
+// ============================================================================
+// DATE RANGE OPTIONS
+// ============================================================================
+
+const dateRangeOptions = [
+  { value: '7d', label: 'Last 7 days' },
+  { value: '30d', label: 'Last 30 days' },
+  { value: '90d', label: 'Last 90 days' },
+  { value: '12m', label: 'Last 12 months' },
+  { value: 'ytd', label: 'Year to date' },
+];
+
+// ============================================================================
+// MOCK DATA - Replace with real analytics hooks
+// ============================================================================
+
+const stats = [
+  {
+    title: 'Page Views',
+    value: '124,892',
+    trend: '+18.2%',
+    positive: true,
+    icon: <Eye />,
+  },
+  {
+    title: 'Unique Visitors',
+    value: '32,451',
+    trend: '+5.7%',
+    positive: true,
+    icon: <Users />,
+  },
+  {
+    title: 'Orders',
+    value: '1,284',
+    trend: '-2.1%',
+    positive: false,
+    icon: <ShoppingCart />,
+  },
+  {
+    title: 'Revenue',
+    value: '$89,420',
+    trend: '+12.8%',
+    positive: true,
+    icon: <TrendingUp />,
+  },
+];
+
+const recentExports = [
+  { id: '1', name: 'Q4 Revenue Report', format: 'PDF', status: 'completed', date: '2026-03-14', size: '2.4 MB' },
+  { id: '2', name: 'User Growth Analysis', format: 'CSV', status: 'completed', date: '2026-03-13', size: '890 KB' },
+  { id: '3', name: 'Monthly Active Users', format: 'XLSX', status: 'completed', date: '2026-03-12', size: '1.1 MB' },
+  { id: '4', name: 'Conversion Funnel', format: 'PDF', status: 'processing', date: '2026-03-14', size: '-' },
+  { id: '5', name: 'Product Performance', format: 'CSV', status: 'completed', date: '2026-03-10', size: '3.2 MB' },
+  { id: '6', name: 'Customer Segments', format: 'XLSX', status: 'failed', date: '2026-03-09', size: '-' },
+];
+
+const exportColumns = [
+  { key: 'name', header: 'Report Name', sortable: true },
+  { key: 'format', header: 'Format', sortable: true },
+  {
+    key: 'status',
+    header: 'Status',
+    sortable: true,
+    render: (value: string) => {
+      const variants: Record<string, string> = {
+        completed: 'success',
+        processing: 'warning',
+        failed: 'destructive',
+      };
+      return <Badge variant={variants[value] || 'default'}>{value}</Badge>;
+    },
+  },
+  { key: 'date', header: 'Date', sortable: true },
+  { key: 'size', header: 'Size', sortable: true },
+];
+
+// ============================================================================
+// PAGE COMPONENT
+// ============================================================================
+
+export default function ReportsPage() {
+  const { t } = useTranslation(NAMESPACE);
+  const [dateRange, setDateRange] = useState('30d');
+
+  return (
+    <PageContainer>
+      {/* Date Range Selector */}
+      <Section title={t('reportsAnalytics')}>
+        <Stack direction="row" align="center" justify="space-between">
+          <Text level="body" variant="muted">
+            {t('selectPeriod')}
+          </Text>
+          <Select
+            options={dateRangeOptions}
+            value={dateRange}
+            onValueChange={setDateRange}
+            placeholder={t('selectDateRange')}
+          />
+        </Stack>
+      </Section>
+
+      {/* Stats Row */}
+      <Section title={t('keyMetrics')}>
+        <Grid cols={[1, 2, 4, 4]} gap="medium">
+          {stats.map((stat) => (
+            <Card
+              key={stat.title}
+              icon={stat.icon}
+              title={stat.title}
+              elevated
+              content={
+                <Stack gap="tight">
+                  <Text level="heading" weight="bold">{stat.value}</Text>
+                  <Stack direction="row" align="center" gap="tight">
+                    {stat.positive ? <TrendingUp /> : <TrendingDown />}
+                    <Text
+                      level="small"
+                      variant={stat.positive ? 'success' : 'error'}
+                    >
+                      {stat.trend}
+                    </Text>
+                  </Stack>
+                </Stack>
+              }
+            />
+          ))}
+        </Grid>
+      </Section>
+
+      {/* Chart Placeholders */}
+      <Section title={t('charts')}>
+        <Grid cols={[1, 1, 2, 2]} gap="medium">
+          <Card
+            title={t('revenueOverTime')}
+            elevated
+            content={
+              <Stack align="center" justify="center" gap="medium">
+                <BarChart3 />
+                <Text level="body" variant="muted">
+                  {t('chartPlaceholder')}
+                </Text>
+                <Text level="small" variant="muted">
+                  {t('revenueChartLabel')}
+                </Text>
+              </Stack>
+            }
+          />
+
+          <Card
+            title={t('userGrowth')}
+            elevated
+            content={
+              <Stack align="center" justify="center" gap="medium">
+                <TrendingUp />
+                <Text level="body" variant="muted">
+                  {t('chartPlaceholder')}
+                </Text>
+                <Text level="small" variant="muted">
+                  {t('userGrowthLabel')}
+                </Text>
+              </Stack>
+            }
+          />
+        </Grid>
+      </Section>
+
+      {/* Recent Exports */}
+      <Section title={t('recentExports')}>
+        <DataTable
+          data={recentExports}
+          columns={exportColumns}
+          sortable
+          searchable
+          pagination
+        />
+      </Section>
+    </PageContainer>
+  );
+}
+
+// ============================================================================
+// i18n KEYS NEEDED (add to locales/reports_en.json)
+// ============================================================================
+//
+// {
+//   "reportsAnalytics": "Reports & Analytics",
+//   "selectPeriod": "Select a time period to view metrics",
+//   "selectDateRange": "Select date range",
+//   "keyMetrics": "Key Metrics",
+//   "charts": "Charts",
+//   "revenueOverTime": "Revenue Over Time",
+//   "userGrowth": "User Growth",
+//   "chartPlaceholder": "Chart will render here",
+//   "revenueChartLabel": "Monthly revenue breakdown - Jan to Dec",
+//   "userGrowthLabel": "New vs returning users - weekly trend",
+//   "recentExports": "Recent Exports"
+// }

@@ -10,7 +10,7 @@
  *   dndev doctor --check <id> — run single check (env|firebase|supabase|auth)
  *   dndev doctor --verbose    — show detailed check results
  *
- * @version 0.0.2
+ * @version 0.1.0
  * @since 0.0.16
  * @author AMBROISE PARK Consulting
  */

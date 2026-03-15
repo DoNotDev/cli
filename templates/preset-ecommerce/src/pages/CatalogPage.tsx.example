@@ -1,0 +1,187 @@
+'use client';
+// {{appName}} - Catalog Page
+
+import { useState } from 'react';
+
+import {
+  LayoutGrid,
+  Search,
+  ShoppingCart,
+} from 'lucide-react';
+
+import {
+  Button,
+  BUTTON_VARIANT,
+  Card,
+  CARD_VARIANT,
+  Grid,
+  Input,
+  Section,
+  Select,
+  Stack,
+  Text,
+} from '@donotdev/components';
+import { useTranslation } from '@donotdev/core';
+import { Link, PageContainer } from '@donotdev/ui';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const NAMESPACE = 'catalog';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <LayoutGrid />,
+};
+
+const products = [
+  {
+    id: 1,
+    name: 'Wireless Noise-Cancelling Headphones',
+    price: '149.99',
+    category: 'electronics',
+    description: 'Premium sound with active noise cancellation and 30-hour battery life.',
+    available: true,
+  },
+  {
+    id: 2,
+    name: 'Merino Wool Overcoat',
+    price: '289.00',
+    category: 'clothing',
+    description: 'Timeless silhouette in soft Italian merino wool. Warm, breathable, elegant.',
+    available: true,
+  },
+  {
+    id: 3,
+    name: 'Leather Crossbody Bag',
+    price: '119.00',
+    category: 'accessories',
+    description: 'Full-grain leather with adjustable strap. Fits essentials and a tablet.',
+    available: true,
+  },
+  {
+    id: 4,
+    name: 'Ceramic Table Lamp',
+    price: '79.50',
+    category: 'home',
+    description: 'Handcrafted ceramic base with linen shade. Warm ambient lighting.',
+    available: true,
+  },
+  {
+    id: 5,
+    name: 'Ultralight Running Shoes',
+    price: '134.00',
+    category: 'clothing',
+    description: 'Engineered mesh upper with responsive cushioning. Only 210g per shoe.',
+    available: false,
+  },
+  {
+    id: 6,
+    name: 'Smart Fitness Watch',
+    price: '199.00',
+    category: 'electronics',
+    description: 'Heart rate, GPS, sleep tracking, and 7-day battery in a sleek design.',
+    available: true,
+  },
+  {
+    id: 7,
+    name: 'Minimalist Titanium Wallet',
+    price: '59.00',
+    category: 'accessories',
+    description: 'RFID-blocking titanium card holder. Holds up to 12 cards, weighs 45g.',
+    available: true,
+  },
+  {
+    id: 8,
+    name: 'Oak Standing Desk',
+    price: '549.00',
+    category: 'home',
+    description: 'Solid oak top with motorized height adjustment. Whisper-quiet motor.',
+    available: true,
+  },
+];
+
+const categoryOptions = [
+  { value: 'all', label: 'All Categories' },
+  { value: 'electronics', label: 'Electronics' },
+  { value: 'clothing', label: 'Clothing' },
+  { value: 'accessories', label: 'Accessories' },
+  { value: 'home', label: 'Home & Living' },
+];
+
+const sortOptions = [
+  { value: 'popular', label: 'Most Popular' },
+  { value: 'newest', label: 'Newest First' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+];
+
+export default function CatalogPage() {
+  const { t } = useTranslation(NAMESPACE);
+  const [category, setCategory] = useState('all');
+  const [sort, setSort] = useState('popular');
+  const [search, setSearch] = useState('');
+
+  return (
+    <PageContainer>
+      <Section title={t('catalog.title', 'Product Catalog')}>
+        <Stack gap="large">
+          <Stack direction="row" gap="medium" wrap align="end">
+            <Select
+              label={t('catalog.filters.category', 'Category')}
+              options={categoryOptions}
+              value={category}
+              onValueChange={setCategory}
+              placeholder={t('catalog.filters.categoryPlaceholder', 'Select category')}
+            />
+            <Select
+              label={t('catalog.filters.sort', 'Sort By')}
+              options={sortOptions}
+              value={sort}
+              onValueChange={setSort}
+              placeholder={t('catalog.filters.sortPlaceholder', 'Sort by')}
+            />
+            <Input
+              icon={<Search />}
+              label={t('catalog.filters.search', 'Search')}
+              placeholder={t('catalog.filters.searchPlaceholder', 'Search products...')}
+            />
+          </Stack>
+
+          <Grid cols={[1, 2, 3, 4]} gap="medium">
+            {products.map((product) => (
+              <Card
+                key={product.id}
+                variant={product.available ? CARD_VARIANT.DEFAULT : CARD_VARIANT.GLASS}
+                title={product.name}
+                subtitle={`${product.price} EUR`}
+                content={product.description}
+                footer={
+                  <Stack gap="tight">
+                    <Button
+                      variant={BUTTON_VARIANT.PRIMARY}
+                      icon={<ShoppingCart />}
+                      fullWidth
+                      loading={!product.available}
+                      display={product.available
+                        ? t('catalog.addToCart', 'Add to Cart')
+                        : t('catalog.outOfStock', 'Out of Stock')}
+                    >
+                      {product.available
+                        ? t('catalog.addToCart', 'Add to Cart')
+                        : t('catalog.outOfStock', 'Out of Stock')}
+                    </Button>
+                    <Link path={`/products/${product.id}`}>
+                      <Button variant={BUTTON_VARIANT.GHOST} fullWidth>
+                        {t('catalog.viewDetails', 'View Details')}
+                      </Button>
+                    </Link>
+                  </Stack>
+                }
+              />
+            ))}
+          </Grid>
+        </Stack>
+      </Section>
+    </PageContainer>
+  );
+}

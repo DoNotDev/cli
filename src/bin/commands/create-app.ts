@@ -11,7 +11,7 @@
  *   dndev create-app <name> --builder vite --functions
  *   dndev create-app <name> --builder next --host vercel --backend supabase
  *
- * @version 0.0.1
+ * @version 0.1.0
  * @since 0.0.1
  * @author AMBROISE PARK Consulting
  */

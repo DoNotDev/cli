@@ -11,7 +11,7 @@
  *   dndev build <app>:func   — build app functions only
  *   dndev build <app>:both   — build both frontend and functions
  *
- * @version 0.0.1
+ * @version 0.1.0
  * @since 0.0.1
  * @author AMBROISE PARK Consulting
  */

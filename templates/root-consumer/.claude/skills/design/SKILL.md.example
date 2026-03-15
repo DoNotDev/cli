@@ -17,6 +17,23 @@ start_phase(2)   # ENTITIES (data models, fields, access)
 ```
 Pick the appropriate phase. Do NOT proceed without this call.
 
+## Step 0b — Scope Challenge (MANDATORY)
+
+Before designing, challenge scope silently:
+
+1. **What already exists?** `search_framework()` + `lookup_symbol()`. If 80%+ exists → "compose existing pieces"
+2. **Minimum viable change?** Smallest change that solves it
+3. **File count smell:** 8+ files → flag it
+
+Present scope assessment + mode choice:
+- **REDUCTION** - Compose existing, minimal new code
+- **HOLD SCOPE** - Exactly what's requested
+- **EXPANSION** - Broader problem, new abstractions
+
+Recommend one. After user picks, commit fully.
+
+---
+
 ## Step 1 — Analyze
 
 **Input:** $ARGUMENTS

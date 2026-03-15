@@ -1,0 +1,189 @@
+/**
+ * @fileoverview Admin Dashboard - Overview with stats, activity, and quick actions.
+ *
+ * Replace mock data with real data from your backend.
+ * Connect stats to useCrudList or custom hooks for live metrics.
+ */
+
+import { useState } from 'react';
+
+import {
+  LayoutDashboard,
+  Users,
+  DollarSign,
+  FolderOpen,
+  TrendingUp,
+  UserPlus,
+  BarChart3,
+  Settings,
+  Download,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  XCircle,
+} from 'lucide-react';
+
+import { Section, Card, Grid, Stack, Text, Badge, List } from '@donotdev/components';
+import { useTranslation } from '@donotdev/core';
+import type { PageMeta } from '@donotdev/core';
+import { useAuth } from '@donotdev/auth';
+import { PageContainer, Link } from '@donotdev/ui';
+
+// ============================================================================
+// PAGE METADATA
+// ============================================================================
+
+export const NAMESPACE = 'dashboard';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <LayoutDashboard />,
+  auth: { required: true, role: 'admin' },
+  preset: 'admin',
+};
+
+// ============================================================================
+// MOCK DATA - Replace with real data hooks
+// ============================================================================
+
+const stats = [
+  {
+    title: 'Total Users',
+    value: '2,847',
+    trend: '+12.5% from last month',
+    icon: <Users />,
+  },
+  {
+    title: 'Revenue',
+    value: '$48,290',
+    trend: '+8.2% from last month',
+    icon: <DollarSign />,
+  },
+  {
+    title: 'Active Projects',
+    value: '184',
+    trend: '+3 new this week',
+    icon: <FolderOpen />,
+  },
+  {
+    title: 'Conversion',
+    value: '3.24%',
+    trend: '+0.4% from last month',
+    icon: <TrendingUp />,
+  },
+];
+
+const recentActivity = [
+  { text: 'New user registered: alice@example.com', status: 'success', time: '2 min ago' },
+  { text: 'Payment received: $199.00 from Acme Corp', status: 'success', time: '15 min ago' },
+  { text: 'Failed login attempt: bob@example.com', status: 'error', time: '32 min ago' },
+  { text: 'Project "Dashboard Redesign" updated', status: 'info', time: '1 hour ago' },
+  { text: 'Export completed: Q1 Financial Report', status: 'success', time: '2 hours ago' },
+  { text: 'System backup completed successfully', status: 'info', time: '3 hours ago' },
+  { text: 'API rate limit warning: 85% capacity', status: 'warning', time: '4 hours ago' },
+];
+
+const quickActions = [
+  { title: 'Add User', icon: <UserPlus />, path: '/users/new' },
+  { title: 'View Reports', icon: <BarChart3 />, path: '/reports' },
+  { title: 'System Settings', icon: <Settings />, path: '/settings' },
+  { title: 'Export Data', icon: <Download />, path: '/reports' },
+];
+
+// ============================================================================
+// STATUS BADGE HELPER
+// ============================================================================
+
+function statusBadge(status: string) {
+  const variants: Record<string, string> = {
+    success: 'success',
+    error: 'destructive',
+    warning: 'warning',
+    info: 'default',
+  };
+  return <Badge variant={variants[status] || 'default'}>{status}</Badge>;
+}
+
+// ============================================================================
+// PAGE COMPONENT
+// ============================================================================
+
+export default function DashboardPage() {
+  const { t } = useTranslation(NAMESPACE);
+  const user = useAuth('user');
+
+  return (
+    <PageContainer>
+      {/* Welcome */}
+      <Section title={`${t('welcome')}, ${user?.displayName || t('admin')}`}>
+        <Text level="body">
+          {t('dashboardOverview', { appName: '{{appName}}' })}
+        </Text>
+      </Section>
+
+      {/* Stats Row */}
+      <Section title={t('overview')}>
+        <Grid cols={[1, 2, 4, 4]} gap="medium">
+          {stats.map((stat) => (
+            <Card
+              key={stat.title}
+              icon={stat.icon}
+              title={stat.title}
+              content={[stat.value, stat.trend]}
+              elevated
+            />
+          ))}
+        </Grid>
+      </Section>
+
+      {/* Recent Activity */}
+      <Section title={t('recentActivity')}>
+        <Stack gap="tight">
+          {recentActivity.map((activity, index) => (
+            <Card
+              key={index}
+              content={
+                <Stack direction="row" align="center" justify="space-between">
+                  <Stack direction="row" align="center" gap="medium">
+                    {statusBadge(activity.status)}
+                    <Text level="body">{activity.text}</Text>
+                  </Stack>
+                  <Text level="small" variant="muted">{activity.time}</Text>
+                </Stack>
+              }
+            />
+          ))}
+        </Stack>
+      </Section>
+
+      {/* Quick Actions */}
+      <Section title={t('quickActions')}>
+        <Grid cols={[2, 2, 4, 4]} gap="medium">
+          {quickActions.map((action) => (
+            <Link key={action.title} path={action.path}>
+              <Card
+                icon={action.icon}
+                title={action.title}
+                clickable
+                elevated
+              />
+            </Link>
+          ))}
+        </Grid>
+      </Section>
+    </PageContainer>
+  );
+}
+
+// ============================================================================
+// i18n KEYS NEEDED (add to locales/dashboard_en.json)
+// ============================================================================
+//
+// {
+//   "welcome": "Welcome back",
+//   "admin": "Admin",
+//   "dashboardOverview": "Here's what's happening with {{appName}} today.",
+//   "overview": "Overview",
+//   "recentActivity": "Recent Activity",
+//   "quickActions": "Quick Actions"
+// }

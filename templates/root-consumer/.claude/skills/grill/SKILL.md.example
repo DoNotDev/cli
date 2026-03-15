@@ -26,22 +26,28 @@ If `.dndev/grill-report.json` has resolved items (`fixed`, `resolved`, `rejected
 - Archive to `.dndev/grill-history.json`
 - Keep surviving items for merge
 
-## Step 2 — Scan
+## Step 2 — Two-Pass Scan
 
-Review target files for:
+### Pass 1 — CRITICAL (stops for user decision)
+
+Items that must be resolved before shipping. After listing, present each individually: **Fix / Acknowledge / Skip**. One item = one question. Do NOT proceed to Pass 2 until resolved.
+
 - **BLOCKER** — breaks in production, loses data, security issues, breaking API changes
+- **WARN-CRITICAL** — auth bypass, data corruption on normal flows
+- @donotdev component misuse without `lookup_symbol` verification
+
+### Pass 2 — INFORMATIONAL (listed, no action required)
+
 - **WARN** — real problems users will hit (missing edge cases, misleading dead code)
 - **NOTE** — sparingly, genuine gotchas only
 
-What NOT to flag:
+### What NOT to flag:
 - Optimization suggestions, style, formatting
 - Hypothetical edge cases against TypeScript types
 - Dev-only code, harmless dead code
 - Over-engineering suggestions
 
 **Self-test:** "Would I block a PR for this?" No → skip.
-
-Also check: @donotdev component usage without `lookup_symbol` verification.
 
 ## Step 3 — Filter + Write
 

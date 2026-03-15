@@ -8,7 +8,7 @@
  *   dndev get-demo            — copy demo app
  *   dndev get-demo --force    — replace existing demo app
  *
- * @version 0.0.1
+ * @version 0.1.0
  * @since 0.0.1
  * @author AMBROISE PARK Consulting
  */

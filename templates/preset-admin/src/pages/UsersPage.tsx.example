@@ -1,0 +1,128 @@
+/**
+ * @fileoverview User Management - DataTable with search, sort, pagination, export.
+ *
+ * Replace mock data with useCrudList for live user data.
+ * Column definitions should match your user entity fields.
+ */
+
+import { Users } from 'lucide-react';
+
+import { Section, DataTable, Badge } from '@donotdev/components';
+import { useTranslation } from '@donotdev/core';
+import type { PageMeta } from '@donotdev/core';
+import { PageContainer } from '@donotdev/ui';
+
+// ============================================================================
+// PAGE METADATA
+// ============================================================================
+
+export const NAMESPACE = 'users';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <Users />,
+  auth: { required: true, role: 'admin' },
+  preset: 'admin',
+};
+
+// ============================================================================
+// MOCK DATA - Replace with useCrudList(userEntity)
+// ============================================================================
+
+const users = [
+  { id: '1', name: 'Alice Martin', email: 'alice@example.com', role: 'admin', status: 'active', joined: '2025-01-15' },
+  { id: '2', name: 'Bob Chen', email: 'bob@example.com', role: 'editor', status: 'active', joined: '2025-02-03' },
+  { id: '3', name: 'Clara Dupont', email: 'clara@example.com', role: 'viewer', status: 'active', joined: '2025-02-18' },
+  { id: '4', name: 'David Kim', email: 'david@example.com', role: 'editor', status: 'inactive', joined: '2025-03-01' },
+  { id: '5', name: 'Eva Schmidt', email: 'eva@example.com', role: 'admin', status: 'active', joined: '2025-03-12' },
+  { id: '6', name: 'Frank Rossi', email: 'frank@example.com', role: 'viewer', status: 'pending', joined: '2025-04-05' },
+  { id: '7', name: 'Grace Tanaka', email: 'grace@example.com', role: 'editor', status: 'active', joined: '2025-04-20' },
+  { id: '8', name: 'Hugo Larsen', email: 'hugo@example.com', role: 'viewer', status: 'inactive', joined: '2025-05-08' },
+  { id: '9', name: 'Iris Moreau', email: 'iris@example.com', role: 'admin', status: 'active', joined: '2025-06-14' },
+  { id: '10', name: 'Jamal Osei', email: 'jamal@example.com', role: 'editor', status: 'pending', joined: '2025-07-01' },
+];
+
+// ============================================================================
+// COLUMN DEFINITIONS
+// ============================================================================
+
+const roleBadgeVariant: Record<string, string> = {
+  admin: 'destructive',
+  editor: 'default',
+  viewer: 'secondary',
+};
+
+const statusBadgeVariant: Record<string, string> = {
+  active: 'success',
+  inactive: 'secondary',
+  pending: 'warning',
+};
+
+const columns = [
+  {
+    key: 'name',
+    header: 'Name',
+    sortable: true,
+  },
+  {
+    key: 'email',
+    header: 'Email',
+    sortable: true,
+  },
+  {
+    key: 'role',
+    header: 'Role',
+    sortable: true,
+    render: (value: string) => (
+      <Badge variant={roleBadgeVariant[value] || 'default'}>{value}</Badge>
+    ),
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    sortable: true,
+    render: (value: string) => (
+      <Badge variant={statusBadgeVariant[value] || 'default'}>{value}</Badge>
+    ),
+  },
+  {
+    key: 'joined',
+    header: 'Joined',
+    sortable: true,
+  },
+];
+
+// ============================================================================
+// PAGE COMPONENT
+// ============================================================================
+
+export default function UsersPage() {
+  const { t } = useTranslation(NAMESPACE);
+
+  return (
+    <PageContainer>
+      <Section title={t('userManagement')}>
+        <DataTable
+          data={users}
+          columns={columns}
+          sortable
+          searchable
+          pagination
+          exportable
+          onRowClick={(row) => {
+            // Navigate to user detail/edit page
+            // e.g., navigate(`/users/${row.id}`)
+          }}
+        />
+      </Section>
+    </PageContainer>
+  );
+}
+
+// ============================================================================
+// i18n KEYS NEEDED (add to locales/users_en.json)
+// ============================================================================
+//
+// {
+//   "userManagement": "User Management"
+// }

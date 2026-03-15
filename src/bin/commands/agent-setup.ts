@@ -9,7 +9,7 @@
  *   dndev agent-setup         — configure all available AI agents
  *   dndev agent-setup --dry-run — show what would be configured
  *
- * @version 0.0.1
+ * @version 0.1.0
  * @since 0.0.1
  * @author AMBROISE PARK Consulting
  */

@@ -9,7 +9,7 @@
  *   dndev preview <app>       — preview production build for app
  *   dndev preview:<app>       — alternative colon syntax
  *
- * @version 0.0.2
+ * @version 0.1.0
  * @since 0.0.1
  * @author AMBROISE PARK Consulting
  */

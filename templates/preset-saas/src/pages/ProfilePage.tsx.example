@@ -1,0 +1,191 @@
+'use client';
+// {{appName}} - Profile Page
+
+import {
+  User,
+  Mail,
+  Calendar,
+  CreditCard,
+  Crown,
+  ExternalLink,
+} from 'lucide-react';
+
+import {
+  Avatar,
+  Badge,
+  BADGE_VARIANT,
+  Button,
+  BUTTON_VARIANT,
+  Card,
+  CARD_VARIANT,
+  Grid,
+  List,
+  Progress,
+  Section,
+  Separator,
+  Stack,
+  Text,
+} from '@donotdev/components';
+import { useTranslation } from '@donotdev/core';
+import { Link, PageContainer } from '@donotdev/ui';
+import { useAuth } from '@donotdev/auth';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const NAMESPACE = 'profile';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <User />,
+  auth: true,
+  hideFromMenu: true,
+  route: '/profile',
+};
+
+export default function ProfilePage() {
+  const { t } = useTranslation(NAMESPACE);
+  const user = useAuth('user');
+
+  const displayName = user?.displayName ?? t('profile.defaultName', 'User');
+  const email = user?.email ?? t('profile.defaultEmail', 'user@example.com');
+  const photoURL = user?.photoURL ?? undefined;
+
+  return (
+    <PageContainer variant="narrow">
+      <Section title={t('profile.title', 'My Profile')}>
+        <Stack gap="large">
+          <Card
+            content={
+              <Stack align="center" gap="medium" style={{ padding: 'var(--gap-lg)' }}>
+                <Avatar
+                  src={photoURL}
+                  fallback={displayName.charAt(0).toUpperCase()}
+                />
+                <Stack align="center" gap="none">
+                  <Text level="h3">{displayName}</Text>
+                  <Text level="body" variant="muted">{email}</Text>
+                </Stack>
+                <Badge variant={BADGE_VARIANT.ACCENT}>
+                  {t('profile.plan.pro', 'Pro Plan')}
+                </Badge>
+                <Link path="/settings">
+                  <Button variant={BUTTON_VARIANT.OUTLINE}>
+                    {t('profile.editProfile', 'Edit Profile')}
+                  </Button>
+                </Link>
+              </Stack>
+            }
+          />
+
+          <Grid cols={[1, 1, 2, 2]} gap="medium">
+            <Card
+              title={t('profile.account.title', 'Account Details')}
+              icon={User}
+              content={
+                <Stack gap="medium">
+                  <Stack direction="row" justify="space-between" align="center">
+                    <Stack direction="row" align="center" gap="tight">
+                      <Mail style={{ width: 'var(--icon-sm)', height: 'var(--icon-sm)', color: 'var(--muted-foreground)' }} />
+                      <Text level="small" variant="muted">
+                        {t('profile.account.email', 'Email')}
+                      </Text>
+                    </Stack>
+                    <Text level="small">{email}</Text>
+                  </Stack>
+
+                  <Separator />
+
+                  <Stack direction="row" justify="space-between" align="center">
+                    <Stack direction="row" align="center" gap="tight">
+                      <Calendar style={{ width: 'var(--icon-sm)', height: 'var(--icon-sm)', color: 'var(--muted-foreground)' }} />
+                      <Text level="small" variant="muted">
+                        {t('profile.account.memberSince', 'Member since')}
+                      </Text>
+                    </Stack>
+                    <Text level="small">
+                      {t('profile.account.memberDate', 'January 2024')}
+                    </Text>
+                  </Stack>
+
+                  <Separator />
+
+                  <Stack direction="row" justify="space-between" align="center">
+                    <Stack direction="row" align="center" gap="tight">
+                      <Crown style={{ width: 'var(--icon-sm)', height: 'var(--icon-sm)', color: 'var(--muted-foreground)' }} />
+                      <Text level="small" variant="muted">
+                        {t('profile.account.role', 'Role')}
+                      </Text>
+                    </Stack>
+                    <Badge variant={BADGE_VARIANT.DEFAULT}>
+                      {t('profile.account.roleValue', 'Admin')}
+                    </Badge>
+                  </Stack>
+                </Stack>
+              }
+            />
+
+            <Card
+              title={t('profile.subscription.title', 'Subscription')}
+              icon={CreditCard}
+              variant={CARD_VARIANT.ACCENT}
+              content={
+                <Stack gap="medium">
+                  <Stack direction="row" justify="space-between" align="center">
+                    <Text level="body" weight="medium">
+                      {t('profile.subscription.plan', 'Pro Plan')}
+                    </Text>
+                    <Text level="h4" variant="accent">$29/mo</Text>
+                  </Stack>
+
+                  <Separator />
+
+                  <Stack gap="tight">
+                    <Stack direction="row" justify="space-between">
+                      <Text level="small" variant="muted">
+                        {t('profile.subscription.nextBilling', 'Next billing date')}
+                      </Text>
+                      <Text level="small">
+                        {t('profile.subscription.nextDate', 'April 15, 2024')}
+                      </Text>
+                    </Stack>
+                    <Stack direction="row" justify="space-between">
+                      <Text level="small" variant="muted">
+                        {t('profile.subscription.paymentMethod', 'Payment method')}
+                      </Text>
+                      <Text level="small">
+                        {t('profile.subscription.cardEnding', 'Visa ending in 4242')}
+                      </Text>
+                    </Stack>
+                  </Stack>
+
+                  <Separator />
+
+                  <Stack gap="tight">
+                    <Stack direction="row" justify="space-between">
+                      <Text level="small" variant="muted">
+                        {t('profile.subscription.usage', 'Usage this month')}
+                      </Text>
+                      <Text level="small">
+                        {t('profile.subscription.usageValue', '3,240 / 10,000 users')}
+                      </Text>
+                    </Stack>
+                    <Progress value={32} />
+                  </Stack>
+                </Stack>
+              }
+              footer={
+                <Stack direction="row" gap="medium" justify="end">
+                  <Link path="/pricing">
+                    <Button variant={BUTTON_VARIANT.OUTLINE} icon={ExternalLink}>
+                      {t('profile.subscription.managePlan', 'Manage Plan')}
+                    </Button>
+                  </Link>
+                </Stack>
+              }
+            />
+          </Grid>
+        </Stack>
+      </Section>
+    </PageContainer>
+  );
+}

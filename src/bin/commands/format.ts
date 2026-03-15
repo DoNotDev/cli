@@ -10,7 +10,7 @@
  *   dndev format --dry-run    — show what would be formatted
  *   dndev format --verbose    — show per-file formatting logs
  *
- * @version 0.0.1
+ * @version 0.1.0
  * @since 0.0.1
  * @author AMBROISE PARK Consulting
  */

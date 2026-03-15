@@ -10,7 +10,7 @@
  *   dndev init <name>         — create project with specific name
  *   dndev create-project      — alternative command name
  *
- * @version 0.0.1
+ * @version 0.1.0
  * @since 0.0.1
  * @author AMBROISE PARK Consulting
  */

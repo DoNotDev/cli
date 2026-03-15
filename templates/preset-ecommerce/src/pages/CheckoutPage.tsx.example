@@ -1,0 +1,244 @@
+'use client';
+// {{appName}} - Checkout Page
+
+import { useState } from 'react';
+
+import {
+  CreditCard,
+} from 'lucide-react';
+
+import {
+  Alert,
+  Button,
+  BUTTON_VARIANT,
+  Card,
+  CARD_VARIANT,
+  Grid,
+  Input,
+  Section,
+  Select,
+  Separator,
+  Stack,
+  Tabs,
+  Text,
+} from '@donotdev/components';
+import { useTranslation } from '@donotdev/core';
+import { Link, PageContainer } from '@donotdev/ui';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const NAMESPACE = 'checkout';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <CreditCard />,
+  auth: true,
+  hideFromMenu: true,
+};
+
+const countryOptions = [
+  { value: 'fr', label: 'France' },
+  { value: 'de', label: 'Germany' },
+  { value: 'es', label: 'Spain' },
+  { value: 'it', label: 'Italy' },
+  { value: 'nl', label: 'Netherlands' },
+  { value: 'be', label: 'Belgium' },
+  { value: 'at', label: 'Austria' },
+  { value: 'pt', label: 'Portugal' },
+];
+
+const orderItems = [
+  { name: 'Wireless Noise-Cancelling Headphones', quantity: 1, price: 149.99 },
+  { name: 'Leather Crossbody Bag', quantity: 1, price: 119.0 },
+  { name: 'Smart Fitness Watch', quantity: 2, price: 199.0 },
+];
+
+export default function CheckoutPage() {
+  const { t } = useTranslation(NAMESPACE);
+  const [country, setCountry] = useState('');
+
+  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shipping = 0;
+  const tax = subtotal * 0.2;
+  const total = subtotal + shipping + tax;
+
+  const tabItems = [
+    {
+      value: 'shipping',
+      label: t('checkout.tabs.shipping', 'Shipping'),
+      content: (
+        <Stack gap="medium">
+          <Stack direction="row" gap="medium" wrap>
+            <Input
+              label={t('checkout.shipping.firstName', 'First Name')}
+              placeholder={t('checkout.shipping.firstNamePlaceholder', 'Jean')}
+            />
+            <Input
+              label={t('checkout.shipping.lastName', 'Last Name')}
+              placeholder={t('checkout.shipping.lastNamePlaceholder', 'Dupont')}
+            />
+          </Stack>
+          <Input
+            label={t('checkout.shipping.address', 'Address')}
+            placeholder={t('checkout.shipping.addressPlaceholder', '12 Rue de la Paix')}
+          />
+          <Stack direction="row" gap="medium" wrap>
+            <Input
+              label={t('checkout.shipping.city', 'City')}
+              placeholder={t('checkout.shipping.cityPlaceholder', 'Paris')}
+            />
+            <Input
+              label={t('checkout.shipping.zip', 'Postal Code')}
+              placeholder={t('checkout.shipping.zipPlaceholder', '75002')}
+            />
+          </Stack>
+          <Select
+            label={t('checkout.shipping.country', 'Country')}
+            options={countryOptions}
+            value={country}
+            onValueChange={setCountry}
+            placeholder={t('checkout.shipping.countryPlaceholder', 'Select country')}
+          />
+          <Input
+            label={t('checkout.shipping.phone', 'Phone')}
+            placeholder={t('checkout.shipping.phonePlaceholder', '+33 1 23 45 67 89')}
+          />
+        </Stack>
+      ),
+    },
+    {
+      value: 'payment',
+      label: t('checkout.tabs.payment', 'Payment'),
+      content: (
+        <Stack gap="medium">
+          <Alert
+            variant="default"
+            title={t('checkout.payment.integrationTitle', 'Payment Integration Point')}
+            description={t(
+              'checkout.payment.integrationDescription',
+              'This is where your payment provider (Stripe, PayPal, etc.) would be integrated. The payment form would be rendered by the provider SDK for PCI compliance.'
+            )}
+          />
+          <Card variant={CARD_VARIANT.GLASS}>
+            <Stack gap="medium" style={{ padding: 'var(--gap-md)' }}>
+              <Text level="body" weight="semibold">
+                {t('checkout.payment.methods', 'Accepted Payment Methods')}
+              </Text>
+              <Stack direction="row" gap="medium" wrap>
+                <Text level="small">Visa</Text>
+                <Text level="small">Mastercard</Text>
+                <Text level="small">PayPal</Text>
+                <Text level="small">Apple Pay</Text>
+                <Text level="small">Google Pay</Text>
+              </Stack>
+            </Stack>
+          </Card>
+        </Stack>
+      ),
+    },
+    {
+      value: 'review',
+      label: t('checkout.tabs.review', 'Review'),
+      content: (
+        <Stack gap="medium">
+          <Text level="body" weight="semibold">
+            {t('checkout.review.title', 'Order Review')}
+          </Text>
+          <Stack gap="tight">
+            {orderItems.map((item, index) => (
+              <Stack key={index} direction="row" justify="space-between">
+                <Text level="small">
+                  {item.name} x{item.quantity}
+                </Text>
+                <Text level="small">
+                  {(item.price * item.quantity).toFixed(2)} EUR
+                </Text>
+              </Stack>
+            ))}
+          </Stack>
+          <Separator />
+          <Stack direction="row" justify="space-between">
+            <Text level="body" weight="semibold">
+              {t('checkout.review.total', 'Total')}
+            </Text>
+            <Text level="body" weight="semibold">
+              {total.toFixed(2)} EUR
+            </Text>
+          </Stack>
+          <Alert
+            variant="default"
+            title={t('checkout.review.note', 'Secure Checkout')}
+            description={t('checkout.review.noteDescription', 'Your personal data will be used to process your order and support your experience on this site.')}
+          />
+          <Button variant={BUTTON_VARIANT.PRIMARY} fullWidth>
+            {t('checkout.review.confirm', 'Confirm & Pay')}
+          </Button>
+        </Stack>
+      ),
+    },
+  ];
+
+  return (
+    <PageContainer>
+      <Section title={t('checkout.title', 'Checkout')}>
+        <Grid cols={[1, 1, 3, 3]} gap="large">
+          <Stack style={{ gridColumn: 'span 2' }}>
+            <Tabs items={tabItems} defaultValue="shipping" />
+          </Stack>
+
+          <Card
+            variant={CARD_VARIANT.ACCENT}
+            title={t('checkout.summary.title', 'Order Summary')}
+          >
+            <Stack gap="medium" style={{ padding: 'var(--gap-md)' }}>
+              <Stack gap="tight">
+                {orderItems.map((item, index) => (
+                  <Stack key={index} direction="row" justify="space-between">
+                    <Text level="caption">
+                      {item.name} x{item.quantity}
+                    </Text>
+                    <Text level="caption">
+                      {(item.price * item.quantity).toFixed(2)} EUR
+                    </Text>
+                  </Stack>
+                ))}
+              </Stack>
+
+              <Separator />
+
+              <Stack gap="tight">
+                <Stack direction="row" justify="space-between">
+                  <Text level="small">{t('checkout.summary.subtotal', 'Subtotal')}</Text>
+                  <Text level="small">{subtotal.toFixed(2)} EUR</Text>
+                </Stack>
+                <Stack direction="row" justify="space-between">
+                  <Text level="small">{t('checkout.summary.shipping', 'Shipping')}</Text>
+                  <Text level="small" variant="success">
+                    {t('checkout.summary.freeShipping', 'Free')}
+                  </Text>
+                </Stack>
+                <Stack direction="row" justify="space-between">
+                  <Text level="small">{t('checkout.summary.tax', 'Tax (20%)')}</Text>
+                  <Text level="small">{tax.toFixed(2)} EUR</Text>
+                </Stack>
+              </Stack>
+
+              <Separator />
+
+              <Stack direction="row" justify="space-between">
+                <Text level="body" weight="semibold">{t('checkout.summary.total', 'Total')}</Text>
+                <Text level="body" weight="semibold">{total.toFixed(2)} EUR</Text>
+              </Stack>
+
+              <Link path="/cart">
+                <Button variant={BUTTON_VARIANT.GHOST} fullWidth>
+                  {t('checkout.summary.backToCart', 'Back to Cart')}
+                </Button>
+              </Link>
+            </Stack>
+          </Card>
+        </Grid>
+      </Section>
+    </PageContainer>
+  );
+}

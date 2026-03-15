@@ -49,6 +49,34 @@ start_phase(0)
 ```
 This activates Phase 0: BRAINSTORM and loads the blueprint, persona, context, and lessons learned from previous sessions. **Do NOT proceed without this call.**
 
+### Step 0b: Vision Challenge (MANDATORY - before extraction)
+
+Before asking a single requirements question, challenge the idea itself. This is not about feasibility - it's about whether the right thing is being built.
+
+**Ask these 4 questions, one at a time. Wait for each answer.**
+
+1. **Job-to-be-done:** "Forget the app for a second. What's the actual outcome your users need? Not the feature - the result. What job are they hiring this app to do?"
+   - If the answer is a feature ("manage invoices"), push back: "Managing invoices is a task. What's the outcome? Getting paid faster? Reducing accounting errors? Tax compliance?"
+
+2. **10-star version:** "If this app were so good it felt like magic - what would that look like? Don't worry about feasibility. What's the dream?"
+   - This reveals the real ambition. Most people self-censor. Draw out the vision they're afraid to say.
+
+3. **What sucks today:** "How are your users solving this problem right now? What's broken about that solution?"
+   - If they say "nothing exists" - probe harder. There's always a current solution, even if it's Excel, WhatsApp, or paper.
+
+4. **Minimum switch trigger:** "What's the ONE thing this app must do on day one that would make someone stop using their current solution and switch to yours?"
+   - This is the MVP anchor. Everything else is V2.
+
+**After all 4 answers, synthesize:**
+
+> **Vision lock:** "[Job-to-be-done] by [minimum switch trigger]. Current solutions fail because [what sucks]. The 10-star version would [dream]."
+
+Ask: "Is this right? Anything to adjust before we dive into requirements?"
+
+Only proceed to Step 1 after user confirms.
+
+---
+
 ### Step 1: Activate EXTRACTOR Agent
 
 **Deploy:** `/agents extractor` (BMAD EXTRACTOR persona)

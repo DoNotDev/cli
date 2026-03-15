@@ -1,0 +1,228 @@
+'use client';
+// {{appName}} - Product Detail Page
+
+import { useState } from 'react';
+
+import {
+  Package,
+  ShoppingCart,
+  Heart,
+} from 'lucide-react';
+
+import {
+  Accordion,
+  Button,
+  BUTTON_VARIANT,
+  Card,
+  CARD_VARIANT,
+  Grid,
+  Input,
+  Section,
+  Select,
+  Separator,
+  Stack,
+  Text,
+} from '@donotdev/components';
+import { useTranslation } from '@donotdev/core';
+import { Link, PageContainer } from '@donotdev/ui';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const NAMESPACE = 'product';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <Package />,
+  route: '/products/:id',
+  hideFromMenu: true,
+};
+
+const product = {
+  id: 1,
+  name: 'Wireless Noise-Cancelling Headphones',
+  price: '149.99',
+  description:
+    'Immerse yourself in crystal-clear audio with our premium wireless headphones. Featuring advanced active noise cancellation, 30-hour battery life, and ultra-comfortable memory foam ear cushions. Perfect for commutes, travel, and deep focus sessions.',
+  category: 'Electronics',
+};
+
+const sizeOptions = [
+  { value: 'standard', label: 'Standard' },
+  { value: 'compact', label: 'Compact' },
+];
+
+const colorOptions = [
+  { value: 'black', label: 'Midnight Black' },
+  { value: 'silver', label: 'Arctic Silver' },
+  { value: 'navy', label: 'Deep Navy' },
+];
+
+const relatedProducts = [
+  { id: 2, name: 'Merino Wool Overcoat', price: '289.00', category: 'Clothing' },
+  { id: 3, name: 'Leather Crossbody Bag', price: '119.00', category: 'Accessories' },
+  { id: 6, name: 'Smart Fitness Watch', price: '199.00', category: 'Electronics' },
+  { id: 7, name: 'Minimalist Titanium Wallet', price: '59.00', category: 'Accessories' },
+];
+
+export default function ProductPage() {
+  const { t } = useTranslation(NAMESPACE);
+  const [selectedSize, setSelectedSize] = useState('standard');
+  const [selectedColor, setSelectedColor] = useState('black');
+
+  const accordionItems = [
+    {
+      value: 'description',
+      title: t('product.accordion.description', 'Description'),
+      content: (
+        <Text level="body">
+          {t(
+            'product.details.fullDescription',
+            'Our Wireless Noise-Cancelling Headphones deliver studio-quality sound with deep bass and crisp highs. The adaptive ANC technology adjusts to your environment, while transparency mode lets you stay aware when needed. Bluetooth 5.3 ensures a stable, low-latency connection across all your devices.'
+          )}
+        </Text>
+      ),
+    },
+    {
+      value: 'specs',
+      title: t('product.accordion.specifications', 'Specifications'),
+      content: (
+        <Stack gap="tight">
+          <Text level="small">Driver size: 40mm</Text>
+          <Text level="small">Frequency response: 20Hz - 40kHz</Text>
+          <Text level="small">Battery life: 30 hours (ANC on)</Text>
+          <Text level="small">Charging: USB-C, 10 min = 3 hours</Text>
+          <Text level="small">Weight: 254g</Text>
+          <Text level="small">Bluetooth: 5.3 with multipoint</Text>
+        </Stack>
+      ),
+    },
+    {
+      value: 'shipping',
+      title: t('product.accordion.shipping', 'Shipping Info'),
+      content: (
+        <Stack gap="tight">
+          <Text level="small">{t('product.shipping.standard', 'Standard delivery: 3-5 business days (free over 50 EUR)')}</Text>
+          <Text level="small">{t('product.shipping.express', 'Express delivery: 1-2 business days (9.99 EUR)')}</Text>
+          <Text level="small">{t('product.shipping.returns', 'Free returns within 30 days of purchase')}</Text>
+        </Stack>
+      ),
+    },
+    {
+      value: 'reviews',
+      title: t('product.accordion.reviews', 'Reviews (128)'),
+      content: (
+        <Stack gap="medium">
+          <Stack gap="tight">
+            <Text level="small" weight="semibold">Laura M.</Text>
+            <Text level="small" italic>&ldquo;Best headphones I have ever owned. The noise cancellation is incredible.&rdquo;</Text>
+          </Stack>
+          <Separator />
+          <Stack gap="tight">
+            <Text level="small" weight="semibold">Thomas B.</Text>
+            <Text level="small" italic>&ldquo;Comfortable for all-day wear. Sound quality rivals headphones twice the price.&rdquo;</Text>
+          </Stack>
+          <Separator />
+          <Stack gap="tight">
+            <Text level="small" weight="semibold">Sophie K.</Text>
+            <Text level="small" italic>&ldquo;The battery life is no joke - I charge them once a week.&rdquo;</Text>
+          </Stack>
+        </Stack>
+      ),
+    },
+  ];
+
+  return (
+    <PageContainer>
+      <Section>
+        <Grid cols={[1, 1, 2, 2]} gap="large">
+          <Card
+            variant={CARD_VARIANT.GLASS}
+            title={t('product.imagePlaceholder', 'Product Image')}
+            content={t('product.imageDescription', 'Product image would be displayed here with zoom and gallery functionality.')}
+          />
+
+          <Stack gap="medium">
+            <Stack gap="tight">
+              <Text as="h1" level="h1">
+                {product.name}
+              </Text>
+              <Text level="caption" variant="muted">
+                {product.category}
+              </Text>
+            </Stack>
+
+            <Text as="h2" level="h2" variant="primary">
+              {product.price} EUR
+            </Text>
+
+            <Text level="body">
+              {product.description}
+            </Text>
+
+            <Separator />
+
+            <Stack gap="medium">
+              <Select
+                label={t('product.options.size', 'Size')}
+                options={sizeOptions}
+                value={selectedSize}
+                onValueChange={setSelectedSize}
+                placeholder={t('product.options.sizePlaceholder', 'Select size')}
+              />
+              <Select
+                label={t('product.options.color', 'Color')}
+                options={colorOptions}
+                value={selectedColor}
+                onValueChange={setSelectedColor}
+                placeholder={t('product.options.colorPlaceholder', 'Select color')}
+              />
+              <Input
+                label={t('product.options.quantity', 'Quantity')}
+                placeholder="1"
+              />
+            </Stack>
+
+            <Stack gap="tight">
+              <Button variant={BUTTON_VARIANT.PRIMARY} icon={<ShoppingCart />} fullWidth>
+                {t('product.addToCart', 'Add to Cart')}
+              </Button>
+              <Button variant={BUTTON_VARIANT.OUTLINE} icon={<Heart />} fullWidth>
+                {t('product.addToWishlist', 'Add to Wishlist')}
+              </Button>
+            </Stack>
+          </Stack>
+        </Grid>
+      </Section>
+
+      <Section>
+        <Accordion
+          items={accordionItems}
+          type="single"
+          collapsible
+        />
+      </Section>
+
+      <Section
+        title={t('product.related.title', 'You Might Also Like')}
+        tone="ghost"
+        gridCols={[1, 2, 4, 4]}
+      >
+        {relatedProducts.map((rp) => (
+          <Card
+            key={rp.id}
+            title={rp.name}
+            subtitle={`${rp.price} EUR`}
+            content={rp.category}
+            footer={
+              <Link path={`/products/${rp.id}`}>
+                <Button variant={BUTTON_VARIANT.GHOST} fullWidth>
+                  {t('product.related.view', 'View Product')}
+                </Button>
+              </Link>
+            }
+          />
+        ))}
+      </Section>
+    </PageContainer>
+  );
+}

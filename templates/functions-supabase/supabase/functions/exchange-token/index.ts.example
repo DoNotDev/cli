@@ -1,0 +1,7 @@
+// supabase/functions/exchange-token/index.ts
+// Supabase Edge Function — OAuth Token Exchange
+// Deploy: supabase functions deploy exchange-token
+
+import { createExchangeToken } from '@donotdev/functions/supabase';
+
+Deno.serve(createExchangeToken());

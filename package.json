@@ -1,6 +1,6 @@
 {
   "name": "@donotdev/cli",
-  "version": "0.0.37",
+  "version": "0.1.0",
   "description": "Command-line interface for DoNotDev Framework",
   "type": "module",
   "private": false,
@@ -55,7 +55,7 @@
     "scaffolding"
   ],
   "author": "AMBROISE PARK Consulting",
-  "license": "SEE LICENSE IN LICENSE.md",
+  "license": "MIT",
   "engines": {
     "node": ">=20.0.0"
   },

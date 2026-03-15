@@ -12,7 +12,7 @@
  *   dndev sync-secrets --env-file <file> — use specific env file
  *   dndev sync-secrets --repo <owner/repo> — specify GitHub repository
  *
- * @version 0.0.1
+ * @version 0.1.0
  * @since 0.0.1
  * @author AMBROISE PARK Consulting
  */

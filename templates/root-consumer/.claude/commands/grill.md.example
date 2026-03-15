@@ -8,15 +8,42 @@ Act as a skeptical staff engineer doing a blocking code review.
 
 Target: the last modified files in this session, or files passed as argument.
 
-Evaluate for:
-- Architectural anti-patterns (coupling, wrong abstraction layer, violation of existing conventions)
-- Missing edge cases (null/undefined, empty arrays, concurrent updates, auth failure paths)
-- Security issues (injection, unvalidated input at system boundaries, exposed secrets)
-- Over-engineering (abstractions not earned by current requirements)
-- Missing or incorrect TypeScript types
-- @donotdev component usage without `lookup_symbol` verification
+## Execution — Two-Pass Review
 
-Rules:
+Run Pass 1, then Pass 2. Pass 1 items require user decision before proceeding. Pass 2 items are informational only.
+
+### Pass 1 — CRITICAL (stops for user decision)
+
+Items that **must be resolved before shipping**. After listing all Pass 1 items, present each one individually and ask: **Fix / Acknowledge / Skip**.
+
+- One item = one question. Never batch decisions.
+- Do NOT proceed to Pass 2 until all Pass 1 items are resolved.
+- If zero Pass 1 items, proceed directly to Pass 2.
+
+**BLOCKER** - breaks in production or loses data:
+- Security issues (injection, unvalidated input at system boundaries, exposed secrets)
+- Logic bugs producing wrong results
+- Data loss paths (silent overwrites, missing error handling on writes)
+- Breaking API contract changes
+- @donotdev component misuse without `lookup_symbol` verification
+
+**WARN-CRITICAL** - real problem users WILL hit soon:
+- Auth/authz bypass on common paths
+- Data corruption on normal usage flows
+
+### Pass 2 — INFORMATIONAL (listed, no action required)
+
+Listed for awareness. No user decision needed. No fixes during review.
+
+**WARN** - real problem, won't explode immediately:
+- Missing edge cases (null/undefined, empty arrays, concurrent updates, auth failure paths)
+- Architectural anti-patterns with concrete consequences
+- Missing or incorrect TypeScript types
+
+**NOTE** - sparingly. Only genuine maintainer gotchas.
+
+### Rules
+
 - NEVER suggest fixes. Report problems only.
 - NEVER skip BLOCKER items to be polite.
 - If there are no issues at a severity level, omit that level entirely.

@@ -12,7 +12,7 @@
  *   dndev staging --project <id> — override staging project ID
  *   dndev staging --skip-build — skip build step (deploy existing)
  *
- * @version 0.0.2
+ * @version 0.1.0
  * @since 0.0.6
  * @author AMBROISE PARK Consulting
  */

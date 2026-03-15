@@ -8,7 +8,7 @@
  * Usage:
  *   dndev bump                — interactive multi-select (packages, docs, apps)
  *
- * @version 0.0.4
+ * @version 0.1.0
  * @since 0.0.2
  * @author AMBROISE PARK Consulting
  */

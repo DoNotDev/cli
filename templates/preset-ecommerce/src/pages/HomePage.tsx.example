@@ -1,0 +1,268 @@
+'use client';
+// {{appName}} - Home Page
+
+import {
+  Home,
+  Truck,
+  Headphones,
+  RotateCcw,
+  Lock,
+  ShoppingCart,
+  Quote,
+  Star,
+} from 'lucide-react';
+
+import {
+  Badge,
+  Button,
+  BUTTON_VARIANT,
+  CallToAction,
+  Card,
+  CARD_VARIANT,
+  Grid,
+  HeroSection,
+  Input,
+  Marquee,
+  Section,
+  Stack,
+  Text,
+} from '@donotdev/components';
+import { useTranslation } from '@donotdev/core';
+import { FeatureCard, Link, PageContainer } from '@donotdev/ui';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const NAMESPACE = 'home';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <Home />,
+};
+
+const categories = [
+  { name: 'Electronics', icon: '🖥️', description: 'Laptops, phones & gadgets' },
+  { name: 'Clothing', icon: '👕', description: 'Fashion for every style' },
+  { name: 'Accessories', icon: '⌚', description: 'Watches, bags & more' },
+  { name: 'Home & Living', icon: '🏠', description: 'Furniture & decor' },
+];
+
+const featuredProducts = [
+  { id: 1, name: 'Wireless Noise-Cancelling Headphones', price: '149.99', category: 'Electronics' },
+  { id: 2, name: 'Merino Wool Overcoat', price: '289.00', category: 'Clothing' },
+  { id: 3, name: 'Leather Crossbody Bag', price: '119.00', category: 'Accessories' },
+  { id: 4, name: 'Ceramic Table Lamp', price: '79.50', category: 'Home & Living' },
+];
+
+const testimonials = [
+  {
+    name: 'Laura M.',
+    text: 'Amazing quality and fast shipping. My go-to store for everything!',
+    rating: 5,
+  },
+  {
+    name: 'Thomas B.',
+    text: 'The customer service is exceptional. They resolved my issue within hours.',
+    rating: 5,
+  },
+  {
+    name: 'Sophie K.',
+    text: 'Great selection and the prices are very competitive. Highly recommend.',
+    rating: 4,
+  },
+  {
+    name: 'Daniel R.',
+    text: 'I love the easy returns policy. Makes shopping stress-free.',
+    rating: 5,
+  },
+  {
+    name: 'Maria C.',
+    text: 'Beautiful packaging and the products always exceed expectations.',
+    rating: 5,
+  },
+  {
+    name: 'Henrik J.',
+    text: 'Been a loyal customer for two years. Never disappointed.',
+    rating: 5,
+  },
+];
+
+export default function HomePage() {
+  const { t } = useTranslation(NAMESPACE);
+
+  const benefitCards = [
+    {
+      icon: Truck,
+      title: t('home.benefits.shipping.title', 'Free Shipping'),
+      subtitle: t('home.benefits.shipping.subtitle', 'On orders over 50 EUR'),
+      content: [
+        'Free standard delivery',
+        'Express options available',
+        'Track your package',
+      ],
+    },
+    {
+      icon: Headphones,
+      title: t('home.benefits.support.title', '24/7 Support'),
+      subtitle: t('home.benefits.support.subtitle', 'We are here to help'),
+      content: [
+        'Live chat available',
+        'Email & phone support',
+        'Dedicated team',
+      ],
+    },
+    {
+      icon: RotateCcw,
+      title: t('home.benefits.returns.title', 'Money Back'),
+      subtitle: t('home.benefits.returns.subtitle', '30-day guarantee'),
+      content: [
+        'No questions asked',
+        'Free return shipping',
+        'Fast refund processing',
+      ],
+    },
+    {
+      icon: Lock,
+      title: t('home.benefits.security.title', 'Secure Payment'),
+      subtitle: t('home.benefits.security.subtitle', 'Your data is safe'),
+      content: [
+        'SSL encryption',
+        'PCI compliant',
+        'Multiple payment methods',
+      ],
+    },
+  ];
+
+  return (
+    <PageContainer>
+      <HeroSection
+        badge={t('home.hero.badge', 'Spring Collection 2026')}
+        title={t('home.hero.title', 'Discover What You Love at {{appShortName}}')}
+        subtitle={t('home.hero.subtitle', 'Curated collections, unbeatable prices, and a shopping experience designed around you.')}
+      />
+
+      <Section
+        title={t('home.categories.title', 'Shop by Category')}
+        gridCols={[1, 2, 4, 4]}
+      >
+        {categories.map((cat) => (
+          <Card
+            key={cat.name}
+            variant={CARD_VARIANT.GLASS}
+            title={cat.name}
+            subtitle={cat.description}
+            clickable
+          />
+        ))}
+      </Section>
+
+      <Section
+        title={t('home.featured.title', 'Featured Products')}
+        tone="ghost"
+        gridCols={[1, 2, 4, 4]}
+      >
+        {featuredProducts.map((product) => (
+          <Card
+            key={product.id}
+            title={product.name}
+            subtitle={`${product.price} EUR`}
+            content={product.category}
+            footer={
+              <Stack gap="tight">
+                <Button variant={BUTTON_VARIANT.PRIMARY} icon={<ShoppingCart />} fullWidth>
+                  {t('home.featured.addToCart', 'Add to Cart')}
+                </Button>
+                <Link path={`/products/${product.id}`}>
+                  <Button variant={BUTTON_VARIANT.GHOST} fullWidth>
+                    {t('home.featured.viewDetails', 'View Details')}
+                  </Button>
+                </Link>
+              </Stack>
+            }
+          />
+        ))}
+      </Section>
+
+      <Section
+        title={t('home.benefits.title', 'Why Shop With Us')}
+        tone="muted"
+        gridCols={[1, 2, 4, 4]}
+      >
+        {benefitCards.map((b) => (
+          <FeatureCard
+            key={b.title}
+            variant={CARD_VARIANT.GLASS}
+            icon={b.icon}
+            title={b.title}
+            subtitle={b.subtitle}
+            content={b.content}
+          />
+        ))}
+      </Section>
+
+      <Section title={t('home.testimonials.title', 'What Our Customers Say')} tone="ghost">
+        <Marquee
+          items={testimonials}
+          renderItem={(_item) => {
+            const item = _item as (typeof testimonials)[number];
+            return (
+              <Card style={{ minWidth: 280, maxWidth: 340 }}>
+                <Stack gap="tight" style={{ padding: 'var(--gap-md)' }}>
+                  <Quote
+                    style={{
+                      width: 'var(--icon-sm)',
+                      height: 'var(--icon-sm)',
+                      color: 'var(--muted-foreground)',
+                      opacity: 0.5,
+                    }}
+                  />
+                  <Text level="small" italic>
+                    &ldquo;{item.text}&rdquo;
+                  </Text>
+                  <Stack direction="row" gap="none">
+                    {Array.from({ length: item.rating }).map((_, i) => (
+                      <Star
+                        key={i}
+                        style={{
+                          width: 'var(--icon-xs)',
+                          height: 'var(--icon-xs)',
+                          color: 'var(--warning)',
+                          fill: 'var(--warning)',
+                        }}
+                      />
+                    ))}
+                  </Stack>
+                  <Text level="caption" variant="muted">
+                    {item.name}
+                  </Text>
+                </Stack>
+              </Card>
+            );
+          }}
+          speed={300}
+          pauseOnHover
+          gap="medium"
+          behavior="infinite"
+          ariaLabel={t('home.testimonials.ariaLabel', 'Customer testimonials')}
+        />
+      </Section>
+
+      <CallToAction
+        tone="accent"
+        title={t('home.cta.title', 'Stay in the Loop')}
+        subtitle={t('home.cta.subtitle', 'Subscribe to our newsletter for exclusive deals, new arrivals, and insider-only discounts.')}
+        primaryAction={
+          <Button variant={BUTTON_VARIANT.PRIMARY}>
+            {t('home.cta.primary', 'Subscribe for Deals')}
+          </Button>
+        }
+        secondaryAction={
+          <Link path="/catalog">
+            <Button variant={BUTTON_VARIANT.OUTLINE}>
+              {t('home.cta.secondary', 'Browse Catalog')}
+            </Button>
+          </Link>
+        }
+      />
+    </PageContainer>
+  );
+}

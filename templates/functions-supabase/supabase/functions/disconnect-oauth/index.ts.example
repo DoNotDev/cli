@@ -1,0 +1,7 @@
+// supabase/functions/disconnect-oauth/index.ts
+// Supabase Edge Function — OAuth Disconnect
+// Deploy: supabase functions deploy disconnect-oauth
+
+import { createDisconnect } from '@donotdev/functions/supabase';
+
+Deno.serve(createDisconnect());

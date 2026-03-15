@@ -11,7 +11,7 @@
  *   dndev setup --dry-run     — show plan without applying changes
  *   dndev setup --verbose     — show detailed setup progress
  *
- * @version 0.0.5
+ * @version 0.1.0
  * @since 0.0.16
  * @author AMBROISE PARK Consulting
  */

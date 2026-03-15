@@ -11,7 +11,7 @@
  *   dndev wai --workflow      — show workflow summary (Phase 0-4) only
  *   dndev wai-way             — alternative command alias
  *
- * @version 0.0.2
+ * @version 0.1.0
  * @since 0.0.1
  * @author AMBROISE PARK Consulting
  */

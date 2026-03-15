@@ -9,7 +9,7 @@
  *   dndev coach               — run health check and show setup checklist
  *   dndev coach --verbose     — show more detail
  *
- * @version 0.0.2
+ * @version 0.1.0
  * @since 0.0.17
  * @author AMBROISE PARK Consulting
  */

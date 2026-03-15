@@ -12,7 +12,7 @@
  *   dndev emu --services auth,functions — specify exact Firebase services
  *   dndev emu --stripe        — include Stripe webhook forwarding
  *
- * @version 0.0.2
+ * @version 0.1.0
  * @since 0.0.1
  * @author AMBROISE PARK Consulting
  */

@@ -1,0 +1,283 @@
+/**
+ * @fileoverview System Settings - General, Security, and Integrations tabs.
+ *
+ * Wire up form state to your settings store or API.
+ * Switch/Select onChange handlers should persist settings.
+ */
+
+import { useState } from 'react';
+
+import {
+  Settings,
+  Shield,
+  Plug,
+  CreditCard,
+  Mail,
+  BarChart3,
+} from 'lucide-react';
+
+import {
+  Section,
+  Card,
+  Grid,
+  Stack,
+  Text,
+  Tabs,
+  Input,
+  Select,
+  Switch,
+  Button,
+  Badge,
+  Separator,
+} from '@donotdev/components';
+import { useTranslation } from '@donotdev/core';
+import type { PageMeta } from '@donotdev/core';
+import { PageContainer } from '@donotdev/ui';
+
+// ============================================================================
+// PAGE METADATA
+// ============================================================================
+
+export const NAMESPACE = 'settings';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <Settings />,
+  auth: { required: true, role: 'admin' },
+  preset: 'admin',
+};
+
+// ============================================================================
+// SELECT OPTIONS
+// ============================================================================
+
+const timezoneOptions = [
+  { value: 'utc', label: 'UTC' },
+  { value: 'est', label: 'Eastern (EST)' },
+  { value: 'cst', label: 'Central (CST)' },
+  { value: 'pst', label: 'Pacific (PST)' },
+  { value: 'cet', label: 'Central European (CET)' },
+  { value: 'jst', label: 'Japan (JST)' },
+];
+
+const languageOptions = [
+  { value: 'en', label: 'English' },
+  { value: 'fr', label: 'French' },
+  { value: 'es', label: 'Spanish' },
+  { value: 'de', label: 'German' },
+  { value: 'ja', label: 'Japanese' },
+];
+
+const sessionTimeoutOptions = [
+  { value: '15', label: '15 minutes' },
+  { value: '30', label: '30 minutes' },
+  { value: '60', label: '1 hour' },
+  { value: '120', label: '2 hours' },
+  { value: '480', label: '8 hours' },
+];
+
+// ============================================================================
+// TAB CONTENT COMPONENTS
+// ============================================================================
+
+function GeneralTab() {
+  const { t } = useTranslation(NAMESPACE);
+  const [timezone, setTimezone] = useState('utc');
+  const [language, setLanguage] = useState('en');
+
+  return (
+    <Stack gap="large">
+      <Input
+        label={t('appName')}
+        placeholder="{{appName}}"
+        icon={<Settings />}
+      />
+
+      <Select
+        label={t('timezone')}
+        options={timezoneOptions}
+        value={timezone}
+        onValueChange={setTimezone}
+        placeholder={t('selectTimezone')}
+      />
+
+      <Select
+        label={t('language')}
+        options={languageOptions}
+        value={language}
+        onValueChange={setLanguage}
+        placeholder={t('selectLanguage')}
+      />
+
+      <Separator />
+
+      <Stack direction="row" justify="end">
+        <Button variant="primary">{t('saveChanges')}</Button>
+      </Stack>
+    </Stack>
+  );
+}
+
+function SecurityTab() {
+  const { t } = useTranslation(NAMESPACE);
+  const [twoFactor, setTwoFactor] = useState(false);
+  const [sessionTimeout, setSessionTimeout] = useState('60');
+  const [enforceUppercase, setEnforceUppercase] = useState(true);
+  const [enforceNumbers, setEnforceNumbers] = useState(true);
+  const [enforceSpecial, setEnforceSpecial] = useState(false);
+
+  return (
+    <Stack gap="large">
+      <Section title={t('authentication')}>
+        <Stack gap="medium">
+          <Stack direction="row" align="center" justify="space-between">
+            <Stack gap="none">
+              <Text level="body" weight="bold">{t('twoFactorAuth')}</Text>
+              <Text level="small" variant="muted">{t('twoFactorDescription')}</Text>
+            </Stack>
+            <Switch checked={twoFactor} onCheckedChange={setTwoFactor} />
+          </Stack>
+
+          <Select
+            label={t('sessionTimeout')}
+            options={sessionTimeoutOptions}
+            value={sessionTimeout}
+            onValueChange={setSessionTimeout}
+            placeholder={t('selectTimeout')}
+          />
+        </Stack>
+      </Section>
+
+      <Separator />
+
+      <Section title={t('passwordPolicy')}>
+        <Stack gap="medium">
+          <Stack direction="row" align="center" justify="space-between">
+            <Text level="body">{t('requireUppercase')}</Text>
+            <Switch checked={enforceUppercase} onCheckedChange={setEnforceUppercase} />
+          </Stack>
+
+          <Stack direction="row" align="center" justify="space-between">
+            <Text level="body">{t('requireNumbers')}</Text>
+            <Switch checked={enforceNumbers} onCheckedChange={setEnforceNumbers} />
+          </Stack>
+
+          <Stack direction="row" align="center" justify="space-between">
+            <Text level="body">{t('requireSpecialChars')}</Text>
+            <Switch checked={enforceSpecial} onCheckedChange={setEnforceSpecial} />
+          </Stack>
+        </Stack>
+      </Section>
+
+      <Separator />
+
+      <Stack direction="row" justify="end">
+        <Button variant="primary">{t('saveChanges')}</Button>
+      </Stack>
+    </Stack>
+  );
+}
+
+function IntegrationsTab() {
+  const { t } = useTranslation(NAMESPACE);
+
+  const integrations = [
+    {
+      name: 'Stripe',
+      description: t('stripeDescription'),
+      icon: <CreditCard />,
+      status: 'connected',
+    },
+    {
+      name: 'SendGrid',
+      description: t('sendgridDescription'),
+      icon: <Mail />,
+      status: 'disconnected',
+    },
+    {
+      name: 'Analytics',
+      description: t('analyticsDescription'),
+      icon: <BarChart3 />,
+      status: 'connected',
+    },
+  ];
+
+  return (
+    <Grid cols={[1, 1, 2, 3]} gap="medium">
+      {integrations.map((integration) => (
+        <Card
+          key={integration.name}
+          icon={integration.icon}
+          title={integration.name}
+          subtitle={integration.description}
+          elevated
+          content={
+            <Stack direction="row" align="center" justify="space-between">
+              <Badge
+                variant={integration.status === 'connected' ? 'success' : 'secondary'}
+              >
+                {integration.status}
+              </Badge>
+              <Button variant="outline">
+                {integration.status === 'connected' ? t('configure') : t('connect')}
+              </Button>
+            </Stack>
+          }
+        />
+      ))}
+    </Grid>
+  );
+}
+
+// ============================================================================
+// PAGE COMPONENT
+// ============================================================================
+
+export default function SettingsPage() {
+  const { t } = useTranslation(NAMESPACE);
+
+  const tabItems = [
+    { value: 'general', label: t('general'), content: <GeneralTab /> },
+    { value: 'security', label: t('security'), content: <SecurityTab /> },
+    { value: 'integrations', label: t('integrations'), content: <IntegrationsTab /> },
+  ];
+
+  return (
+    <PageContainer>
+      <Section title={t('systemSettings')}>
+        <Tabs items={tabItems} defaultValue="general" />
+      </Section>
+    </PageContainer>
+  );
+}
+
+// ============================================================================
+// i18n KEYS NEEDED (add to locales/settings_en.json)
+// ============================================================================
+//
+// {
+//   "systemSettings": "System Settings",
+//   "general": "General",
+//   "security": "Security",
+//   "integrations": "Integrations",
+//   "appName": "Application Name",
+//   "timezone": "Timezone",
+//   "selectTimezone": "Select timezone",
+//   "language": "Default Language",
+//   "selectLanguage": "Select language",
+//   "saveChanges": "Save Changes",
+//   "authentication": "Authentication",
+//   "twoFactorAuth": "Two-Factor Authentication",
+//   "twoFactorDescription": "Require 2FA for all admin accounts",
+//   "sessionTimeout": "Session Timeout",
+//   "selectTimeout": "Select timeout duration",
+//   "passwordPolicy": "Password Policy",
+//   "requireUppercase": "Require uppercase letters",
+//   "requireNumbers": "Require numbers",
+//   "requireSpecialChars": "Require special characters",
+//   "stripeDescription": "Payment processing and subscriptions",
+//   "sendgridDescription": "Transactional and marketing emails",
+//   "analyticsDescription": "Usage tracking and insights",
+//   "configure": "Configure",
+//   "connect": "Connect"
+// }

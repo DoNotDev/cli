@@ -12,7 +12,7 @@
  *   dndev type-check --verbose — show full tsc output for errors
  *   dndev type-check --debug   — show internal detection logic
  *
- * @version 0.0.1
+ * @version 0.1.0
  * @since 0.0.1
  * @author AMBROISE PARK Consulting
  */

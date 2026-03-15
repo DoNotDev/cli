@@ -1,0 +1,7 @@
+// supabase/functions/get-connections/index.ts
+// Supabase Edge Function — Get OAuth Connections
+// Deploy: supabase functions deploy get-connections
+
+import { createGetConnections } from '@donotdev/functions/supabase';
+
+Deno.serve(createGetConnections());

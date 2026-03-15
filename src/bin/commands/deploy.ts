@@ -13,7 +13,7 @@
  *   dndev deploy --skip-build  — skip build step (deploy existing build)
  *   dndev deploy --force      — force deployment / cleanup
  *
- * @version 0.0.1
+ * @version 0.1.0
  * @since 0.0.1
  * @author AMBROISE PARK Consulting
  */

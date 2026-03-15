@@ -1,0 +1,292 @@
+'use client';
+// {{appName}} - Settings Page
+
+import {
+  Settings,
+  User,
+  Bell,
+  Lock,
+  Mail,
+  Smartphone,
+  ShieldCheck,
+  Key,
+} from 'lucide-react';
+
+import {
+  Alert,
+  Button,
+  BUTTON_VARIANT,
+  Card,
+  Grid,
+  Input,
+  Section,
+  Select,
+  Separator,
+  Stack,
+  Switch,
+  Tabs,
+  Text,
+} from '@donotdev/components';
+import { useTranslation } from '@donotdev/core';
+import { PageContainer } from '@donotdev/ui';
+import { useAuth } from '@donotdev/auth';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const NAMESPACE = 'settings';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <Settings />,
+  auth: true,
+  preset: 'admin',
+};
+
+function ProfileTab() {
+  const { t } = useTranslation(NAMESPACE);
+  const user = useAuth('user');
+
+  return (
+    <Stack gap="large">
+      <Card
+        title={t('settings.profile.personalInfo', 'Personal Information')}
+        subtitle={t('settings.profile.personalInfoDesc', 'Update your personal details and public profile.')}
+        content={
+          <Stack gap="medium">
+            <Grid cols={[1, 1, 2, 2]} gap="medium">
+              <Input
+                label={t('settings.profile.firstName', 'First Name')}
+                placeholder={t('settings.profile.firstNamePlaceholder', 'Enter your first name')}
+                icon={User}
+              />
+              <Input
+                label={t('settings.profile.lastName', 'Last Name')}
+                placeholder={t('settings.profile.lastNamePlaceholder', 'Enter your last name')}
+              />
+            </Grid>
+            <Input
+              label={t('settings.profile.email', 'Email Address')}
+              placeholder={user?.email ?? t('settings.profile.emailPlaceholder', 'your@email.com')}
+              icon={Mail}
+            />
+            <Select
+              label={t('settings.profile.language', 'Language')}
+              placeholder={t('settings.profile.languagePlaceholder', 'Select your language')}
+              options={[
+                { label: 'English', value: 'en' },
+                { label: 'Francais', value: 'fr' },
+                { label: 'Deutsch', value: 'de' },
+                { label: 'Espanol', value: 'es' },
+              ]}
+              value="en"
+              onValueChange={() => {}}
+            />
+          </Stack>
+        }
+        footer={
+          <Stack direction="row" justify="end" gap="medium">
+            <Button variant={BUTTON_VARIANT.GHOST}>
+              {t('settings.profile.cancel', 'Cancel')}
+            </Button>
+            <Button variant={BUTTON_VARIANT.PRIMARY}>
+              {t('settings.profile.save', 'Save Changes')}
+            </Button>
+          </Stack>
+        }
+      />
+    </Stack>
+  );
+}
+
+function NotificationsTab() {
+  const { t } = useTranslation(NAMESPACE);
+
+  const emailPreferences = [
+    {
+      label: t('settings.notifications.productUpdates', 'Product updates'),
+      description: t('settings.notifications.productUpdatesDesc', 'Receive emails about new features and improvements.'),
+      defaultChecked: true,
+    },
+    {
+      label: t('settings.notifications.securityAlerts', 'Security alerts'),
+      description: t('settings.notifications.securityAlertsDesc', 'Get notified about security events on your account.'),
+      defaultChecked: true,
+    },
+    {
+      label: t('settings.notifications.billing', 'Billing notifications'),
+      description: t('settings.notifications.billingDesc', 'Receive invoices and payment confirmations.'),
+      defaultChecked: true,
+    },
+    {
+      label: t('settings.notifications.marketing', 'Marketing emails'),
+      description: t('settings.notifications.marketingDesc', 'Tips, best practices, and promotional offers.'),
+      defaultChecked: false,
+    },
+  ];
+
+  const pushPreferences = [
+    {
+      label: t('settings.notifications.pushActivity', 'Activity notifications'),
+      description: t('settings.notifications.pushActivityDesc', 'Get push notifications for team activity and mentions.'),
+      defaultChecked: true,
+    },
+    {
+      label: t('settings.notifications.pushReminders', 'Reminders'),
+      description: t('settings.notifications.pushRemindersDesc', 'Receive reminders for upcoming deadlines and events.'),
+      defaultChecked: false,
+    },
+  ];
+
+  return (
+    <Stack gap="large">
+      <Card
+        title={t('settings.notifications.emailTitle', 'Email Notifications')}
+        subtitle={t('settings.notifications.emailSubtitle', 'Choose which emails you would like to receive.')}
+        icon={Mail}
+        content={
+          <Stack gap="medium">
+            {emailPreferences.map((pref) => (
+              <Stack key={pref.label} direction="row" justify="space-between" align="center" gap="medium">
+                <Stack gap="none">
+                  <Text level="body" weight="medium">{pref.label}</Text>
+                  <Text level="small" variant="muted">{pref.description}</Text>
+                </Stack>
+                <Switch checked={pref.defaultChecked} onCheckedChange={() => {}} />
+              </Stack>
+            ))}
+          </Stack>
+        }
+      />
+
+      <Card
+        title={t('settings.notifications.pushTitle', 'Push Notifications')}
+        subtitle={t('settings.notifications.pushSubtitle', 'Manage your mobile and desktop push notifications.')}
+        icon={Smartphone}
+        content={
+          <Stack gap="medium">
+            {pushPreferences.map((pref) => (
+              <Stack key={pref.label} direction="row" justify="space-between" align="center" gap="medium">
+                <Stack gap="none">
+                  <Text level="body" weight="medium">{pref.label}</Text>
+                  <Text level="small" variant="muted">{pref.description}</Text>
+                </Stack>
+                <Switch checked={pref.defaultChecked} onCheckedChange={() => {}} />
+              </Stack>
+            ))}
+          </Stack>
+        }
+      />
+    </Stack>
+  );
+}
+
+function SecurityTab() {
+  const { t } = useTranslation(NAMESPACE);
+
+  return (
+    <Stack gap="large">
+      <Card
+        title={t('settings.security.passwordTitle', 'Change Password')}
+        subtitle={t('settings.security.passwordSubtitle', 'Update your password to keep your account secure.')}
+        icon={Key}
+        content={
+          <Stack gap="medium">
+            <Input
+              label={t('settings.security.currentPassword', 'Current Password')}
+              placeholder="********"
+              icon={Lock}
+            />
+            <Input
+              label={t('settings.security.newPassword', 'New Password')}
+              placeholder="********"
+              icon={Lock}
+            />
+            <Input
+              label={t('settings.security.confirmPassword', 'Confirm New Password')}
+              placeholder="********"
+              icon={Lock}
+            />
+          </Stack>
+        }
+        footer={
+          <Stack direction="row" justify="end">
+            <Button variant={BUTTON_VARIANT.PRIMARY}>
+              {t('settings.security.updatePassword', 'Update Password')}
+            </Button>
+          </Stack>
+        }
+      />
+
+      <Card
+        title={t('settings.security.twoFactorTitle', 'Two-Factor Authentication')}
+        subtitle={t('settings.security.twoFactorSubtitle', 'Add an extra layer of security to your account.')}
+        icon={ShieldCheck}
+        content={
+          <Stack gap="medium">
+            <Alert
+              variant="info"
+              title={t('settings.security.twoFactorInfo', '2FA is currently disabled')}
+              description={t('settings.security.twoFactorInfoDesc', 'Enable two-factor authentication for enhanced account security. You will need an authenticator app like Google Authenticator or Authy.')}
+            />
+            <Stack direction="row" justify="space-between" align="center">
+              <Stack gap="none">
+                <Text level="body" weight="medium">
+                  {t('settings.security.enable2FA', 'Enable 2FA')}
+                </Text>
+                <Text level="small" variant="muted">
+                  {t('settings.security.enable2FADesc', 'Require a verification code on each sign-in.')}
+                </Text>
+              </Stack>
+              <Switch checked={false} onCheckedChange={() => {}} />
+            </Stack>
+          </Stack>
+        }
+      />
+
+      <Card
+        title={t('settings.security.sessionsTitle', 'Active Sessions')}
+        subtitle={t('settings.security.sessionsSubtitle', 'Manage your active sessions across devices.')}
+        content={
+          <Stack gap="medium">
+            <Text level="small" variant="muted">
+              {t('settings.security.sessionsDesc', 'You are currently signed in on this device. If you notice any suspicious activity, sign out of all other sessions immediately.')}
+            </Text>
+            <Button variant={BUTTON_VARIANT.DESTRUCTIVE}>
+              {t('settings.security.signOutAll', 'Sign Out of All Other Sessions')}
+            </Button>
+          </Stack>
+        }
+      />
+    </Stack>
+  );
+}
+
+export default function SettingsPage() {
+  const { t } = useTranslation(NAMESPACE);
+
+  const tabItems = [
+    {
+      value: 'profile',
+      label: t('settings.tabs.profile', 'Profile'),
+      content: <ProfileTab />,
+    },
+    {
+      value: 'notifications',
+      label: t('settings.tabs.notifications', 'Notifications'),
+      content: <NotificationsTab />,
+    },
+    {
+      value: 'security',
+      label: t('settings.tabs.security', 'Security'),
+      content: <SecurityTab />,
+    },
+  ];
+
+  return (
+    <PageContainer variant="standard">
+      <Section title={t('settings.title', 'Settings')}>
+        <Tabs items={tabItems} defaultValue="profile" />
+      </Section>
+    </PageContainer>
+  );
+}

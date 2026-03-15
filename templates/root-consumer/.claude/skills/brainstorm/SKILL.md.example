@@ -16,6 +16,22 @@ start_phase(0)
 ```
 Do NOT proceed without this call.
 
+## Step 0b — Vision Challenge (MANDATORY - before extraction)
+
+Before asking requirements questions, challenge the idea. 4 questions, one at a time:
+
+1. **Job-to-be-done:** "What's the actual outcome your users need? Not the feature - the result."
+   - Push back on feature-answers: "Managing invoices is a task. What's the outcome?"
+2. **10-star version:** "If this app were magic - what would it look like?"
+3. **What sucks today:** "How do users solve this now? What's broken?"
+4. **Minimum switch trigger:** "What ONE thing must it do on day one to make someone switch?"
+
+Synthesize: **Vision lock:** "[Job] by [switch trigger]. Current solutions fail because [sucks]. 10-star = [dream]."
+
+Confirm with user before proceeding.
+
+---
+
 ## Step 1 — Extract
 
 **Input:** $ARGUMENTS

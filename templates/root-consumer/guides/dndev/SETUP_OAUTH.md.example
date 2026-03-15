@@ -36,7 +36,8 @@ const isConnected = useOAuth('isConnected');
 const loading = useOAuth('loading');
 const error = useOAuth('error');
 
-await connect('github', 'api-access');  // Purpose: 'authentication' | 'api-access'
+await connect('github', { purpose: 'api-access' });  // Purpose: 'authentication' | 'api-access'
+await connect('github', { purpose: 'api-access', scopes: ['repo', 'user:email'] });  // Custom scopes
 await disconnect('github');
 const connected = isConnected('github');
 

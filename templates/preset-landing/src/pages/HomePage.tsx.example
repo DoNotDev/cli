@@ -1,0 +1,399 @@
+/**
+ * @fileoverview Landing Home Page
+ *
+ * Main marketing landing page for {{appName}}.
+ * Multi-section single-page layout with hero, features, social proof, and CTA.
+ */
+
+import {
+  Rocket,
+  Shield,
+  Zap,
+  Globe,
+  BarChart3,
+  Layers,
+  Home,
+  Star,
+  Building2,
+  Sparkles,
+} from 'lucide-react';
+
+import {
+  HeroSection,
+  Section,
+  Card,
+  Grid,
+  Stack,
+  Text,
+  CallToAction,
+  Accordion,
+  Marquee,
+  SplitReveal,
+  Carousel,
+  Roadmap,
+  Badge,
+} from '@donotdev/components';
+import { FeatureCard } from '@donotdev/ui';
+import type { PageMeta } from '@donotdev/core';
+import { useTranslation } from '@donotdev/core';
+import { PageContainer } from '@donotdev/ui';
+
+export const NAMESPACE = 'home';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <Home />,
+  route: '/',
+};
+
+export default function HomePage() {
+  const { t } = useTranslation(NAMESPACE);
+
+  return (
+    <PageContainer variant="full">
+      {/* ================================================================ */}
+      {/* HERO                                                             */}
+      {/* ================================================================ */}
+
+      <HeroSection
+        badge={t('hero.badge', 'Now available - Start building today')}
+        title={t('hero.title', 'Build remarkable products with {{appName}}')}
+        subtitle={t(
+          'hero.subtitle',
+          'The platform that helps teams ship faster, iterate smarter, and scale without compromise. From idea to production in record time.'
+        )}
+        variant="primary"
+      />
+
+      {/* ================================================================ */}
+      {/* TRUSTED BY                                                       */}
+      {/* ================================================================ */}
+
+      <Section tone="ghost" textAlign="center">
+        <Stack align="center" gap="medium">
+          <Text level="caption" variant="muted">
+            {t('trusted.label', 'Trusted by forward-thinking teams worldwide')}
+          </Text>
+          <Marquee
+            items={[
+              { name: 'Acme Corp' },
+              { name: 'Globex' },
+              { name: 'Initech' },
+              { name: 'Umbrella' },
+              { name: 'Cyberdyne' },
+              { name: 'Stark Industries' },
+              { name: 'Wayne Enterprises' },
+              { name: 'Oscorp' },
+            ]}
+            renderItem={(item) => (
+              <Badge variant="outline" tooltip={item.name}>
+                <Stack direction="row" align="center" gap="tight">
+                  <Building2 />
+                  <Text level="body" weight="bold">
+                    {item.name}
+                  </Text>
+                </Stack>
+              </Badge>
+            )}
+            speed={30}
+            pauseOnHover
+            gap="large"
+          />
+        </Stack>
+      </Section>
+
+      {/* ================================================================ */}
+      {/* FEATURES                                                         */}
+      {/* ================================================================ */}
+
+      <Section
+        title={t('features.title', 'Everything you need to succeed')}
+        tone="muted"
+        textAlign="center"
+      >
+        <Grid cols={[1, 2, 2, 3]} gap="large">
+          <FeatureCard
+            icon={<Zap />}
+            title={t('features.speed.title', 'Lightning Fast')}
+            subtitle={t(
+              'features.speed.subtitle',
+              'Optimized for performance at every layer. Sub-second load times out of the box.'
+            )}
+          />
+          <FeatureCard
+            icon={<Shield />}
+            title={t('features.security.title', 'Enterprise Security')}
+            subtitle={t(
+              'features.security.subtitle',
+              'Built-in encryption, role-based access, and compliance tooling from day one.'
+            )}
+          />
+          <FeatureCard
+            icon={<Globe />}
+            title={t('features.i18n.title', 'Global Ready')}
+            subtitle={t(
+              'features.i18n.subtitle',
+              'Multi-language, RTL support, and locale-aware formatting baked into the core.'
+            )}
+          />
+          <FeatureCard
+            icon={<BarChart3 />}
+            title={t('features.analytics.title', 'Real-time Analytics')}
+            subtitle={t(
+              'features.analytics.subtitle',
+              'Understand your users with live dashboards, funnels, and cohort analysis.'
+            )}
+          />
+          <FeatureCard
+            icon={<Layers />}
+            title={t('features.modular.title', 'Modular Architecture')}
+            subtitle={t(
+              'features.modular.subtitle',
+              'Pick what you need. Every module is independent, tree-shakeable, and replaceable.'
+            )}
+          />
+          <FeatureCard
+            icon={<Rocket />}
+            title={t('features.deploy.title', 'One-click Deploy')}
+            subtitle={t(
+              'features.deploy.subtitle',
+              'Push to production with confidence. Zero-downtime deployments with automatic rollback.'
+            )}
+          />
+        </Grid>
+      </Section>
+
+      {/* ================================================================ */}
+      {/* SPLIT REVEAL - PROBLEM / SOLUTION                                */}
+      {/* ================================================================ */}
+
+      <Section tone="ghost">
+        <SplitReveal
+          left={
+            <Stack gap="large">
+              <Text as="h2" level="h2">
+                {t('split.title', 'Stop wrestling with infrastructure')}
+              </Text>
+              <Text level="body" variant="muted">
+                {t(
+                  'split.description',
+                  'Most teams spend 60% of their time on boilerplate, config, and deployment. {{appName}} handles the undifferentiated heavy lifting so you can focus on what makes your product unique.'
+                )}
+              </Text>
+              <Text level="body">
+                {t(
+                  'split.result',
+                  'Teams using {{appShortName}} ship their first feature in hours, not weeks. Production-ready from the start.'
+                )}
+              </Text>
+            </Stack>
+          }
+          right={
+            <Stack gap="medium">
+              <Card
+                title={t('split.stat1.title', '10x')}
+                content={t('split.stat1.desc', 'Faster time to first deploy')}
+                elevated
+              />
+              <Card
+                title={t('split.stat2.title', '73%')}
+                content={t('split.stat2.desc', 'Less boilerplate code')}
+                elevated
+              />
+              <Card
+                title={t('split.stat3.title', '99.9%')}
+                content={t('split.stat3.desc', 'Uptime SLA guaranteed')}
+                elevated
+              />
+            </Stack>
+          }
+          useStatCards
+          stagger
+        />
+      </Section>
+
+      {/* ================================================================ */}
+      {/* HOW IT WORKS                                                     */}
+      {/* ================================================================ */}
+
+      <Section
+        title={t('roadmap.title', 'Up and running in four steps')}
+        tone="accent"
+        textAlign="center"
+      >
+        <Roadmap
+          steps={[
+            {
+              title: t('roadmap.step1.title', 'Initialize'),
+              description: t(
+                'roadmap.step1.desc',
+                'Run a single command to scaffold your project with the right structure, tooling, and configuration.'
+              ),
+            },
+            {
+              title: t('roadmap.step2.title', 'Model'),
+              description: t(
+                'roadmap.step2.desc',
+                'Define your data entities, relationships, and business rules. The framework generates types, validation, and API endpoints.'
+              ),
+            },
+            {
+              title: t('roadmap.step3.title', 'Compose'),
+              description: t(
+                'roadmap.step3.desc',
+                'Build your UI by assembling production-grade components. Responsive, accessible, and themed by default.'
+              ),
+            },
+            {
+              title: t('roadmap.step4.title', 'Ship'),
+              description: t(
+                'roadmap.step4.desc',
+                'Deploy to production with one command. CI/CD, monitoring, and scaling are handled automatically.'
+              ),
+            },
+          ]}
+        />
+      </Section>
+
+      {/* ================================================================ */}
+      {/* TESTIMONIALS                                                     */}
+      {/* ================================================================ */}
+
+      <Section
+        title={t('testimonials.title', 'What our users say')}
+        tone="muted"
+        textAlign="center"
+      >
+        <Carousel
+          items={[
+            {
+              name: 'Sarah Chen',
+              role: 'CTO, Nexaflow',
+              quote: t(
+                'testimonials.1',
+                'We rebuilt our entire platform on {{appShortName}} in three weeks. What used to take a quarter now takes days.'
+              ),
+            },
+            {
+              name: 'Marcus Rivera',
+              role: 'Lead Engineer, Datawise',
+              quote: t(
+                'testimonials.2',
+                'The developer experience is unmatched. Every decision feels intentional. No bloat, no surprises.'
+              ),
+            },
+            {
+              name: 'Aiko Tanaka',
+              role: 'Founder, KaizenLab',
+              quote: t(
+                'testimonials.3',
+                'I shipped my SaaS MVP as a solo founder in a weekend. Authentication, payments, CRUD - all just worked.'
+              ),
+            },
+            {
+              name: 'Liam O\'Brien',
+              role: 'VP Engineering, ScaleStack',
+              quote: t(
+                'testimonials.4',
+                'Finally a framework that respects our time. Zero config to get started, infinite flexibility when we need it.'
+              ),
+            },
+          ]}
+          renderItem={(item) => (
+            <Card
+              title={item.name}
+              subtitle={item.role}
+              content={item.quote}
+              icon={<Star />}
+              elevated
+            />
+          )}
+          slidesToShow={1}
+          showArrows
+          infinite
+        />
+      </Section>
+
+      {/* ================================================================ */}
+      {/* FAQ                                                              */}
+      {/* ================================================================ */}
+
+      <Section
+        title={t('faq.title', 'Frequently asked questions')}
+        tone="ghost"
+      >
+        <Accordion
+          type="single"
+          collapsible
+          items={[
+            {
+              title: t('faq.q1.title', 'Is {{appShortName}} free to use?'),
+              content: t(
+                'faq.q1.answer',
+                'Yes. The core framework is open-source under the MIT license. We offer premium support and managed hosting for teams that need it.'
+              ),
+            },
+            {
+              title: t('faq.q2.title', 'What backends are supported?'),
+              content: t(
+                'faq.q2.answer',
+                'Firebase, Supabase, and Vercel are supported out of the box. The architecture is provider-agnostic, so adding a custom backend is straightforward.'
+              ),
+            },
+            {
+              title: t('faq.q3.title', 'Can I use it for an existing project?'),
+              content: t(
+                'faq.q3.answer',
+                'Absolutely. Each package is independent and can be adopted incrementally. Start with the component library or the CRUD module and expand from there.'
+              ),
+            },
+            {
+              title: t('faq.q4.title', 'How does it handle scaling?'),
+              content: t(
+                'faq.q4.answer',
+                'The framework is designed for serverless-first architecture. Functions scale to zero when idle and auto-scale under load. No infrastructure management required.'
+              ),
+            },
+            {
+              title: t('faq.q5.title', 'Is there a component library?'),
+              content: t(
+                'faq.q5.answer',
+                'Yes. Over 60 production-ready components with full accessibility, theming, responsive behavior, and RTL support. All documented with live examples.'
+              ),
+            },
+            {
+              title: t('faq.q6.title', 'What about mobile?'),
+              content: t(
+                'faq.q6.answer',
+                'Web apps are fully responsive by default. For native mobile, we provide an Expo template with shared business logic and consistent design tokens.'
+              ),
+            },
+          ]}
+        />
+      </Section>
+
+      {/* ================================================================ */}
+      {/* FINAL CTA                                                        */}
+      {/* ================================================================ */}
+
+      <Section tone="primary">
+        <CallToAction
+          title={t('cta.title', 'Ready to build something remarkable?')}
+          subtitle={t(
+            'cta.subtitle',
+            'Join thousands of developers who ship faster with {{appName}}. Get started in under two minutes.'
+          )}
+          tone="primary"
+          primaryAction={{
+            label: t('cta.primary', 'Get Started Free'),
+            icon: <Sparkles />,
+          }}
+          secondaryAction={{
+            label: t('cta.secondary', 'View Documentation'),
+            icon: <Layers />,
+          }}
+        />
+      </Section>
+    </PageContainer>
+  );
+}

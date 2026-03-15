@@ -1,0 +1,237 @@
+/**
+ * @fileoverview About Page
+ *
+ * Company story, values, team, and mission for {{appName}}.
+ */
+
+import {
+  Info,
+  Heart,
+  Target,
+  Eye,
+  Lightbulb,
+  Users,
+  Sparkles,
+  Mail,
+} from 'lucide-react';
+
+import {
+  HeroSection,
+  Section,
+  Card,
+  Grid,
+  Stack,
+  Text,
+  CallToAction,
+  SplitReveal,
+} from '@donotdev/components';
+import type { PageMeta } from '@donotdev/core';
+import { useTranslation } from '@donotdev/core';
+import { PageContainer } from '@donotdev/ui';
+
+export const NAMESPACE = 'about';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <Info />,
+};
+
+export default function AboutPage() {
+  const { t } = useTranslation(NAMESPACE);
+
+  return (
+    <PageContainer variant="standard">
+      {/* ================================================================ */}
+      {/* HERO                                                             */}
+      {/* ================================================================ */}
+
+      <HeroSection
+        title={t('hero.title', 'We believe software should empower, not frustrate')}
+        subtitle={t(
+          'hero.subtitle',
+          '{{appName}} was born from a simple observation: teams waste too much time on problems that have already been solved. We set out to change that.'
+        )}
+        variant="accent"
+      />
+
+      {/* ================================================================ */}
+      {/* OUR STORY                                                        */}
+      {/* ================================================================ */}
+
+      <Section
+        title={t('story.title', 'Our Story')}
+        tone="ghost"
+      >
+        <SplitReveal
+          left={
+            <Stack gap="large">
+              <Text as="h3" level="h3">
+                {t('story.heading', 'From frustration to framework')}
+              </Text>
+              <Text level="body" variant="muted">
+                {t(
+                  'story.p1',
+                  'In 2024, our founding team was building their fifth product from scratch. Same auth flows, same CRUD patterns, same deployment headaches. Every project started with weeks of setup before writing a single line of business logic.'
+                )}
+              </Text>
+              <Text level="body" variant="muted">
+                {t(
+                  'story.p2',
+                  'We decided to extract everything we kept rebuilding into a cohesive, opinionated framework. Not another UI library - a complete product development platform that handles the entire stack.'
+                )}
+              </Text>
+              <Text level="body">
+                {t(
+                  'story.p3',
+                  'Today, {{appName}} powers products across industries - from fintech startups to enterprise platforms. Our mission remains the same: let developers focus on what makes their product unique.'
+                )}
+              </Text>
+            </Stack>
+          }
+          right={
+            <Stack gap="medium">
+              <Card
+                title={t('story.stat1.title', '2024')}
+                content={t('story.stat1.desc', 'Founded with a clear mission')}
+                elevated
+              />
+              <Card
+                title={t('story.stat2.title', '5,000+')}
+                content={t('story.stat2.desc', 'Projects built on the platform')}
+                elevated
+              />
+              <Card
+                title={t('story.stat3.title', '40+')}
+                content={t('story.stat3.desc', 'Countries with active users')}
+                elevated
+              />
+            </Stack>
+          }
+          useStatCards
+          stagger
+        />
+      </Section>
+
+      {/* ================================================================ */}
+      {/* VALUES                                                           */}
+      {/* ================================================================ */}
+
+      <Section
+        title={t('values.title', 'What drives us')}
+        tone="muted"
+        textAlign="center"
+      >
+        <Grid cols={[1, 2, 2, 4]} gap="large">
+          <Card
+            title={t('values.opinionated.title', 'Opinionated')}
+            icon={<Target />}
+            content={t(
+              'values.opinionated.desc',
+              'One right way to do things. No decision fatigue. We made the hard choices so you do not have to.'
+            )}
+            elevated
+          />
+          <Card
+            title={t('values.transparent.title', 'Transparent')}
+            icon={<Eye />}
+            content={t(
+              'values.transparent.desc',
+              'Open source, open roadmap, open decisions. Every choice is documented with its rationale.'
+            )}
+            elevated
+          />
+          <Card
+            title={t('values.craft.title', 'Craft')}
+            icon={<Lightbulb />}
+            content={t(
+              'values.craft.desc',
+              'No shortcuts, no tech debt by design. We build things right the first time, even when it takes longer.'
+            )}
+            elevated
+          />
+          <Card
+            title={t('values.empathy.title', 'Empathy')}
+            icon={<Heart />}
+            content={t(
+              'values.empathy.desc',
+              'Every API, every error message, every default is designed for the human on the other side of the screen.'
+            )}
+            elevated
+          />
+        </Grid>
+      </Section>
+
+      {/* ================================================================ */}
+      {/* TEAM                                                             */}
+      {/* ================================================================ */}
+
+      <Section
+        title={t('team.title', 'The team behind {{appShortName}}')}
+        tone="ghost"
+        textAlign="center"
+      >
+        <Grid cols={[1, 2, 3, 4]} gap="large">
+          <Card
+            icon={<Users />}
+            title={t('team.member1.name', 'Alex Martin')}
+            subtitle={t('team.member1.role', 'Co-founder & CEO')}
+            content={t(
+              'team.member1.bio',
+              'Former platform lead at a Fortune 500. Obsessed with developer experience and eliminating friction.'
+            )}
+          />
+          <Card
+            icon={<Users />}
+            title={t('team.member2.name', 'Priya Sharma')}
+            subtitle={t('team.member2.role', 'Co-founder & CTO')}
+            content={t(
+              'team.member2.bio',
+              'Systems architect with a decade of distributed systems experience. Believes the best infrastructure is invisible.'
+            )}
+          />
+          <Card
+            icon={<Users />}
+            title={t('team.member3.name', 'Jonas Eriksson')}
+            subtitle={t('team.member3.role', 'Head of Design')}
+            content={t(
+              'team.member3.bio',
+              'Design systems veteran. Shipped component libraries used by millions. Accessibility advocate.'
+            )}
+          />
+          <Card
+            icon={<Users />}
+            title={t('team.member4.name', 'Mei Lin Wu')}
+            subtitle={t('team.member4.role', 'Head of Engineering')}
+            content={t(
+              'team.member4.bio',
+              'Full-stack polyglot who has built products from zero to IPO. Performance is her love language.'
+            )}
+          />
+        </Grid>
+      </Section>
+
+      {/* ================================================================ */}
+      {/* CTA                                                              */}
+      {/* ================================================================ */}
+
+      <Section tone="primary">
+        <CallToAction
+          title={t('cta.title', 'Want to join our mission?')}
+          subtitle={t(
+            'cta.subtitle',
+            'We are always looking for talented people who care deeply about developer experience. Check our open positions or reach out directly.'
+          )}
+          tone="primary"
+          primaryAction={{
+            label: t('cta.primary', 'View Open Positions'),
+            icon: <Sparkles />,
+          }}
+          secondaryAction={{
+            label: t('cta.secondary', 'Get in Touch'),
+            icon: <Mail />,
+          }}
+        />
+      </Section>
+    </PageContainer>
+  );
+}

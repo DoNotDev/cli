@@ -11,7 +11,7 @@
  *   dndev cacheout --dry-run  — show what would be removed
  *   dndev cacheout --verbose  — show detailed item lookup
  *
- * @version 0.0.1
+ * @version 0.1.0
  * @since 0.0.1
  * @author AMBROISE PARK Consulting
  */

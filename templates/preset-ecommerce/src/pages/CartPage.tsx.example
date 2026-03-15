@@ -1,0 +1,167 @@
+'use client';
+// {{appName}} - Cart Page
+
+import {
+  ShoppingCart,
+  Trash2,
+} from 'lucide-react';
+
+import {
+  Button,
+  BUTTON_VARIANT,
+  Card,
+  CARD_VARIANT,
+  Grid,
+  Section,
+  Separator,
+  Stack,
+  Text,
+} from '@donotdev/components';
+import { useTranslation } from '@donotdev/core';
+import { Link, PageContainer } from '@donotdev/ui';
+
+import type { PageMeta } from '@donotdev/core';
+
+export const NAMESPACE = 'cart';
+
+export const meta: PageMeta = {
+  namespace: NAMESPACE,
+  icon: <ShoppingCart />,
+  auth: true,
+};
+
+const cartItems = [
+  {
+    id: 1,
+    name: 'Wireless Noise-Cancelling Headphones',
+    variant: 'Midnight Black',
+    quantity: 1,
+    price: 149.99,
+  },
+  {
+    id: 3,
+    name: 'Leather Crossbody Bag',
+    variant: 'Tan',
+    quantity: 1,
+    price: 119.0,
+  },
+  {
+    id: 6,
+    name: 'Smart Fitness Watch',
+    variant: 'Space Grey',
+    quantity: 2,
+    price: 199.0,
+  },
+];
+
+export default function CartPage() {
+  const { t } = useTranslation(NAMESPACE);
+
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shipping = subtotal > 50 ? 0 : 5.99;
+  const tax = subtotal * 0.2;
+  const total = subtotal + shipping + tax;
+
+  return (
+    <PageContainer>
+      <Section title={t('cart.title', 'Your Cart')}>
+        <Grid cols={[1, 1, 3, 3]} gap="large">
+          <Stack gap="medium" width="full" style={{ gridColumn: 'span 2' }}>
+            {cartItems.map((item) => (
+              <Card key={item.id}>
+                <Stack
+                  direction="row"
+                  justify="space-between"
+                  align="center"
+                  gap="medium"
+                  style={{ padding: 'var(--gap-md)' }}
+                >
+                  <Stack gap="tight">
+                    <Text level="body" weight="semibold">
+                      {item.name}
+                    </Text>
+                    <Text level="caption" variant="muted">
+                      {item.variant}
+                    </Text>
+                    <Text level="small">
+                      {t('cart.quantity', 'Qty')}: {item.quantity}
+                    </Text>
+                  </Stack>
+                  <Stack align="end" gap="tight">
+                    <Text level="body" weight="semibold">
+                      {(item.price * item.quantity).toFixed(2)} EUR
+                    </Text>
+                    <Button variant={BUTTON_VARIANT.GHOST} icon={<Trash2 />}>
+                      {t('cart.remove', 'Remove')}
+                    </Button>
+                  </Stack>
+                </Stack>
+              </Card>
+            ))}
+
+            {cartItems.length === 0 && (
+              <Card
+                variant={CARD_VARIANT.GLASS}
+                title={t('cart.empty.title', 'Your cart is empty')}
+                content={t('cart.empty.description', 'Browse our catalog to find products you will love.')}
+                footer={
+                  <Link path="/catalog">
+                    <Button variant={BUTTON_VARIANT.PRIMARY}>
+                      {t('cart.empty.browse', 'Browse Catalog')}
+                    </Button>
+                  </Link>
+                }
+              />
+            )}
+          </Stack>
+
+          <Card
+            variant={CARD_VARIANT.ACCENT}
+            title={t('cart.summary.title', 'Order Summary')}
+          >
+            <Stack gap="medium" style={{ padding: 'var(--gap-md)' }}>
+              <Stack gap="tight">
+                <Stack direction="row" justify="space-between">
+                  <Text level="small">{t('cart.summary.subtotal', 'Subtotal')}</Text>
+                  <Text level="small">{subtotal.toFixed(2)} EUR</Text>
+                </Stack>
+                <Stack direction="row" justify="space-between">
+                  <Text level="small">{t('cart.summary.shipping', 'Shipping')}</Text>
+                  <Text level="small" variant={shipping === 0 ? 'success' : 'default'}>
+                    {shipping === 0
+                      ? t('cart.summary.freeShipping', 'Free')
+                      : `${shipping.toFixed(2)} EUR`}
+                  </Text>
+                </Stack>
+                <Stack direction="row" justify="space-between">
+                  <Text level="small">{t('cart.summary.tax', 'Tax (20%)')}</Text>
+                  <Text level="small">{tax.toFixed(2)} EUR</Text>
+                </Stack>
+              </Stack>
+
+              <Separator />
+
+              <Stack direction="row" justify="space-between">
+                <Text level="body" weight="semibold">{t('cart.summary.total', 'Total')}</Text>
+                <Text level="body" weight="semibold">{total.toFixed(2)} EUR</Text>
+              </Stack>
+
+              <Stack gap="tight">
+                <Link path="/checkout">
+                  <Button variant={BUTTON_VARIANT.PRIMARY} fullWidth>
+                    {t('cart.summary.checkout', 'Proceed to Checkout')}
+                  </Button>
+                </Link>
+                <Link path="/catalog">
+                  <Button variant={BUTTON_VARIANT.GHOST} fullWidth>
+                    {t('cart.summary.continue', 'Continue Shopping')}
+                  </Button>
+                </Link>
+              </Stack>
+            </Stack>
+          </Card>
+        </Grid>
+      </Section>
+    </PageContainer>
+  );
+}
