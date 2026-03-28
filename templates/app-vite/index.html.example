@@ -13,9 +13,6 @@
   <!-- ✅ DnDev: Asset manifest injection point -->
   <!-- window.__DNDEV_ASSETS__ and __DNDEV_ASSET_MANIFEST__ injected here -->
   
-  <!-- ✅ PWA: Manifest link (if exists) -->
-  <link rel="manifest" href="/manifest.json" />
-  
   <!-- Fonts: Inter, Space Grotesk, Playfair, Roboto loaded via @donotdev/ui/dndev.css (bundled). -->
   <!-- DNDEV_FONT_PRELOADS -->
   

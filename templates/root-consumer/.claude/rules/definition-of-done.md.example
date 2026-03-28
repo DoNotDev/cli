@@ -1,0 +1,32 @@
+---
+description: "Definition of Done - every change must complete all items"
+globs: "src/**,apps/**"
+---
+
+# Definition of Done
+
+Every change is incomplete until ALL applicable items are done.
+
+## Mandatory (every change)
+
+1. **Code** - simple, follows existing patterns, robust, secure
+2. **Typecheck** - `dndev tc` passes
+3. **i18n** - all user-facing strings via `t('key')`. Locale files updated.
+
+## Mandatory for new features
+
+4. **Tests** - unit test for new logic, page test for new pages
+5. **Spec compliance** - if a spec exists, verify delivery matches it
+
+## Output format
+
+Every skill output MUST end with:
+
+```
+## Definition of Done
+- [x] Code: <files changed>
+- [x] Typecheck: dndev tc - PASS
+- [x] i18n: <locale files updated, or N/A>
+- [x] Tests: <test file, or N/A>
+- [x] Spec compliance: <verified, or N/A>
+```

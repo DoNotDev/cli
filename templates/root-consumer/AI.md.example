@@ -90,9 +90,9 @@ Run `dndev --help` for the full command list.
 - **Import convention** — always `@donotdev/<pkg>` top-level, never sub-paths
 - **NO native HTML elements** — never use `<div>`, `<span>`, `<p>`, `<h1-6>`, `<button>`, `<a>`, `<input>`, `<textarea>`, `<select>`, `<form>`, `<table>`, `<ul>`, `<ol>`, `<li>`, `<img>`, `<section>`, `<nav>`, `<header>`, `<footer>` in @donotdev files. Use framework components: Stack, Card, Text, Button, Link, TextInput, Select, Form, DataTable, List, Image, Section, Navigation, Header, Footer. See `get_guide("COMPONENTS_ATOMIC")`
 - **NO custom CSS** — never create `.css`, `.module.css`, `.scss`, `.sass`, or `.less` files. All styling is done through framework component props, variant tokens, and theme configuration
-- **NO custom components** — never create files in `components/`. Compose pages using framework components only. If a component is missing, say what you need and STOP
+- **Custom components as last resort** — first `lookup_symbol()` + `search_framework()`. If nothing fits, build in `src/components/` with JSDoc `@custom-component - framework gap, see issue #XX`. The guard hook auto-creates a GitHub issue tagged `framework-evolution`
 - **NO inventing props** — only use props returned by `lookup_symbol()`. Common hallucination traps that DO NOT exist: `size`, `tone`, `color`, `padding`, `margin`, `spacing`, `columns`, `background`, `fields`
-- **Framework-first** — if something's missing, say what and stop
+- **Framework-first** — compose from existing components before creating custom ones
 - **No .md file creation** — never create documentation/analysis/summary .md files unless explicitly asked. Session notes go in `.dndev/`
 - **Follow existing patterns** — the scaffolded files ARE your documentation
 

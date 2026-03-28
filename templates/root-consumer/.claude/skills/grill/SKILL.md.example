@@ -1,6 +1,6 @@
 ---
 name: grill
-description: Critical staff-engineer code review — flags problems before shipping. Blocking review with high-signal findings only.
+description: Critical staff-engineer code review - flags problems before shipping. Blocking review with high-signal findings only.
 disable-model-invocation: true
 argument-hint: [files, areas, or "full"]
 ---
@@ -9,37 +9,48 @@ argument-hint: [files, areas, or "full"]
 
 Skeptical staff engineer doing a blocking code review. Find things that will **break, lose data, or mislead**.
 
-## Step 0 — Situational Awareness
+## Step 0 - Situational Awareness
 
-1. Read `.dndev/grill-report.json` — last run's SHA, target, items
-2. Read `.dndev/grill-ignore.json` — accepted deviations (SSOT for exclusions)
+1. Read `.dndev/grill-report.json` - last run's SHA, target, items
+2. Read `.dndev/grill-ignore.json` - accepted deviations (SSOT for exclusions)
 3. Check current `git rev-parse --short HEAD`
 
 **No-op:** Same perimeter + same SHA as last run → skip. Nothing changed.
 
-**If `$ARGUMENTS` provided** — use as perimeter.
-**If empty** — check what changed since last grill. Propose and proceed unless ambiguous.
+**If `$ARGUMENTS` provided** - use as perimeter.
+**If empty** - check what changed since last grill. Propose and proceed unless ambiguous.
 
-## Step 1 — Archive
+## Step 1 - Archive
 
 If `.dndev/grill-report.json` has resolved items (`fixed`, `resolved`, `rejected`):
 - Archive to `.dndev/grill-history.json`
 - Keep surviving items for merge
 
-## Step 2 — Two-Pass Scan
+## Step 2 - Three-Pass Scan
 
-### Pass 1 — CRITICAL (stops for user decision)
+### Pass 1 - CRITICAL (stops for user decision)
 
 Items that must be resolved before shipping. After listing, present each individually: **Fix / Acknowledge / Skip**. One item = one question. Do NOT proceed to Pass 2 until resolved.
 
-- **BLOCKER** — breaks in production, loses data, security issues, breaking API changes
-- **WARN-CRITICAL** — auth bypass, data corruption on normal flows
+- **BLOCKER** - breaks in production, loses data, security issues, breaking API changes
+- **WARN-CRITICAL** - auth bypass, data corruption on normal flows
 - @donotdev component misuse without `lookup_symbol` verification
 
-### Pass 2 — INFORMATIONAL (listed, no action required)
+### Pass 2 - INFORMATIONAL (listed, no action required)
 
-- **WARN** — real problems users will hit (missing edge cases, misleading dead code)
-- **NOTE** — sparingly, genuine gotchas only
+- **WARN** - real problems users will hit (missing edge cases, misleading dead code)
+- **NOTE** - sparingly, genuine gotchas only
+
+### Pass 3 - DEFINITION OF DONE (new)
+
+For each changed file, verify completeness:
+
+| Check | Severity | What to look for |
+|-------|----------|-----------------|
+| i18n | WARN | Hardcoded user-facing strings (should use `t('key')`) |
+| Tests | WARN | New logic without corresponding test file |
+| Spec compliance | BLOCKER | Feature in spec not implemented or partially done |
+| Theme compliance | WARN | Hardcoded colors/sizes instead of theme tokens |
 
 ### What NOT to flag:
 - Optimization suggestions, style, formatting
@@ -49,7 +60,7 @@ Items that must be resolved before shipping. After listing, present each individ
 
 **Self-test:** "Would I block a PR for this?" No → skip.
 
-## Step 3 — Filter + Write
+## Step 3 - Filter + Write
 
 1. Filter out `grill-ignore.json` matches (fuzzy on issue text)
 2. Deduplicate against carried items

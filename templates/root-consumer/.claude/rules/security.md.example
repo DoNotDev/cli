@@ -1,0 +1,13 @@
+---
+description: "Security baseline - enforced on all code"
+globs: "**"
+---
+
+# Security Rules
+
+- **Never commit secrets.** No API keys, tokens, passwords, or credentials in code. Use `.env`.
+- **Never trust input.** Validate at system boundaries - user input, API responses, URL params.
+- **Never expose internals.** No stack traces, internal paths, or system details in client output.
+- **Sanitize before render.** User-generated content is always suspect.
+- **Least privilege.** Request minimum permissions. Expose minimum surface.
+- **Run `dndev doctor` and `/grill` before production.**

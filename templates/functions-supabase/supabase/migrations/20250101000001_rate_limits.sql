@@ -11,6 +11,9 @@ CREATE TABLE IF NOT EXISTS rate_limits (
   last_updated TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Only service_role accesses this table; lock out anon/authenticated keys
+ALTER TABLE rate_limits ENABLE ROW LEVEL SECURITY;
+
 -- Indexes for efficient lookups and cleanup
 CREATE INDEX IF NOT EXISTS idx_rate_limits_window ON rate_limits(window_start);
 CREATE INDEX IF NOT EXISTS idx_rate_limits_block ON rate_limits(block_until) WHERE block_until IS NOT NULL;

@@ -1,0 +1,89 @@
+#!/bin/bash
+# .claude/hooks/guard-write.sh
+# UNIFIED PreToolUse:Edit|Write guard. One bun call, all checks.
+# Replaces: guard-files + guard-mcp + guard-secrets
+# Error strategy: security (secrets) fail CLOSED. All others fail OPEN.
+# Cross-platform: bun-first, TMPDIR-safe.
+
+set -eo pipefail
+
+GATE_DIR="${TMPDIR:-/tmp}"
+TRACK_FILE="$GATE_DIR/claude-mcp-lookups.txt"
+
+INPUT=$(cat)
+
+RESULT=$(echo "$INPUT" | bun -e "
+  const input = JSON.parse(await Bun.stdin.text());
+  const fp = input.tool_input?.file_path ?? '';
+  const tn = input.tool_name ?? '';
+  const bn = fp.split('/').pop() ?? '';
+  let content = '';
+  if (tn === 'Edit') content = input.tool_input?.new_string ?? '';
+  else if (tn === 'Write') content = input.tool_input?.content ?? '';
+
+  const checks = [];
+
+  // --- FILE GUARD (fail closed) ---
+  if (/^(bun\.lock|bun\.lockb|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/.test(bn))
+    checks.push('BLOCK:Lock files are auto-generated');
+  if (/^(\.env|\.env\.local|\.env\.production|\.dndev\.secrets)$/.test(bn))
+    checks.push('BLOCK:Env files may contain secrets');
+  if (/\.(generated|g)\.(ts|js|json)$/.test(fp))
+    checks.push('BLOCK:Generated files should not be edited');
+  if (bn === 'AI.md')
+    checks.push('BLOCK:AI.md is the instruction SSOT');
+
+  // --- MCP GUARD (fail open) ---
+  try {
+    const isSrc = /(apps|src)\/.*\.(tsx?|jsx?)$/.test(fp);
+    const skip = /\/utils\/|\/hooks\/|\/stores\/|\/types\/|\/locales\/|Store\.ts|store\.ts|Hook\.ts|hook\.ts|\.json$/.test(fp);
+    if (isSrc && !skip && content.includes('@donotdev/')) {
+      const importRe = /import\s*\{([^}]+)\}\s*from\s*['\"]@donotdev\//g;
+      const symbols = new Set();
+      for (const m of content.matchAll(importRe)) {
+        for (const sym of m[1].split(',')) {
+          const name = sym.replace(/\s+as\s+\w+/, '').trim();
+          if (/^[A-Z]/.test(name)) symbols.add(name);
+        }
+      }
+      if (symbols.size > 0) {
+        const lookups = new Set();
+        try {
+          const text = await Bun.file('${TRACK_FILE}').text();
+          for (const line of text.split('\n')) { const t = line.trim(); if (t) lookups.add(t); }
+        } catch {}
+        const missing = [...symbols].filter(s => !lookups.has(s));
+        if (missing.length) checks.push('BLOCK:lookup_symbol() missing for: ' + missing.join(', '));
+      }
+    }
+  } catch {}
+
+  // --- SECRET SCAN (fail CLOSED) ---
+  try {
+    if (content && !/\.sh$|\.sh\.example$|guard-/.test(fp)) {
+      const v = [];
+      if (/(AKIA|ASIA)[A-Z0-9]{16}/.test(content)) v.push('AWS key');
+      if (/gh[pousr]_[A-Za-z0-9_]{36,}/.test(content)) v.push('GitHub token');
+      if (/-----BEGIN.*PRIVATE KEY-----/.test(content)) v.push('Private key');
+      if (/eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/.test(content)
+          && !/test|fixture|mock|\.d\.ts/.test(fp)) v.push('JWT');
+      if (/(password|secret|api[_-]?key|token|credential)\s*[:=]\s*[\"'][A-Za-z0-9+\/=_-]{20,}/i.test(content)
+          && !/(password|secret|api[_-]?key|token|credential)\s*[:=]\s*[\"'](your-|example-|replace-|xxx|process\.env)/i.test(content))
+        v.push('Secret assignment');
+      if (v.length) checks.push('BLOCK:Secret detected: ' + v.join(', '));
+    }
+  } catch (e) {
+    checks.push('BLOCK:Secret scan error: ' + e.message);
+  }
+
+  const block = checks.find(c => c.startsWith('BLOCK:'));
+  process.stdout.write(block ?? 'OK');
+" 2>/dev/null || echo "OK")
+
+case "$RESULT" in
+  OK) exit 0 ;;
+  BLOCK:*)
+    echo "BLOCKED: ${RESULT#BLOCK:}" >&2
+    exit 2 ;;
+  *) exit 0 ;;
+esac

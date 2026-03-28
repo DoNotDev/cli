@@ -1,0 +1,44 @@
+{
+  "_comment": "Content Security Policy baseline for DoNotDev apps. Copy the relevant directives into your hosting config (vercel.json headers, netlify _headers, etc.).",
+
+  "default-src": "'self'",
+  "script-src": "'self'",
+  "style-src": "'self' 'unsafe-inline'",
+  "img-src": "'self' data: blob: https:",
+  "font-src": "'self' https://fonts.gstatic.com",
+  "object-src": "'none'",
+  "base-uri": "'self'",
+  "form-action": "'self'",
+
+  "_supabase": {
+    "_comment": "Add these if your app uses Supabase",
+    "connect-src": "'self' https://*.supabase.co wss://*.supabase.co",
+    "frame-src": "https://*.supabase.co"
+  },
+
+  "_firebase": {
+    "_comment": "Add these if your app uses Firebase",
+    "connect-src": "'self' https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com",
+    "frame-src": "https://*.firebaseapp.com"
+  },
+
+  "_google_maps": {
+    "_comment": "Add these if your app uses Google Maps (AddressField)",
+    "script-src": "'self' https://maps.googleapis.com",
+    "connect-src": "'self' https://maps.googleapis.com",
+    "img-src": "'self' data: blob: https: https://*.googleapis.com https://*.gstatic.com"
+  },
+
+  "_google_oauth": {
+    "_comment": "Add these if your app uses Google OAuth",
+    "connect-src": "'self' https://accounts.google.com https://oauth2.googleapis.com https://www.googleapis.com",
+    "frame-src": "https://accounts.google.com"
+  },
+
+  "_rules": [
+    "NEVER mix 'none' with URLs in the same directive (e.g., frame-src 'none' https://... is invalid)",
+    "NEVER use 'unsafe-eval' — Vite HMR works without it in dev, production never needs it",
+    "Merge connect-src values from all providers you use into a single directive",
+    "credentials: 'omit' is set by the framework on cross-origin fetches — CSP does not need to allow cookies for these"
+  ]
+}

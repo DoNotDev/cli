@@ -1,0 +1,39 @@
+---
+description: "DoNotDev framework usage - how to use the framework correctly"
+globs: "src/**,apps/**"
+---
+
+# Using the DoNotDev Framework
+
+The framework's MCP server and component library cover 99% of what you need. Use them.
+
+## Before ANY `@donotdev` import (MANDATORY)
+
+1. Call `lookup_symbol({ symbol: "ComponentName" })` first. No exceptions.
+2. **Only use props returned by `lookup_symbol()`.** Never invent props.
+3. Common hallucination traps (these DO NOT exist): `size`, `tone`, `color`, `padding`, `margin`, `spacing`, `columns`, `background`, `fields`.
+4. Import from `@donotdev/<pkg>` top-level only. Never sub-paths.
+
+## Use framework components, not HTML
+
+`<div>` → Stack | `<button>` → Button | `<input>` → TextInput | `<a>` → Link | `<p>`/`<h1>` → Text | `<table>` → DataTable | `<form>` → Form | `<ul>` → List | `<img>` → Image
+
+Hook-enforced. Native HTML in source files is blocked.
+
+## No custom CSS
+
+No `.css`, `.scss`, `.less`, `.module.css` files. No Tailwind utility classes. Styling = component props + theme tokens. Hook-enforced.
+
+## When the framework doesn't cover your need
+
+1. Confirm with `lookup_symbol()` + `search_framework("keyword")`
+2. Build custom component in `src/components/`
+3. Add JSDoc: `@custom-component - framework gap, see issue #XX`
+4. GitHub issue is auto-created by the guard hook
+
+## Conventions
+
+- **i18n-first.** All user-facing strings via `t('key')`. No hardcoded text.
+- **Import order.** React, vendors, @donotdev, relative.
+- **No fallbacks.** Fail loud. Never `|| default`.
+- **Typecheck.** `dndev tc` only. Never `bunx tsc`, `npx tsc`, or raw `tsc`.

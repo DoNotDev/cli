@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import { getMetadataForPath } from '@donotdev/core/next';
 import { FontPreloadLinks } from '@donotdev/ui/next';
 
 import '../globals.css';
@@ -10,10 +11,18 @@ import { ClientLayout } from './ClientLayout';
  * Font preload links are injected at build time; FontPreloadLinks reads the manifest for SSR.
  */
 
-export const metadata: Metadata = {
-  title: 'DoNotDev Demo',
-  description: 'Next.js site using DNDev framework',
-};
+/**
+ * Dynamic metadata generation from PageMeta exports.
+ * Same PageMeta convention works in Vite (AutoMetaTags) and Next.js (this function).
+ * Priority: i18n meta.fullTitle > seo.fullTitle > i18n title | siteName > siteName
+ *
+ * For dynamic pages with runtime data, use <Seo> component instead.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  // Root layout handles the home page metadata
+  // Other pages override via their own generateMetadata or <Seo> component
+  return getMetadataForPath('/');
+}
 
 /**
  * Root layout for Next.js App Router

@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS idempotency (
   expires_at TIMESTAMPTZ NOT NULL         -- TTL for cleanup (default: 24h)
 );
 
+-- Only service_role accesses this table; lock out anon/authenticated keys
+ALTER TABLE idempotency ENABLE ROW LEVEL SECURITY;
+
 -- Indexes for efficient lookups
 CREATE INDEX IF NOT EXISTS idx_idempotency_expires ON idempotency(expires_at);
 CREATE INDEX IF NOT EXISTS idx_idempotency_key ON idempotency(idempotency_key);

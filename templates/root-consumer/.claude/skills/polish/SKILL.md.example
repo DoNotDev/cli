@@ -1,13 +1,18 @@
 ---
 name: polish
-description: Generate tests, database rules, CI/CD, config, fix bugs, i18n (Phase 4). Use AFTER /build when the app works and needs production-readiness.
+description: "QA audit against approved spec. Tests, security rules, CI/CD, deployment. Verify delivery matches contract. Consumer workflow only. Use AFTER /build."
 argument-hint: [task]
-disable-model-invocation: true
 ---
 
-# Polish — Production-Ready
+# Polish — QA Audit Against Spec
 
 **WORKFLOW:** `/brainstorm` → `/design` → `/build` → `/polish`
+
+## Philosophy: Verify, Don't Add
+
+`/build` delivers the complete app. `/polish` verifies it matches the spec. This is QA, not feature work.
+
+If something is missing, it's a `/build` bug — go back and fix it there.
 
 ## Step 0 — Start Phase (MANDATORY)
 
@@ -16,61 +21,69 @@ start_phase(4)
 ```
 Do NOT proceed without this call.
 
-## Step 1 — Read Context
+## Step 1 — Spec Compliance Audit
 
-- `guides/wai-way/spec_template.md` — validated spec (test plan)
-- `entities/index.ts` — all entity definitions
-- `src/pages/` — all page files
+Read the approved spec and verify delivery:
 
-## Steps 2-5 — Parallel-capable
+| Check | Source | Pass Criteria |
+|-------|--------|---------------|
+| Pages exist | HLD page map | Every page in spec is implemented |
+| Entities correct | LLD field specs | Fields, states, access match exactly |
+| Auth works | HLD auth section | Correct providers, guards, roles |
+| i18n complete | HLD features | All specified languages have translations |
+| Theme applied | HLD essence/theme | Colors, fonts, density, radius match |
+| Features enabled | HLD features | Every feature in spec is functional |
 
-These steps are independent. Launch them in parallel when possible:
+**Any mismatch = STOP, report, fix in `/build` first.**
 
-### Tests
-Call `get_guide("TESTING")` for patterns.
-- Entity tests → `tests/entities/[Entity].test.ts`
-- Page tests → `tests/pages/[Page].test.tsx`
-- Access control → `tests/access/access-rules.test.ts`
+## Step 2 — Generate Tests
 
-### Database Rules
-Auto-detect provider (Firestore or Supabase RLS). Generate rules from entity access definitions.
+Tests verify the SPEC, not the code. The spec is the test plan.
 
-### CI/CD
-Create `.github/workflows/ci.yml` — type-check → test → build → deploy.
+- **Entity tests** → `tests/entities/[Entity].test.ts`
+- **Page tests** → `tests/pages/[Page].test.tsx`
+- **Access control** → `tests/access/access-rules.test.ts`
 
-### Config
-- `src/config/app.ts` — APP_NAME, preset, footer
-- `src/config/legal.ts` — company, contacts, jurisdiction
-- `.env` — provider config, license key
+## Step 3 — Database Rules
+
+Auto-detect provider (Supabase RLS or Firestore rules). Generate from entity access definitions.
+
+## Step 4 — CI/CD
+
+Create `.github/workflows/ci.yml`: type-check → test → build → deploy.
+
+## Step 5 — Security Review
+
+- No secrets in code
+- Auth guards on protected routes
+- Database rules cover all entities
+- Input validated at boundaries
 
 ## Step 6 — Validate
 
 ```bash
-bun test
+dndev tc        # Type-check
+bun test        # All tests pass
 ```
-All tests must pass. Fix failures.
 
 ## Step 7 — Mobile Check
 
-DevTools → 375px → navigation, forms, text, buttons (44px min).
-
-## Step 8 — i18n (Optional)
-
-Extract strings to `src/locales/`, replace with `useTranslation()`.
+375px width: navigation, forms, text, buttons > 44px, no horizontal scroll.
 
 ## Ship Readiness
 
-- `dndev tc` passes
-- `bun test` passes
-- Database rules generated
-- CI/CD created
-- No critical bugs
-- Mobile works at 375px
+- [ ] Spec compliance: every spec item delivered
+- [ ] Type-check passes
+- [ ] Tests pass
+- [ ] Database rules generated
+- [ ] CI/CD created
+- [ ] Security reviewed
+- [ ] Mobile works
 
 ## Complete Phase
 
 ```
-complete_phase({ files: ["...all test/config files..."], summary: "Tests passing, config complete, ready to ship" })
+complete_phase({ files: [...], summary: "QA passed, spec-compliant, ready to ship" })
 ```
 
-Wait for user `approve_phase()`. Then → `dndev deploy`.
+Wait for user `approve_phase()`. Then → deploy.

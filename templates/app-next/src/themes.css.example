@@ -126,6 +126,27 @@
    =========================== */
 
 /* ===========================
+   INTERACTION EFFECTS
+   Micro-interactions for buttons. Set to 0/1 to disable.
+   =========================== */
+/*
+:root {
+  --hover-lift: -2px;
+  --click-scale: 0.97;
+  --ripple-opacity: 0.2;
+}
+*/
+
+/* Disable all effects (flat/minimal style) */
+/*
+:root {
+  --hover-lift: 0;
+  --click-scale: 1;
+  --ripple-opacity: 0;
+}
+*/
+
+/* ===========================
    CUSTOM THEMES
    =========================== */
 /* Example: .brand { --theme-icon: 'Zap'; --theme-label: 'Brand'; --theme-is-dark: 0; ... } */

@@ -91,7 +91,9 @@ Deno.serve(serve);
 
 **Result:** Auto-generates create, get, list, update, delete handlers for each entity. The dispatcher routes via `_functionName` in the request body.
 
-### Custom Functions
+### Custom Functions (typed)
+
+For single-operation, schema-validated endpoints (one handler, one schema):
 
 ```typescript
 // supabase/functions/my-function/index.ts
@@ -115,9 +117,47 @@ export default createSupabaseHandler(
 );
 ```
 
-**Context available in handler:** `ctx.uid` (authenticated user ID), `ctx.userRole`, `ctx.supabaseAdmin` (admin client with full access).
+**Context:** `ctx.uid`, `ctx.userRole`, `ctx.supabaseAdmin`. Rate limiting, metrics, auth, schema validation included.
 
-Rate limiting, metrics, auth, schema validation — all included by default.
+### Custom Functions (lightweight)
+
+For multi-action functions, webhooks, AI chat, or anything that needs raw `Request` access:
+
+```typescript
+// supabase/functions/my-function/index.ts
+import { createEdgeFunction } from '@donotdev/functions/supabase';
+
+// Auth required (default)
+Deno.serve(createEdgeFunction(async (req, ctx) => {
+  const body = await req.json();
+
+  if (body.action === 'list') {
+    const { data } = await ctx.supabaseAdmin.from('items').select('*');
+    return ctx.json({ items: data });
+  }
+
+  return ctx.error('Unknown action');
+}));
+```
+
+**Context:** `ctx.user` (`{ id, email }` or null), `ctx.supabaseAdmin` (service role), `ctx.userClient` (RLS-scoped), `ctx.json()`, `ctx.error()`, `ctx.respond()`.
+
+```typescript
+// No auth (public endpoint)
+Deno.serve(createEdgeFunction(async (req, ctx) => {
+  return ctx.json({ public: true });
+}, { requireAuth: false }));
+
+// Webhook with custom auth header
+Deno.serve(createEdgeFunction(async (req, ctx) => {
+  const sig = req.headers.get('stripe-signature');
+  if (!sig) return ctx.error('Missing signature', 401);
+  // verify signature, handle event...
+  return ctx.json({ received: true });
+}, { requireAuth: false, extraHeaders: ['stripe-signature'] }));
+```
+
+Both `createSupabaseHandler` and `createEdgeFunction` handle CORS, OPTIONS preflight, and method checking. Never manually define `CORS_HEADERS` in edge functions.
 
 ### Deploy Edge Functions
 
@@ -158,6 +198,13 @@ You never set timestamps in app code — the DB owns them.
 | `VITE_SUPABASE_PUBLIC_KEY` | Public key (safe in bundle) |
 
 **Server (Edge Functions, API routes):** use the same URL and `SUPABASE_SECRET_KEY` for admin operations. Never expose the service_role key to the client. Put it in `.dndev.secrets` at project root (or your host's env for production).
+
+| Variable | Purpose |
+|----------|---------|
+| `SUPABASE_URL` | Project URL (set automatically by Supabase) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Admin key (set automatically by Supabase) |
+| `SUPABASE_ANON_KEY` | Public key (set automatically by Supabase) |
+| `ALLOWED_ORIGIN` | CORS origin for edge functions (default: `*`). Set to your frontend URL in production for credentialed requests (e.g. `https://myapp.com`) |
 
 See [ENV_SETUP.md](./ENV_SETUP.md) for the full secrets policy.
 

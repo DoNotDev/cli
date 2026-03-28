@@ -17,8 +17,9 @@ VITE_AUTH_PARTNERS=password,emailLink,google,github,facebook
 // src/config/app.ts
 export const appConfig: AppConfig = {
   auth: {
-    authRoute: '/login',
-    loginPath: '/login',     // Optional: undefined = header providers
+    // authRoute: null,       // Default: show sign-in in-place (no redirect)
+    // authRoute: '/signin',  // Optional: redirect to custom login page
+    // loginPath: '/login',   // Optional: undefined = header providers
     profilePath: '/profile',
   },
 };

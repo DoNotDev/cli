@@ -2,5 +2,127 @@
   "statusLine": {
     "type": "command",
     "command": "python3 .claude/statusline.py"
-  }
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-bash.sh\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-write.sh\"",
+            "statusMessage": "Write guard"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "mcp__donotdev__lookup_symbol",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/track-mcp-lookup.sh\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/framework-compliance.sh\"",
+            "statusMessage": "Framework check"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/typecheck-stop.sh\""
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git push*)",
+      "Bash(git checkout*)",
+      "Bash(git stash*)",
+      "Bash(dndev *)",
+      "Bash(dndev)",
+      "Bash(bun run *)",
+      "Bash(bun add *)",
+      "Bash(bunx dndev*)",
+      "Bash(ls *)",
+      "Bash(mkdir *)",
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill(brainstorm)",
+      "Skill(design)",
+      "Skill(build)",
+      "Skill(polish)",
+      "Skill(grill)",
+      "Skill(techdebt)",
+      "Skill(browse)",
+      "mcp__donotdev__lookup_symbol",
+      "mcp__donotdev__search_framework",
+      "mcp__donotdev__list_features",
+      "mcp__donotdev__get_guide",
+      "mcp__donotdev__get_guideline",
+      "mcp__donotdev__init_implementation",
+      "mcp__donotdev__update_progress",
+      "mcp__donotdev__get_progress",
+      "mcp__donotdev__get_phase_status",
+      "mcp__donotdev__start_phase",
+      "mcp__donotdev__complete_phase",
+      "mcp__donotdev__approve_phase",
+      "mcp__donotdev__run_typecheck",
+      "mcp__donotdev__record_lesson",
+      "mcp__donotdev__score_lesson",
+      "mcp__donotdev__get_project_history",
+      "mcp__donotdev__setup_coach"
+    ],
+    "deny": [
+      "Bash(bunx tsc*)",
+      "Bash(npx tsc*)",
+      "Bash(bun install*)",
+      "Bash(npm install*)",
+      "Bash(yarn install*)",
+      "Bash(rm -rf *)"
+    ]
+  },
+  "enableAllProjectMcpServers": true
 }

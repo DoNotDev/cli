@@ -1,0 +1,61 @@
+#!/bin/bash
+# .claude/hooks/guard-bash.sh
+# PreToolUse hook for Bash commands.
+# Blocks dangerous/wrong commands. Exit 2 = block, exit 0 = allow.
+# Uses bun -e for JSON parsing (bun-first project).
+
+set -euo pipefail
+
+INPUT=$(cat)
+COMMAND=$(echo "$INPUT" | bun -e "process.stdout.write(JSON.parse(await Bun.stdin.text()).tool_input?.command ?? '')")
+[ -z "$COMMAND" ] && exit 0
+
+# --- HARD BLOCKS (exit 2) ---
+
+# Block raw TypeScript compiler (must use dndev tc)
+if echo "$COMMAND" | grep -qE '(^|\s|;|&&|\|)(bunx|npx|pnpx)\s+tsc(\s|$)'; then
+  echo "BLOCKED: Use 'dndev tc' for type-checking, never bunx/npx tsc." >&2
+  exit 2
+fi
+if echo "$COMMAND" | grep -qE '(^|\s|;|&&|\|)tsc(\s|$)'; then
+  echo "BLOCKED: Use 'dndev tc' for type-checking, never raw tsc." >&2
+  exit 2
+fi
+
+# Block full reinstall (deps are managed by the workspace)
+# bun add IS allowed — consumer projects may need additional packages
+if echo "$COMMAND" | grep -qE '(^|\s|;|&&|\|)(bun|npm|yarn|pnpm)\s+install(\s|$)'; then
+  echo "BLOCKED: Use 'bun add <pkg>' to add specific packages. Full reinstall is not needed." >&2
+  exit 2
+fi
+
+# Block force push
+if echo "$COMMAND" | grep -qE 'git\s+push\s.*(-f|--force)'; then
+  echo "BLOCKED: Force push is forbidden. Push normally or resolve conflicts." >&2
+  exit 2
+fi
+
+# Block destructive git operations
+if echo "$COMMAND" | grep -qE 'git\s+reset\s+--hard'; then
+  echo "BLOCKED: git reset --hard destroys work. Use git stash or git checkout <file> instead." >&2
+  exit 2
+fi
+if echo "$COMMAND" | grep -qE 'git\s+clean\s+-f'; then
+  echo "BLOCKED: git clean -f destroys untracked files. Review them manually first." >&2
+  exit 2
+fi
+
+# Block rm -rf on project-critical paths
+if echo "$COMMAND" | grep -qE 'rm\s+-rf\s+(/|\.|\*|src|apps|packages|node_modules)'; then
+  echo "BLOCKED: Destructive rm -rf on critical path. Be specific about what to remove." >&2
+  exit 2
+fi
+
+# Block skip hooks
+if echo "$COMMAND" | grep -qE '--no-verify'; then
+  echo "BLOCKED: --no-verify skips safety hooks. Fix the root cause instead." >&2
+  exit 2
+fi
+
+# --- ALLOW ---
+exit 0

@@ -1,0 +1,91 @@
+#!/bin/bash
+# .claude/hooks/guard-mcp.sh
+# PreToolUse: enforce lookup_symbol() before @donotdev imports.
+# Reads lookup history from track-mcp-lookup.sh (PostToolUse marker file).
+# Creates GitHub issue when custom component is needed.
+# Cross-platform: bun-first, no grep -P, TMPDIR-safe.
+
+set -euo pipefail
+
+GATE_DIR="${TMPDIR:-/tmp}"
+TRACK_FILE="$GATE_DIR/claude-mcp-lookups.txt"
+
+INPUT=$(cat)
+
+PARSED=$(echo "$INPUT" | bun -e "
+  const d = JSON.parse(await Bun.stdin.text());
+  const tn = d.tool_name ?? '';
+  const fp = d.tool_input?.file_path ?? '';
+  let content = '';
+  if (tn === 'Edit') content = d.tool_input?.new_string ?? '';
+  else if (tn === 'Write') content = d.tool_input?.content ?? '';
+  process.stdout.write([tn, fp, content].join('\n'));
+")
+
+TOOL_NAME=$(echo "$PARSED" | sed -n '1p')
+FILE_PATH=$(echo "$PARSED" | sed -n '2p')
+CONTENT=$(echo "$PARSED" | tail -n +3)
+
+case "$TOOL_NAME" in
+  Edit|Write) ;;
+  *) exit 0 ;;
+esac
+
+# Only check app source files
+if ! echo "$FILE_PATH" | grep -qE '(apps|src)/.*\.(tsx?|jsx?)$'; then
+  exit 0
+fi
+
+# Check if content has @donotdev imports
+if ! echo "$CONTENT" | grep -qE "from ['\"]@donotdev/"; then
+  exit 0
+fi
+
+# Extract symbols and check against tracking file — single bun call
+RESULT=$(echo "$CONTENT" | bun -e "
+  const content = await Bun.stdin.text();
+  const importRe = /import\s*\{([^}]+)\}\s*from\s*['\"]@donotdev\//g;
+  const symbols = new Set();
+  for (const m of content.matchAll(importRe)) {
+    for (const sym of m[1].split(',')) {
+      const name = sym.replace(/\s+as\s+\w+/, '').trim();
+      if (/^[A-Z]/.test(name)) symbols.add(name);
+    }
+  }
+  if (symbols.size === 0) { process.stdout.write('OK'); process.exit(); }
+
+  let lookups = new Set();
+  try {
+    const text = await Bun.file('$TRACK_FILE').text();
+    for (const line of text.split('\n')) {
+      const trimmed = line.trim();
+      if (trimmed) lookups.add(trimmed);
+    }
+  } catch {}
+
+  const missing = [...symbols].filter(s => !lookups.has(s));
+  process.stdout.write(missing.length ? 'MISSING:' + missing.join(',') : 'OK');
+")
+
+if [ "${RESULT#MISSING:}" != "$RESULT" ]; then
+  MISSING="${RESULT#MISSING:}"
+  echo "BLOCKED: @donotdev imports without lookup_symbol() verification: ${MISSING//,/, }" >&2
+  echo "Call lookup_symbol({ symbol: \"Name\" }) for each component before importing." >&2
+  exit 2
+fi
+
+# --- CUSTOM COMPONENT DETECTION ---
+if echo "$FILE_PATH" | grep -qE 'src/components/' && echo "$CONTENT" | grep -q '@custom-component'; then
+  COMPONENT_NAME=$(basename "$FILE_PATH" | sed 's/\.\(tsx\|ts\|jsx\|js\)$//')
+  if command -v gh &>/dev/null && git remote get-url origin &>/dev/null 2>&1; then
+    EXISTING=$(gh issue list --label "framework-evolution" --search "$COMPONENT_NAME" --json number --jq '.[0].number' 2>/dev/null || true)
+    if [ -z "$EXISTING" ]; then
+      gh issue create \
+        --title "Framework gap: $COMPONENT_NAME" \
+        --body "Custom component \`$COMPONENT_NAME\` at \`$FILE_PATH\`. Auto-created by guard hook." \
+        --label "framework-evolution" 2>/dev/null || true
+    fi
+  fi
+fi
+
+exit 0

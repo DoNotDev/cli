@@ -8,12 +8,17 @@
 
 **Environment:**
 ```bash
-# .env
+# .env (client-side, exposed to browser)
 VITE_OAUTH_PARTNERS=github,google,spotify,discord
-VITE_OAUTH_GITHUB_CLIENT_ID=your_github_client_id
-VITE_OAUTH_GOOGLE_CLIENT_ID=your_google_client_id
-VITE_OAUTH_SPOTIFY_CLIENT_ID=your_spotify_client_id
-VITE_OAUTH_DISCORD_CLIENT_ID=your_discord_client_id
+VITE_GITHUB_CLIENT_ID=your_github_client_id
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
+
+# Server-side secrets (edge functions / cloud functions)
+# Convention: {PROVIDER}_CLIENT_ID, {PROVIDER}_CLIENT_SECRET
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 
 **Available:** `github`, `google`, `spotify`, `discord`, `twitch`, `reddit`, `linkedin`, `slack`, `notion`, `medium`, `twitter`, `mastodon`, `youtube`

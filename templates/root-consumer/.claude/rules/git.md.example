@@ -1,0 +1,14 @@
+---
+description: "Git discipline - enforced on all operations"
+globs: "**"
+---
+
+# Git Rules
+
+- **Atomic commits.** One logical change per commit. Never mix refactor + feature + fix.
+- **Conventional format.** `type(scope): message` - e.g. `feat(auth): add email verification flow`.
+- **Message = why**, not what. The diff shows what.
+- **Never force-push.** No `--force`, no `-f` after push. Hook-enforced.
+- **Never skip hooks.** No `--no-verify`. Fix the root cause.
+- **Never amend published commits.** New commit to fix.
+- **Push is deployment.** `git push` triggers the pipeline. Be intentional.

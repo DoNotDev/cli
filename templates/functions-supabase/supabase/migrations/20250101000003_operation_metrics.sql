@@ -15,6 +15,9 @@ CREATE TABLE IF NOT EXISTS operation_metrics (
   error_message TEXT                        -- If status = 'failed'
 );
 
+-- Only service_role accesses this table; lock out anon/authenticated keys
+ALTER TABLE operation_metrics ENABLE ROW LEVEL SECURITY;
+
 -- Indexes for efficient queries
 CREATE INDEX IF NOT EXISTS idx_metrics_operation ON operation_metrics(operation, timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_metrics_user ON operation_metrics(user_id, timestamp DESC) WHERE user_id IS NOT NULL;

@@ -1,0 +1,50 @@
+#!/bin/bash
+# .claude/hooks/session-start.sh
+# Injects context at session start so the agent doesn't fly blind.
+# Cross-platform: bun-first, no grep -P.
+
+set -euo pipefail
+
+echo "=== SESSION CONTEXT ==="
+
+# Git branch
+BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
+echo "Branch: $BRANCH"
+
+# Dirty files count
+DIRTY=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+if [ "$DIRTY" -gt 0 ]; then
+  echo "Dirty files: $DIRTY"
+  git status --porcelain 2>/dev/null | head -10
+  [ "$DIRTY" -gt 10 ] && echo "  ... and $((DIRTY - 10)) more"
+fi
+
+# WAI-WAY phase status (if dndev is available)
+if command -v dndev &>/dev/null; then
+  PHASE_FILE=".dndev/implementation.md"
+  if [ -f "$PHASE_FILE" ]; then
+    CURRENT=$(bun -e "
+      const text = await Bun.file('$PHASE_FILE').text();
+      const m = text.match(/Current Phase:\\s*(.+)/);
+      process.stdout.write(m ? m[1].trim() : 'none');
+    " 2>/dev/null || echo "none")
+    echo "WAI-WAY Phase: $CURRENT"
+  else
+    echo "WAI-WAY Phase: not started - call start_phase(0)"
+  fi
+fi
+
+# Recent lessons (last 3)
+LESSONS_FILE=".dndev/LESSONS.md"
+if [ -f "$LESSONS_FILE" ]; then
+  LESSON_COUNT=$(grep -c '^## ' "$LESSONS_FILE" 2>/dev/null || echo "0")
+  if [ "$LESSON_COUNT" -gt 0 ]; then
+    echo ""
+    echo "Recent lessons ($LESSON_COUNT total):"
+    grep '^## ' "$LESSONS_FILE" | tail -3 | sed 's/^/  /'
+  fi
+fi
+
+echo ""
+echo "REMINDER: Read AI.md. Call lookup_symbol() before any @donotdev import."
+echo "=== END CONTEXT ==="

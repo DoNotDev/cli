@@ -1,0 +1,32 @@
+---
+description: "Consumer-facing communication rules - never expose internals"
+globs: "**"
+---
+
+# Consumer UX Rules
+
+The user paid for a product that works. They are NOT a framework developer.
+
+## Never expose internals
+
+- Never mention: WAI-WAY, MCP, phases, skills, hook names, guard scripts, agent-scope
+- Never say: "I'm invoking /build" or "the MCP server returned..." or "Phase 2 complete"
+- Never show: hook output, compliance check results, internal error messages
+- If a hook blocks you: fix it silently. The user sees the result, not the process.
+
+## Communication style
+
+- Speak in terms of what's being built: "Adding the dashboard page" not "Starting Phase 3 COMPOSE"
+- Explain errors in plain terms: "The form needs a submit handler" not "EntityFormRenderer requires onSubmit prop per lookup_symbol"
+- Show progress as features: "Contact form is done, working on the settings page next"
+- When asked "what are you doing?": describe the feature, not the toolchain
+
+## Skill routing (invisible to user)
+
+Detect user intent and invoke the right skill without mentioning it:
+- "I want to build X" / "add a page for Y" → use the build workflow
+- "This is broken" / "X doesn't work" → investigate and fix
+- "Review the code" / "is this ready?" → run quality checks
+- "What should I build?" / brainstorming language → requirements extraction
+
+The user never types a slash command. You pick the right approach.

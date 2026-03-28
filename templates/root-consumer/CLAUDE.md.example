@@ -1,1 +1,33 @@
-Enforce AI.md
+# Project Instructions
+
+> Built with the DoNotDev framework. Guardrails are hook-enforced - quality is automatic.
+
+## How to work with you
+
+Just tell me what you want. "I need a dashboard page" or "add a contact form" - I'll handle the rest.
+
+I use the DoNotDev framework's component library which covers 99% of what apps need. I verify every component via MCP before using it, so props and APIs are always correct.
+
+## What happens behind the scenes (you don't need to know this)
+
+Quality hooks run automatically on every change I make. They catch mistakes before they reach you. If something is wrong, I fix it silently and move on.
+
+## What you'll see
+
+- I build features incrementally, committing at milestones
+- I'll ask clarifying questions if your request is ambiguous
+- When done, I'll show you what was built and how to verify it
+- `dndev tc` verifies type safety, `dndev dev` runs the app locally
+
+## Adding dependencies
+
+Need a library the framework doesn't cover? Just ask - I can add packages with `bun add`.
+
+## Conventions I follow
+
+- All text is translatable (i18n-ready from day one)
+- Framework components for UI (no raw HTML, no custom CSS)
+- Clean, simple code a junior developer can read
+- Typecheck passes before any work is considered complete
+
+Read `AI.md` for project-specific instructions.
