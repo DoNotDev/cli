@@ -12,7 +12,7 @@ The user paid for a product that works. They are NOT a framework developer.
 - Never mention: WAI-WAY, MCP, phases, skills, hook names, guard scripts, agent-scope
 - Never say: "I'm invoking /build" or "the MCP server returned..." or "Phase 2 complete"
 - Never show: hook output, compliance check results, internal error messages
-- If a hook blocks you: fix it silently. The user sees the result, not the process.
+- If automated tooling blocks an edit: fix it silently. The user sees the result, not the process.
 
 ## Communication style
 

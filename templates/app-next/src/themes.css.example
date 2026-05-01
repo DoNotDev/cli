@@ -54,6 +54,12 @@
   --input: #e4e4e7;
   --ring: var(--primary);
 
+  /* Interactive surface — background for inputs (.dndev-input) and outline
+     buttons (.dndev-interactive[data-variant='outline']). Parallel to --card
+     for containers. Defaults to transparent (see variables.css). Uncomment
+     to tint. */
+  /* --interactive: var(--muted); */
+
   /* Brand colors - customize these */
   --primary: #0284c7;
   --primary-foreground: #ffffff;
@@ -122,7 +128,7 @@
 
 /* ===========================
    OPTIONAL ESSENCES (do not apply by default; set <html class="brutalist"> or class="luxury" to use)
-   See guides/dndev/essences_reference.css for full .brutalist and .luxury blocks.
+   See @donotdev/core guidelines/ESSENCES_REFERENCE.css for full .brutalist and .luxury blocks.
    =========================== */
 
 /* ===========================

@@ -189,7 +189,7 @@ export default function HomePage() {
             ordered
           />
           <Text level="small">
-            Read guides/wai-way/WAI_WAY_CLI.md for the full workflow, or use the MCP tools if your IDE supports them.
+            Use MCP get_guideline("WAI_WAY_CLI") for the full workflow if your IDE supports MCP.
           </Text>
         </Stack>
       </Section>

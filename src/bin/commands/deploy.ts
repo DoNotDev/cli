@@ -11,6 +11,7 @@
  *   dndev deploy --staging    — deploy using staging environment
  *   dndev deploy --project <id> — override Firebase project ID
  *   dndev deploy --skip-build  — skip build step (deploy existing build)
+ *   dndev deploy --from-git  — Next.js on Vercel: Vercel builds from linked Git (default is local build + upload)
  *   dndev deploy --force      — force deployment / cleanup
  *
  * @version 0.1.0

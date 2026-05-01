@@ -66,11 +66,11 @@ functions/
 
 ```bash
 # Stripe Configuration
-STRIPE_SECRET_KEY=sk_live_...
+STRIPE_SECRET_KEY=<stripe_secret_key>
 STRIPE_WEBHOOK_SECRET=whsec_...
 
 # GitHub Configuration
-GITHUB_PERSONAL_ACCESS_TOKEN=ghp_...
+GITHUB_PERSONAL_ACCESS_TOKEN=<github_personal_access_token>
 GITHUB_REPO_OWNER=your-org
 GITHUB_REPO_NAME=your-repo
 
@@ -112,7 +112,7 @@ dndev deploy <app-name>
 
 **Important:** `functions.yaml` must be manually maintained. Each function exported from `src/index.ts` must have a corresponding entry in `functions.yaml`. The deployment script preserves `functions.yaml` and does not modify it.
 
-See [FUNCTIONS.md](../../guides/FUNCTIONS.md) for detailed information about `functions.yaml` and function deployment.
+See MCP `get_guideline("FUNCTIONS")` or `@donotdev/functions/guidelines/FUNCTIONS.md` for `functions.yaml` and deployment.
 
 ## Development
 

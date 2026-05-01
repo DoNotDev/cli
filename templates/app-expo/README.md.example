@@ -55,4 +55,4 @@ eas.json          # EAS Build configuration
 
 - [Expo Router Docs](https://docs.expo.dev/router/introduction/)
 - [DoNotDev Expo Package](../../../docs/development/EXPO_QUICK_START.md)
-- [WAI-WAY Guide](../../guides/wai-way/WAI_WAY_CLI.md.example)
+- WAI-WAY: MCP `get_guideline("WAI_WAY_CLI")` (shipped with `@donotdev/mcp-server`)

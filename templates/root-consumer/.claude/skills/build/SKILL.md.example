@@ -1,128 +1,45 @@
 ---
 name: build
-description: "MCP-gated implementation (Phases 1-3). Spec is law — deliver COMPLETE (i18n, theme, auth, everything in spec). lookup_symbol before every component. Consumer workflow only. Use AFTER /design."
-argument-hint: [requirement or LLD reference]
+description: Build workflow. Implements approved design using framework components. Activates WAI-WAY Phase 3 (COMPOSE).
+argument-hint: [feature, page, or task]
+disable-model-invocation: true
 ---
 
-# Build — Deliver What's in the Spec
+# Build - Implementation (Phase 3 COMPOSE)
 
-**WORKFLOW:** `/brainstorm` → `/design` → `/build` → `/polish`
+**WORKFLOW:** `/brainstorm` -> `/design` -> `/build` -> `/polish`
 
-## Philosophy: Waterfall, Not Agile
+## Step 0 - Start Phase (MANDATORY)
 
-The spec (PRD + HLD + LLD) is the contract. Deliver exactly what's in it. No "we'll add i18n later." No "hardcode strings for now." No "iterate until it works."
-
-If the spec says i18n → deliver i18n. If the spec says dark mode → deliver dark mode. Bad spec = bad app. That's the Extractor's job to prevent, not ours to compensate for.
-
-## Step 0 — Start Phase (MANDATORY)
-
-```
-start_phase(1)
-```
-Do NOT write code without this call. It loads the blueprint, persona, context, and lessons.
-
-## Step 1 — Read the Spec
-
-Read ALL spec documents. These are your instructions, not suggestions:
-
-- `docs/PRD.md` — what to build, user journeys, business rules, permissions
-- `docs/HLD.md` — architecture, preset, auth, pages, features, theme
-- `docs/LLD.md` — entity fields, state machines, access matrices
-
-**Inventory from spec:**
-1. List ALL pages with their purpose and user journey
-2. List ALL entities with fields and access rules
-3. List ALL features (i18n, auth, dark mode, etc.)
-4. List ALL languages if i18n is specified
-5. List the theme/essence
-
-If something is ambiguous in the spec → STOP and ask. Do NOT interpret.
-
-## Step 2 — Lookup All Components (MANDATORY GATE)
-
-**STOP before every `@donotdev` import** → call `lookup_symbol({ symbol: "Name" })`.
-
-No exceptions. Do NOT guess props, hooks, or APIs.
-
-If MCP is down, read source directly in `packages/*/src/`.
-
-**Hallucination traps** (commonly invented props that DO NOT exist):
-`size`, `tone`, `color`, `padding`, `margin`, `spacing`, `columns`, `background`, `fields`
-
-**Import convention:** Always `@donotdev/<package>` — never sub-paths. Only exceptions: `@donotdev/core/server`, `@donotdev/core/vite`, `@donotdev/core/next`, `@donotdev/core/functions`.
-
-## Step 3 — Build (Complete, Not Iterative)
-
-Build in order. Each step produces final output, not stubs.
-
-### Phase 1: SCAFFOLD
-```
-start_phase(1)
-```
-- Apply theme/essence from HLD
-- Create ALL page files with correct `PageMeta`
-- Set up routes matching spec's page map
-- Auth configuration if spec requires it
-```
-complete_phase({ files: [...], summary: "..." })
-```
-
-### Phase 2: ENTITIES
-```
-start_phase(2)
-```
-- Create ALL entity files from LLD
-- Fields, states, access rules — exactly as specified
-- Database migrations/rules
-- Export from `entities/index.ts`
-```
-complete_phase({ files: [...], summary: "..." })
-```
-
-### Phase 3: COMPOSE
 ```
 start_phase(3)
 ```
-- Build ALL pages — FINAL versions, not prototypes
-- CRUD pages → `EntityList` + `EntityFormRenderer`
-- i18n from the start if spec says i18n
-- Theme applied (essence, colors, density, radius from spec)
-- Auth guards where spec requires auth
-- Wire entities into pages
-```
-complete_phase({ files: [...], summary: "..." })
-```
 
-### BLOCKING RULES
+Do NOT proceed without this call.
 
-| Rule | Detail |
-|------|--------|
-| **No native HTML** | Use framework components only (Stack, Card, Text, Button, etc.) |
-| **No custom CSS** | No `.css` files, no Tailwind classes. Use component props + theme tokens. |
-| **Spec is law** | Deliver what the spec says. No deferring. No "later." |
-| **i18n-first always** | ALL user-facing strings use `t('key')`. Even single-language apps. Create locale files immediately. |
-| **No creative freedom** | Copy/labels come from spec. Don't invent. |
-| **Framework stores** | Use `createDoNotDevStore`, never raw `zustand`. |
-| **Import order** | React → vendors → `@donotdev/*` → relative. ESM only. |
+## Step 1 - Implement approved scope
 
-## Step 4 — Verify
+Input: `$ARGUMENTS` + approved HLD/LLD.
 
-Run `dndev tc` ONCE at the end. Fix errors with verified props only.
+Rules:
+- Implement only approved scope.
+- Follow existing patterns in the app first.
+- Use framework components and top-level imports (`@donotdev/<pkg>` only).
+- Before any `@donotdev` symbol import, call `lookup_symbol()` first.
+- Do not invent props.
 
-## Step 5 — Spec Compliance Check
+## Step 2 - Validate
 
-- [ ] Every page in HLD page map exists and is functional
-- [ ] Every entity in LLD is defined with correct fields/access
-- [ ] Every feature in HLD is implemented (not "deferred")
-- [ ] i18n done if spec says i18n
-- [ ] Theme/essence applied if specified
-
-**Missing anything from spec = incomplete delivery = bug.**
-
-## Step 6 — Complete
-
-```
-complete_phase({ files: ["...all files..."], summary: "Spec fully delivered" })
+```bash
+dndev tc
 ```
 
-Wait for user `approve_phase()` → then proceed to `/polish` (QA audit).
+Type-check must pass before completion.
+
+## Step 3 - Complete Phase
+
+```
+complete_phase({ files: [...], summary: "Phase 3 compose complete" })
+```
+
+Wait for user `approve_phase()` then proceed to `/polish`.

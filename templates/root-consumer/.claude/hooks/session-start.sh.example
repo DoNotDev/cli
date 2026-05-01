@@ -46,5 +46,5 @@ if [ -f "$LESSONS_FILE" ]; then
 fi
 
 echo ""
-echo "REMINDER: Read AI.md. Call lookup_symbol() before any @donotdev import."
+echo "REMINDER: Root instructions are in AGENTS.md. Use lookup_symbol before @donotdev imports."
 echo "=== END CONTEXT ==="

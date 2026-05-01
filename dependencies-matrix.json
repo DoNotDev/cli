@@ -1,0 +1,1227 @@
+{
+  "$schema": "./dependencies-matrix.schema.json",
+  "version": "0.0.6",
+  "description": "Centralized dependency versions for DoNotDev framework. Single source of truth for all external dependencies. Third-party optional deps are auto-detected from peerDependenciesMeta via scanInstalledPackageOptionals() — no manual constants update needed.",
+  "lastUpdated": "2026-05-01",
+  "migrationGuides": {
+    "0.0→0.1": {
+      "path": "docs/migration/v0.0-to-v0.1.md",
+      "breakingChanges": []
+    },
+    "0.1→1.0": {
+      "path": "docs/migration/v0.1-to-v1.0.md",
+      "breakingChanges": []
+    }
+  },
+  "groups": {
+    "@donotdev/ai": {
+      "description": "AI package - provider-agnostic LLM plumbing",
+      "packages": {
+        "@donotdev/ai": "^0.1.42"
+      }
+    },
+    "@donotdev/graphql": {
+      "description": "GraphQL data provider - opt-in, not scaffolded by default",
+      "packages": {
+        "@donotdev/graphql": "^0.1.42"
+      }
+    },
+    "@donotdev/restcrud": {
+      "description": "REST CRUD data provider - opt-in, not scaffolded by default",
+      "packages": {
+        "@donotdev/restcrud": "^0.1.42"
+      }
+    },
+    "@donotdev/testing": {
+      "description": "Testing utilities - opt-in, not scaffolded by default",
+      "packages": {
+        "@donotdev/testing": "^0.1.42"
+      }
+    },
+    "@donotdev/auth": {
+      "description": "Authentication package",
+      "packages": {
+        "@donotdev/auth": "^0.1.42"
+      }
+    },
+    "@donotdev/billing": {
+      "description": "Billing package",
+      "packages": {
+        "@donotdev/billing": "^0.1.42"
+      }
+    },
+    "@donotdev/components": {
+      "description": "UI components package",
+      "packages": {
+        "@donotdev/components": "^0.1.42"
+      }
+    },
+    "@donotdev/core": {
+      "description": "Core framework package",
+      "packages": {
+        "@donotdev/core": "^0.1.42"
+      }
+    },
+    "@donotdev/crud": {
+      "description": "CRUD operations package",
+      "packages": {
+        "@donotdev/crud": "^0.1.42"
+      }
+    },
+    "@donotdev/firebase": {
+      "description": "Firebase provider package",
+      "packages": {
+        "@donotdev/firebase": "^0.1.42"
+      }
+    },
+    "@donotdev/functions": {
+      "description": "Firebase Functions package",
+      "packages": {
+        "@donotdev/functions": "^0.1.42"
+      }
+    },
+    "@donotdev/oauth": {
+      "description": "OAuth package",
+      "packages": {
+        "@donotdev/oauth": "^0.1.42"
+      }
+    },
+    "@donotdev/templates": {
+      "description": "Page templates package",
+      "packages": {
+        "@donotdev/templates": "^0.1.42"
+      }
+    },
+    "@donotdev/ui": {
+      "description": "UI and routing package",
+      "packages": {
+        "@donotdev/ui": "^0.1.42"
+      }
+    },
+    "@donotdev/expo": {
+      "description": "Expo/React Native components package",
+      "packages": {
+        "@donotdev/expo": "^0.1.42"
+      }
+    },
+    "@donotdev/supabase": {
+      "description": "Supabase provider package",
+      "packages": {
+        "@donotdev/supabase": "^0.1.42"
+      }
+    },
+    "supabase-js": {
+      "description": "Supabase client SDK",
+      "packages": {
+        "@supabase/supabase-js": "^2.76.14"
+      }
+    },
+    "supabase-cli": {
+      "description": "Supabase CLI for migrations and edge functions",
+      "packages": {
+        "supabase": "^2.76.15"
+      }
+    },
+    "provider-firebase": {
+      "description": "Firebase provider bundle for app scaffolding (conditional)",
+      "includes": [
+        "@donotdev/firebase",
+        "firebase"
+      ]
+    },
+    "provider-supabase": {
+      "description": "Supabase provider bundle for app scaffolding (conditional)",
+      "includes": [
+        "@donotdev/supabase",
+        "supabase-js"
+      ]
+    },
+    "react": {
+      "description": "Core React - consumers install explicitly",
+      "packages": {
+        "react": "^19.2.4",
+        "react-dom": "^19.2.4"
+      }
+    },
+    "react-native-only": {
+      "description": "React without react-dom for React Native/Expo apps",
+      "packages": {
+        "react": "^19.2.4"
+      }
+    },
+    "i18n": {
+      "description": "i18n libraries - auto-installed as transitive deps",
+      "packages": {
+        "i18next": "^25.10.5",
+        "i18next-browser-languagedetector": "^8.2.1",
+        "i18next-http-backend": "^3.0.2",
+        "react-i18next": "^16.5.4"
+      }
+    },
+    "zustand": {
+      "description": "State management - consumers install for custom stores",
+      "packages": {
+        "zustand": "^5.0.11"
+      }
+    },
+    "react-query": {
+      "description": "Data fetching - auto-installed as transitive dep",
+      "packages": {
+        "@tanstack/react-query": "^5.90.21"
+      }
+    },
+    "validation": {
+      "description": "Schema validation - consumers install for custom schemas",
+      "packages": {
+        "valibot": "^1.2.0"
+      }
+    },
+    "lucide-react": {
+      "description": "Icons - consumers install and use directly",
+      "packages": {
+        "lucide-react": "^0.575.0"
+      }
+    },
+    "react-day-picker": {
+      "description": "Date picker - auto-installed as transitive dep",
+      "packages": {
+        "react-day-picker": "^9.13.2"
+      }
+    },
+    "radix": {
+      "description": "UI primitives - auto-installed as transitive dep",
+      "packages": {
+        "@radix-ui/react-accordion": "^1.2.12",
+        "@radix-ui/react-alert-dialog": "^1.1.15",
+        "@radix-ui/react-avatar": "^1.1.11",
+        "@radix-ui/react-checkbox": "^1.3.3",
+        "@radix-ui/react-collapsible": "^1.1.12",
+        "@radix-ui/react-context-menu": "^2.2.16",
+        "@radix-ui/react-dialog": "^1.1.15",
+        "@radix-ui/react-dropdown-menu": "^2.1.16",
+        "@radix-ui/react-hover-card": "^1.1.15",
+        "@radix-ui/react-label": "^2.1.8",
+        "@radix-ui/react-navigation-menu": "^1.2.14",
+        "@radix-ui/react-popover": "^1.1.15",
+        "@radix-ui/react-portal": "^1.1.10",
+        "@radix-ui/react-progress": "^1.1.8",
+        "@radix-ui/react-radio-group": "^1.3.8",
+        "@radix-ui/react-scroll-area": "^1.2.10",
+        "@radix-ui/react-select": "^2.2.6",
+        "@radix-ui/react-separator": "^1.1.8",
+        "@radix-ui/react-slider": "^1.3.6",
+        "@radix-ui/react-slot": "^1.2.4",
+        "@radix-ui/react-switch": "^1.2.6",
+        "@radix-ui/react-tabs": "^1.1.13",
+        "@radix-ui/react-toast": "^1.2.15",
+        "@radix-ui/react-toggle": "^1.1.10",
+        "@radix-ui/react-toggle-group": "^1.1.11",
+        "@radix-ui/react-tooltip": "^1.2.8",
+        "@radix-ui/react-visually-hidden": "^1.2.4"
+      }
+    },
+    "styling": {
+      "description": "CSS utilities - auto-installed as transitive dep",
+      "packages": {
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1"
+      }
+    },
+    "shiki": {
+      "packages": {
+        "shiki": "^3.22.0"
+      }
+    },
+    "forms": {
+      "packages": {
+        "react-hook-form": "^7.71.2"
+      }
+    },
+    "forms-resolvers": {
+      "packages": {
+        "@hookform/resolvers": "^5.2.2"
+      }
+    },
+    "fontsource-themes": {
+      "description": "Theme fonts bundled in @donotdev/ui (Inter, Space Grotesk, Playfair, Press Start 2P, Roboto)",
+      "packages": {
+        "@fontsource/inter": "^5.2.8",
+        "@fontsource/playfair-display": "^5.2.8",
+        "@fontsource/press-start-2p": "^5.2.5",
+        "@fontsource/roboto": "^5.2.10",
+        "@fontsource/space-grotesk": "^5.2.10"
+      }
+    },
+    "seo": {
+      "packages": {
+        "react-helmet-async": "^2.0.5"
+      }
+    },
+    "markdown": {
+      "description": "Markdown parsing - marked + GFM footnotes, html-react-parser for SSR",
+      "packages": {
+        "html-react-parser": "^5.2.17",
+        "marked": "^17.0.3",
+        "marked-footnote": "^1.4.0"
+      }
+    },
+    "react-router-dom": {
+      "packages": {
+        "react-router-dom": "^7.13.1"
+      }
+    },
+    "firebase": {
+      "packages": {
+        "firebase": "^12.9.0"
+      }
+    },
+    "browser-image-compression": {
+      "description": "Image compression library for browser",
+      "packages": {
+        "browser-image-compression": "^2.0.2"
+      }
+    },
+    "dompurify": {
+      "description": "HTML sanitization — XSS-safe alternative to regex-based sanitizers",
+      "packages": {
+        "dompurify": "^3.3.2"
+      }
+    },
+    "tiptap": {
+      "description": "Rich text editor - optional peer dependency. Required: @tiptap/react, @tiptap/pm, @tiptap/starter-kit. Optional: @tiptap/extension-placeholder for placeholder text.",
+      "packages": {
+        "@tiptap/react": "^3.19.0",
+        "@tiptap/pm": "^3.19.0",
+        "@tiptap/starter-kit": "^3.19.0",
+        "@tiptap/extension-placeholder": "^3.19.0"
+      }
+    },
+    "stripe": {
+      "packages": {
+        "stripe": "^20.3.1"
+      }
+    },
+    "firebase-admin": {
+      "packages": {
+        "firebase-admin": "^13.6.1"
+      }
+    },
+    "firebase-functions": {
+      "packages": {
+        "firebase-functions": "^7.0.5"
+      }
+    },
+    "vercel-deps": {
+      "packages": {
+        "next": "^16.1.6",
+        "vercel": "^50.23.2"
+      }
+    },
+    "esbuild": {
+      "packages": {
+        "esbuild": "^0.27.3"
+      }
+    },
+    "rollup": {
+      "packages": {
+        "rollup": "^4.57.1",
+        "rollup-plugin-dts": "6.3.0"
+      }
+    },
+    "yaml": {
+      "packages": {
+        "yaml": "^2.7.1"
+      }
+    },
+    "cli-prompts": {
+      "description": "CLI prompts - used by core config for logging",
+      "packages": {
+        "@clack/prompts": "^1.0.1"
+      }
+    },
+    "cli-commander": {
+      "description": "CLI command framework - CLI package only",
+      "packages": {
+        "commander": "^14.0.3"
+      }
+    },
+    "fast-glob": {
+      "description": "Glob matching - auto-installed as transitive dep",
+      "packages": {
+        "fast-glob": "^3.3.3"
+      }
+    },
+    "vite": {
+      "packages": {
+        "vite": "^7.3.1"
+      }
+    },
+    "next": {
+      "packages": {
+        "next": "^16.1.6"
+      }
+    },
+    "expo": {
+      "description": "Expo SDK and core dependencies",
+      "packages": {
+        "expo": "^55.0.2",
+        "expo-router": "^55.0.2",
+        "expo-audio": "^1.1.1",
+        "expo-clipboard": "^55.0.8",
+        "expo-document-picker": "^55.0.8",
+        "@expo/vector-icons": "^15.0.0",
+        "@react-native-async-storage/async-storage": "^2.1.0",
+        "@react-native-community/datetimepicker": "^8.0.0",
+        "react-native-safe-area-context": "^5.0.0"
+      }
+    },
+    "react-native": {
+      "description": "React Native core",
+      "packages": {
+        "react-native": "^0.84.0"
+      }
+    },
+    "typescript": {
+      "packages": {
+        "typescript": "^5.9.3"
+      }
+    },
+    "monitoring": {
+      "packages": {
+        "@sentry/react": "^10.39.0"
+      }
+    },
+    "monitoring-node": {
+      "packages": {
+        "@sentry/node": "^10.39.0"
+      }
+    },
+    "puppeteer": {
+      "description": "Headless Chrome for build-time prerendering (SEO). Required by @donotdev/core vite config.",
+      "packages": {
+        "puppeteer-core": "^24.40.0",
+        "@sparticuz/chromium": "^143.0.4"
+      }
+    },
+    "postcss": {
+      "packages": {
+        "postcss": "^8.5.6",
+        "postcss-import": "^16.1.1",
+        "postcss-nesting": "^14.0.0",
+        "autoprefixer": "^10.4.27"
+      }
+    },
+    "core-vite-config": {
+      "description": "Vite config deps bundled into @donotdev/core/vite (externalized by esbuild, must be in dependencies for publish)",
+      "packages": {
+        "@vitejs/plugin-react": "^5.1.4",
+        "@rollup/plugin-strip": "^3.0.4",
+        "@vitejs/plugin-basic-ssl": "^2.1.4",
+        "rollup-plugin-visualizer": "^6.0.5",
+        "vite-plugin-pwa": "1.2.0",
+        "vite-tsconfig-paths": "^6.1.1"
+      }
+    },
+    "eslint": {
+      "packages": {
+        "eslint": "^9.39.3"
+      }
+    },
+    "types": {
+      "packages": {
+        "@types/node": "^24.10.13",
+        "@types/react": "^19.2.14",
+        "@types/react-dom": "^19.2.3"
+      }
+    },
+    "types-expo": {
+      "description": "TypeScript types for Expo and React Native",
+      "packages": {
+        "@types/react": "^19.2.14"
+      }
+    },
+    "root-consumer-tooling": {
+      "packages": {
+        "@donotdev/cli": "latest",
+        "turbo": "^2.8.10",
+        "sharp": "^0.34.5"
+      }
+    },
+    "vercel": {
+      "packages": {
+        "vercel": "^50.23.2"
+      }
+    },
+    "@donotdev/cli": {
+      "description": "Cli package",
+      "packages": {
+        "@donotdev/cli": "^0.1.42"
+      }
+    },
+    "@donotdev/mcp-server": {
+      "description": "MCP server for component type lookups",
+      "packages": {
+        "@donotdev/mcp-server": "^0.1.42"
+      }
+    },
+    "mcp-sdk": {
+      "description": "Model Context Protocol SDK",
+      "packages": {
+        "@modelcontextprotocol/sdk": "^1.26.0"
+      }
+    },
+    "react-easy-crop": {
+      "description": "Image cropping - auto-installed as transitive dep for crud",
+      "packages": {
+        "react-easy-crop": "^5.5.6"
+      }
+    },
+    "@dnd-kit": {
+      "description": "Drag and drop library - auto-installed as transitive dep for crud",
+      "packages": {
+        "@dnd-kit/core": "^6.3.1",
+        "@dnd-kit/sortable": "^10.0.0",
+        "@dnd-kit/utilities": "^3.2.2"
+      }
+    },
+    "@donotdev/security": {
+      "description": "Security package",
+      "packages": {
+        "@donotdev/security": "^0.1.42"
+      }
+    },
+    "xterm": {
+      "description": "Terminal emulator for cockpit app",
+      "packages": {
+        "@xterm/xterm": "^6.0.0",
+        "@xterm/addon-fit": "^0.11.0",
+        "@xterm/addon-web-links": "^0.12.0"
+      }
+    },
+    "node-pty": {
+      "description": "PTY for terminal sidecar (native C++ addon)",
+      "rootExclude": true,
+      "packages": {
+        "node-pty": "^1.1.0"
+      }
+    },
+    "react-markdown-cockpit": {
+      "description": "Markdown rendering for cockpit (phase details, captain log)",
+      "packages": {
+        "react-markdown": "^10.1.0",
+        "remark-gfm": "^4.0.1"
+      }
+    },
+    "react-resizable-panels": {
+      "description": "Resizable panel layout for cockpit",
+      "packages": {
+        "react-resizable-panels": "^4.7.0"
+      }
+    },
+    "ws": {
+      "description": "WebSocket client for terminal sidecar communication",
+      "packages": {
+        "ws": "^8.18.0"
+      }
+    },
+    "ws-types": {
+      "description": "TypeScript types for ws",
+      "packages": {
+        "@types/ws": "^8.18.1"
+      }
+    },
+    "@donotdev/canvas": {
+      "description": "Canvas package",
+      "packages": {
+        "@donotdev/canvas": "^0.1.42"
+      }
+    }
+  },
+  "overrides": {
+    "path-to-regexp": "^0.1.7",
+    "react-native": "^0.84.0"
+  },
+  "packageMapping": {
+    "@donotdev/ai": {
+      "peerDependencies": [
+        "react",
+        "@donotdev/auth",
+        "@donotdev/components",
+        "@donotdev/core",
+        "lucide-react"
+      ]
+    },
+    "@donotdev/graphql": {
+      "peerDependencies": [
+        "@donotdev/core"
+      ]
+    },
+    "@donotdev/restcrud": {
+      "peerDependencies": [
+        "@donotdev/core"
+      ]
+    },
+    "@donotdev/testing": {
+      "peerDependencies": [
+        "@donotdev/core"
+      ]
+    },
+    "@donotdev/core": {
+      "peerDependencies": [
+        "react",
+        "zustand",
+        "validation",
+        "lucide-react",
+        "i18n"
+      ],
+      "dependencies": [
+        "react-query",
+        "fast-glob",
+        "cli-prompts",
+        "core-vite-config",
+        "postcss"
+      ],
+      "devDependencies": [
+        "vite",
+        "next",
+        "typescript"
+      ]
+    },
+    "@donotdev/components": {
+      "dependencies": [
+        "radix",
+        "styling",
+        "react-day-picker"
+      ],
+      "peerDependencies": [
+        "react",
+        "shiki",
+        "lucide-react"
+      ],
+      "peerDependenciesMeta": {
+        "shiki": {
+          "optional": true
+        }
+      }
+    },
+    "@donotdev/ui": {
+      "peerDependencies": [
+        "react",
+        "lucide-react",
+        "@donotdev/auth",
+        "@donotdev/billing",
+        "@donotdev/crud",
+        "@donotdev/oauth",
+        "react-router-dom",
+        "validation",
+        "forms",
+        "forms-resolvers",
+        "seo"
+      ],
+      "dependencies": [
+        "fontsource-themes"
+      ],
+      "peerDependenciesMeta": {
+        "@donotdev/auth": {
+          "optional": true
+        },
+        "@donotdev/billing": {
+          "optional": true
+        },
+        "@donotdev/crud": {
+          "optional": true
+        },
+        "@donotdev/oauth": {
+          "optional": true
+        },
+        "react-router-dom": {
+          "optional": true
+        }
+      }
+    },
+    "@donotdev/auth": {
+      "peerDependencies": [
+        "react",
+        "@donotdev/firebase",
+        "@donotdev/supabase"
+      ],
+      "peerDependenciesMeta": {
+        "@donotdev/firebase": {
+          "optional": true
+        },
+        "@donotdev/supabase": {
+          "optional": true
+        }
+      }
+    },
+    "@donotdev/billing": {
+      "peerDependencies": [
+        "react",
+        "lucide-react",
+        "stripe",
+        "@donotdev/auth"
+      ]
+    },
+    "@donotdev/canvas": {
+      "dependencies": [
+        "@donotdev/core",
+        "validation"
+      ],
+      "peerDependencies": [
+        "react",
+        "@donotdev/components"
+      ]
+    },
+    "@donotdev/crud": {
+      "dependencies": [
+        "@donotdev/components",
+        "@donotdev/core",
+        "react-easy-crop",
+        "@dnd-kit",
+        "dompurify"
+      ],
+      "devDependencies": [
+        "tiptap"
+      ],
+      "peerDependencies": [
+        "react",
+        "forms",
+        "forms-resolvers",
+        "validation",
+        "lucide-react",
+        "tiptap"
+      ],
+      "peerDependenciesMeta": {
+        "tiptap": {
+          "optional": true
+        }
+      }
+    },
+    "@donotdev/firebase": {
+      "dependencies": [
+        "browser-image-compression",
+        "firebase",
+        "firebase-admin"
+      ]
+    },
+    "@donotdev/supabase": {
+      "dependencies": [
+        "validation",
+        "supabase-js"
+      ]
+    },
+    "@donotdev/i18n": {
+      "peerDependencies": [
+        "i18n",
+        "lucide-react"
+      ]
+    },
+    "@donotdev/stores": {
+      "peerDependencies": [
+        "zustand"
+      ]
+    },
+    "@donotdev/schemas": {
+      "peerDependencies": [
+        "validation"
+      ]
+    },
+    "@donotdev/types": {
+      "devDependencies": [
+        "react",
+        "validation",
+        "i18n",
+        "forms",
+        "forms-resolvers"
+      ]
+    },
+    "@donotdev/utils": {
+      "peerDependencies": [
+        "zustand"
+      ],
+      "devDependencies": [
+        "validation",
+        "firebase",
+        "i18n"
+      ]
+    },
+    "@donotdev/hooks": {
+      "dependencies": [
+        "react-query"
+      ],
+      "peerDependencies": [
+        "zustand"
+      ]
+    },
+    "@donotdev/cli": {
+      "dependencies": [
+        "cli-prompts",
+        "cli-commander",
+        "fast-glob"
+      ]
+    },
+    "@donotdev/mcp-server": {
+      "dependencies": [
+        "mcp-sdk"
+      ]
+    },
+    "@donotdev/tooling": {
+      "dependencies": [
+        "cli-prompts",
+        "cli-commander",
+        "fast-glob",
+        "esbuild",
+        "rollup",
+        "supabase-cli",
+        "supabase-js"
+      ],
+      "devDependencies": [
+        "yaml"
+      ]
+    },
+    "@donotdev/oauth": {
+      "peerDependencies": [
+        "react"
+      ]
+    },
+    "@donotdev/functions": {
+      "dependencies": [
+        "@donotdev/core"
+      ],
+      "peerDependencies": [
+        "firebase-functions",
+        "firebase-admin",
+        "stripe",
+        "validation",
+        "monitoring-node",
+        "next"
+      ],
+      "peerDependenciesMeta": {
+        "firebase-functions": {
+          "optional": true
+        },
+        "firebase-admin": {
+          "optional": true
+        },
+        "stripe": {
+          "optional": true
+        },
+        "monitoring-node": {
+          "optional": true
+        },
+        "next": {
+          "optional": true
+        }
+      }
+    },
+    "@donotdev/templates": {
+      "dependencies": [
+        "@donotdev/components",
+        "@donotdev/core",
+        "@donotdev/ui",
+        "markdown"
+      ],
+      "peerDependencies": [
+        "react",
+        "@donotdev/auth",
+        "@donotdev/billing",
+        "@donotdev/crud",
+        "@donotdev/oauth",
+        "validation",
+        "lucide-react",
+        "forms",
+        "forms-resolvers"
+      ],
+      "peerDependenciesMeta": {
+        "@donotdev/auth": {
+          "optional": true
+        },
+        "@donotdev/billing": {
+          "optional": true
+        },
+        "@donotdev/crud": {
+          "optional": true
+        },
+        "@donotdev/oauth": {
+          "optional": true
+        }
+      }
+    },
+    "@donotdev/showcase-app": {
+      "dependencies": [
+        "react",
+        "zustand",
+        "validation",
+        "lucide-react",
+        "react-router-dom",
+        "firebase",
+        "stripe",
+        "shiki"
+      ],
+      "devDependencies": [
+        "postcss",
+        "vite",
+        "typescript",
+        "types",
+        "core-vite-config"
+      ]
+    },
+    "@donotdev/expo": {
+      "dependencies": [
+        "@donotdev/core",
+        "@donotdev/crud",
+        "expo"
+      ],
+      "peerDependencies": [
+        "react",
+        "react-native",
+        "@donotdev/auth",
+        "@donotdev/billing",
+        "@donotdev/oauth",
+        "@donotdev/ui",
+        "forms",
+        "forms-resolvers"
+      ],
+      "peerDependenciesMeta": {
+        "@donotdev/auth": {
+          "optional": true
+        },
+        "@donotdev/billing": {
+          "optional": true
+        },
+        "@donotdev/oauth": {
+          "optional": true
+        },
+        "@donotdev/ui": {
+          "optional": true
+        }
+      }
+    }
+  },
+  "templateMapping": {
+    "dev-vite": {
+      "description": "New vite app in workspace (all packages, all deps, no filtering)",
+      "dependencies": [
+        "@donotdev/auth",
+        "@donotdev/billing",
+        "@donotdev/components",
+        "@donotdev/core",
+        "@donotdev/crud",
+        "@donotdev/oauth",
+        "@donotdev/templates",
+        "@donotdev/ui",
+        "react",
+        "zustand",
+        "validation",
+        "lucide-react",
+        "react-router-dom",
+        "shiki",
+        "tiptap"
+      ],
+      "devDependencies": [
+        "vite",
+        "typescript",
+        "types",
+        "i18n",
+        "react-query",
+        "core-vite-config",
+        "postcss",
+        "puppeteer"
+      ],
+      "conditional": {
+        "provider-firebase": "platform===firebase",
+        "provider-supabase": "platform===supabase"
+      }
+    },
+    "dev-nextjs": {
+      "description": "New nextjs app in workspace (all packages, all deps, no filtering)",
+      "dependencies": [
+        "@donotdev/auth",
+        "@donotdev/billing",
+        "@donotdev/components",
+        "@donotdev/core",
+        "@donotdev/crud",
+        "@donotdev/oauth",
+        "@donotdev/templates",
+        "@donotdev/ui",
+        "react",
+        "zustand",
+        "validation",
+        "lucide-react",
+        "shiki",
+        "tiptap"
+      ],
+      "devDependencies": [
+        "next",
+        "typescript",
+        "types",
+        "i18n",
+        "react-query",
+        "postcss"
+      ],
+      "conditional": {
+        "provider-firebase": "platform===firebase",
+        "provider-supabase": "platform===supabase"
+      }
+    },
+    "consumer-root": {
+      "description": "Root package.json for consumer projects",
+      "dependencies": [
+        "@donotdev/auth",
+        "@donotdev/billing",
+        "@donotdev/components",
+        "@donotdev/core",
+        "@donotdev/crud",
+        "@donotdev/oauth",
+        "@donotdev/templates",
+        "@donotdev/ui",
+        "react",
+        "zustand",
+        "validation",
+        "lucide-react"
+      ],
+      "devDependencies": [
+        "root-consumer-tooling",
+        "supabase-cli"
+      ],
+      "conditional": {
+        "provider-firebase": "platform===firebase",
+        "provider-supabase": "platform===supabase",
+        "supabase-cli": "platform===supabase"
+      }
+    },
+    "consumer-vite": {
+      "description": "Vite app for consumers (filter inlined packages)",
+      "dependencies": [
+        "@donotdev/auth",
+        "@donotdev/billing",
+        "@donotdev/components",
+        "@donotdev/core",
+        "@donotdev/crud",
+        "@donotdev/oauth",
+        "@donotdev/templates",
+        "@donotdev/ui",
+        "react",
+        "zustand",
+        "validation",
+        "lucide-react",
+        "react-router-dom",
+        "i18n",
+        "react-query",
+        "shiki",
+        "tiptap"
+      ],
+      "devDependencies": [
+        "vite",
+        "typescript",
+        "types",
+        "core-vite-config",
+        "postcss",
+        "puppeteer"
+      ],
+      "conditional": {
+        "provider-firebase": "platform===firebase",
+        "provider-supabase": "platform===supabase"
+      }
+    },
+    "consumer-nextjs": {
+      "description": "Nextjs app for consumers (filter inlined packages)",
+      "dependencies": [
+        "@donotdev/auth",
+        "@donotdev/billing",
+        "@donotdev/components",
+        "@donotdev/core",
+        "@donotdev/crud",
+        "@donotdev/oauth",
+        "@donotdev/templates",
+        "@donotdev/ui",
+        "react",
+        "zustand",
+        "validation",
+        "lucide-react",
+        "i18n",
+        "react-query",
+        "shiki",
+        "tiptap"
+      ],
+      "devDependencies": [
+        "next",
+        "typescript",
+        "types",
+        "postcss"
+      ],
+      "conditional": {
+        "provider-firebase": "platform===firebase",
+        "provider-supabase": "platform===supabase"
+      }
+    },
+    "dev-expo": {
+      "description": "New Expo app in workspace (all packages, all deps, no filtering)",
+      "dependencies": [
+        "@donotdev/expo",
+        "@donotdev/auth",
+        "@donotdev/billing",
+        "@donotdev/core",
+        "@donotdev/crud",
+        "@donotdev/oauth",
+        "react-native-only",
+        "zustand",
+        "validation",
+        "react-query"
+      ],
+      "devDependencies": [
+        "expo",
+        "typescript",
+        "types-expo",
+        "react-native"
+      ],
+      "conditional": {
+        "provider-firebase": "platform===firebase",
+        "provider-supabase": "platform===supabase"
+      }
+    },
+    "consumer-expo": {
+      "description": "Expo app for consumers (filter inlined packages)",
+      "dependencies": [
+        "@donotdev/expo",
+        "@donotdev/auth",
+        "@donotdev/billing",
+        "@donotdev/core",
+        "@donotdev/crud",
+        "@donotdev/oauth",
+        "react-native-only",
+        "zustand",
+        "validation",
+        "react-query"
+      ],
+      "devDependencies": [
+        "expo",
+        "typescript",
+        "types-expo",
+        "react-native"
+      ],
+      "conditional": {
+        "provider-firebase": "platform===firebase",
+        "provider-supabase": "platform===supabase"
+      }
+    },
+    "functions-firebase": {
+      "description": "Firebase Functions app",
+      "dependencies": [
+        "@donotdev/functions",
+        "firebase-functions",
+        "firebase-admin",
+        "validation",
+        "monitoring-node",
+        "stripe"
+      ]
+    },
+    "functions-vercel": {
+      "description": "Vercel Functions app",
+      "dependencies": [
+        "@donotdev/functions",
+        "next",
+        "firebase-functions",
+        "validation",
+        "monitoring-node",
+        "stripe"
+      ],
+      "devDependencies": [
+        "vercel"
+      ]
+    },
+    "functions-supabase": {
+      "description": "Supabase Edge Functions app",
+      "dependencies": [
+        "@donotdev/functions",
+        "@donotdev/supabase",
+        "validation"
+      ]
+    },
+    "entities": {
+      "description": "Entities workspace package",
+      "dependencies": [
+        "validation"
+      ],
+      "devDependencies": [
+        "eslint",
+        "typescript"
+      ]
+    },
+    "demo": {
+      "description": "Demo app template (SaaS reference app)",
+      "dependencies": [
+        "@donotdev/auth",
+        "@donotdev/components",
+        "@donotdev/core",
+        "@donotdev/crud",
+        "@donotdev/templates",
+        "@donotdev/ui",
+        "react",
+        "zustand",
+        "validation",
+        "lucide-react",
+        "react-router-dom",
+        "i18n",
+        "react-query",
+        "styling",
+        "shiki",
+        "tiptap"
+      ],
+      "devDependencies": [
+        "postcss",
+        "vite",
+        "typescript",
+        "types",
+        "core-vite-config",
+        "puppeteer"
+      ]
+    },
+    "dndev": {
+      "description": "Cockpit app template (AI development dashboard)",
+      "dependencies": [
+        "@donotdev/components",
+        "@donotdev/core",
+        "@donotdev/ui",
+        "@dnd-kit",
+        "xterm",
+        "node-pty",
+        "react-markdown-cockpit",
+        "react-resizable-panels",
+        "ws",
+        "react",
+        "zustand",
+        "lucide-react",
+        "react-router-dom"
+      ],
+      "devDependencies": [
+        "react-query",
+        "i18n",
+        "postcss",
+        "vite",
+        "typescript",
+        "types",
+        "core-vite-config",
+        "ws-types",
+        "puppeteer"
+      ]
+    }
+  },
+  "notes": {
+    "internalDependencies": "Each @donotdev/* package has its own group in the matrix, allowing independent versioning. Each package group contains only that package with its version.",
+    "versionPolicy": "Independent versioning - each @donotdev/* package can have its own version (e.g., core 0.0.2, ui 0.0.3, crud 0.0.2)",
+    "peerDependencyStrategy": "Runtime libraries (React, Firebase, Stripe) are peer deps to avoid duplication",
+    "optionalPeers": "Features are optional peers of composition packages (ui, templates)",
+    "optionalPeerDependencyPatterns": {
+      "pattern1_groupLevel": "Group-level optional: Set 'optional: true' on group when entire group is always optional everywhere. Use for groups that are universally optional.",
+      "pattern2_packageLevel": "Package-level optional: Use peerDependenciesMeta in PackageMapping for package-specific optionality. RECOMMENDED for: shiki, @donotdev/* packages. Example: shiki is optional for components, @donotdev/auth is optional for templates but required for billing.",
+      "recommendation": "Use pattern 2 (peerDependenciesMeta) for shiki and @donotdev/* packages since optionality is package-specific, not universal."
+    },
+    "dependencyClassification": {
+      "dependencies": "Packages imported in bundled code that consumers need at runtime. Even if bundled, if import statements remain, consumers must install them. Examples: vite-deps (rollup plugins), postcss, fast-glob",
+      "devDependencies": "CLI tools consumers install separately (externalized in bundle). These are NOT bundled - consumers provide them. Examples: vite, next, typescript",
+      "peerDependencies": "Optional runtime libraries consumers may already have. Avoids duplication. Examples: react, firebase, stripe",
+      "rule": "If imported in code that gets bundled → dependencies. If externalized in esbuild → devDependencies. If optional/consumer-provided → peerDependencies"
+    }
+  }
+}

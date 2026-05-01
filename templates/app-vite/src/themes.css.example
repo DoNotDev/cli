@@ -30,6 +30,11 @@
   --input: #e4e4e7;
   --ring: var(--primary);
   /* --placeholder: rgb(from var(--muted-foreground) r g b / 0.6); */
+
+  /* Interactive surface — background for inputs + outline buttons.
+     Defaults to transparent (see variables.css). Uncomment to tint. */
+  /* --interactive: var(--muted); */
+
   --card: #ffffff;
   --card-foreground: #09090b;
   --popover: #ffffff;

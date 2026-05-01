@@ -29,6 +29,12 @@
   --ring: var(--primary);
   /* --placeholder: rgb(from var(--muted-foreground) r g b / 0.6); */
 
+  /* Interactive surface — background for inputs (.dndev-input) and outline
+     buttons (.dndev-interactive[data-variant='outline']). Parallel to --card
+     for containers. Defaults to transparent (see variables.css). Uncomment
+     to tint. */
+  /* --interactive: var(--muted); */
+
   /* Brand colors */
   --primary: #0ea5e9;
   --primary-foreground: #ffffff;

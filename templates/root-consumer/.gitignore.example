@@ -61,6 +61,7 @@ Desktop.ini
 # DnDev discovery outputs (regenerated at build time)
 *.generated.ts
 *.generated.log
+apps/*/public/route-manifest.json
 
 # Cache
 .cache/

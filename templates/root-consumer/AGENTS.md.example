@@ -1,0 +1,63 @@
+# AI Agent Instructions
+
+> **You are building a DoNotDev app.** This file is the single source of truth for how to work here.
+
+## Golden path (do this first)
+
+1. **Enable MCP** — project includes `.mcp.json` / `.cursor/mcp.json`. If tools fail, run **`get_guideline("AGENT_START_HERE")`** for IDE-specific steps.
+2. **`list_features()`** — see what the framework already ships (avoid reinventing).
+3. **`start_phase(0)`** — begin Phase 0; work only inside active phases until **`complete_phase`** + user approval.
+
+Deep setup, tool list, and environment notes: **`get_guideline("AGENT_START_HERE")`**.  
+Architecture and API contracts: **`get_guideline(...)`** and **`lookup_symbol(...)`** — prefer these over guessing.
+
+## The 5 phases
+
+Work inside an active phase: **`start_phase(N)`** before work, **`complete_phase({ files })`** before moving on, **`dndev tc`** before completing a phase when you changed code.
+
+| Phase | Name | Skill (slash) | Focus |
+|-------|------|---------------|--------|
+| 0 | **BRAINSTORM** | `/brainstorm` | Requirements → validated spec |
+| 1 | **SCAFFOLD** | `/design` | Routes and `*Page.tsx` stubs |
+| 2 | **ENTITIES** | `/design` | Data models in `entities/` |
+| 3 | **COMPOSE** | `/build` | Pages with framework components |
+| 4 | **CONFIGURE** | `/polish` | Tests, config, i18n, ship readiness; use `/grill` and `/techdebt` before release |
+
+## Framework usage (non-negotiable)
+
+- **`lookup_symbol({ symbol: "Name" })` before `@donotdev` usage** — real props and types only; do not invent APIs.
+- **Imports:** `@donotdev/<package>` top-level only (no deep paths unless the framework docs explicitly allow it).
+- **No native HTML** in app UI code — use framework components (Stack, Text, Button, etc.). Details: **`get_guideline`** (components / layouts / pages).
+- **No custom CSS** — props, variants, theme tokens only.
+- **ESM only** — no `require()`.
+- **RTL:** logical properties (`start` / `end`), not physical `left` / `right`.
+
+## Custom components
+
+Last resort: after **`lookup_symbol`** + **`search_framework`**. If you must add one, put it under `src/components/` and document the gap (e.g. JSDoc `@custom-component`). Do not block the user on tooling — deliver working UI.
+
+## CLI essentials
+
+`dndev` is the project CLI (global or `bunx dndev`). Common commands:
+
+| Command | Purpose |
+|---------|---------|
+| `dndev dev` / `dndev dev:app` | Dev server |
+| `dndev tc` / `dndev tc:app` | Type-check (use after code changes) |
+| `dndev build` | Production build |
+| `dndev coach` / `dndev setup` / `dndev doctor` | Env and health |
+
+Run **`dndev --help`** for the full list. **`dndev create-app`** is interactive (no `--preset`).
+
+## Docs and markdown
+
+- Do not create random `.md` files. Allowed workflow outputs when the phase requires them: e.g. **`docs/HLD.md`**, **`docs/LLD.md`**.
+- Session notes: **`.dndev/`** and MCP tools (`record_lesson`, etc.).
+
+## Before production
+
+`dndev doctor`, **`/grill`**, and provider-specific setup from **`get_guideline("AGENT_START_HERE")`** / **`setup_coach`** / **`get_guideline("soc2")`**. Golden path: **`dndev coach`** → fill `.env` → **`dndev setup`** → **`dndev doctor`**.
+
+## MCP tools (quick reference)
+
+`start_phase` · `complete_phase` · `approve_phase` · `get_phase_status` · `lookup_symbol` · `get_guideline` · `search_framework` · `setup_coach` · `list_features` · `run_typecheck` · `record_lesson`

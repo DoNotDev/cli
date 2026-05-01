@@ -28,7 +28,7 @@ if (!url || !publicKey) {
   configureProviders({
     crud: new SupabaseCrudAdapter(supabase),
     auth: new SupabaseAuth(supabase),
-    storage: new SupabaseStorageAdapter(supabase),
+    storage: new SupabaseStorageAdapter(supabase, 'uploads'),
     callable: new SupabaseCallableProvider(supabase),
   });
 }

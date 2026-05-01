@@ -5,7 +5,11 @@ globs: ["**/*.md"]
 
 # No Documentation File Creation
 
-**NEVER create .md files** (analysis, summary, plan, brainstorm, status, etc.) unless the user explicitly asks for it.
+**NEVER create arbitrary .md files** (analysis, summary, plan, brainstorm, status, etc.) unless the user explicitly asks for it.
+
+Allowed workflow exceptions for this scaffold:
+- `docs/HLD.md`
+- `docs/LLD.md`
 
 Session notes, progress tracking, and lessons go in `.dndev/` using the MCP tools:
 - `record_lesson()` for gotchas and learnings

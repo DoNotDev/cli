@@ -1,8 +1,4 @@
 {
-  "statusLine": {
-    "type": "command",
-    "command": "python3 .claude/statusline.py"
-  },
   "hooks": {
     "SessionStart": [
       {
@@ -36,27 +32,7 @@
         ]
       }
     ],
-    "PostToolUse": [
-      {
-        "matcher": "mcp__donotdev__lookup_symbol",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/track-mcp-lookup.sh\""
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/framework-compliance.sh\"",
-            "statusMessage": "Framework check"
-          }
-        ]
-      }
-    ],
+    "PostToolUse": [],
     "Stop": [
       {
         "matcher": "",
@@ -96,11 +72,9 @@
       "Skill(polish)",
       "Skill(grill)",
       "Skill(techdebt)",
-      "Skill(browse)",
       "mcp__donotdev__lookup_symbol",
       "mcp__donotdev__search_framework",
       "mcp__donotdev__list_features",
-      "mcp__donotdev__get_guide",
       "mcp__donotdev__get_guideline",
       "mcp__donotdev__init_implementation",
       "mcp__donotdev__update_progress",
