@@ -2,7 +2,7 @@
   "$schema": "./dependencies-matrix.schema.json",
   "version": "0.0.6",
   "description": "Centralized dependency versions for DoNotDev framework. Single source of truth for all external dependencies. Third-party optional deps are auto-detected from peerDependenciesMeta via scanInstalledPackageOptionals() — no manual constants update needed.",
-  "lastUpdated": "2026-05-01",
+  "lastUpdated": "2026-06-11",
   "migrationGuides": {
     "0.0→0.1": {
       "path": "docs/migration/v0.0-to-v0.1.md",
@@ -41,73 +41,73 @@
     "@donotdev/auth": {
       "description": "Authentication package",
       "packages": {
-        "@donotdev/auth": "^0.1.42"
+        "@donotdev/auth": "^0.1.43"
       }
     },
     "@donotdev/billing": {
       "description": "Billing package",
       "packages": {
-        "@donotdev/billing": "^0.1.42"
+        "@donotdev/billing": "^0.1.43"
       }
     },
     "@donotdev/components": {
       "description": "UI components package",
       "packages": {
-        "@donotdev/components": "^0.1.42"
+        "@donotdev/components": "^0.1.44"
       }
     },
     "@donotdev/core": {
       "description": "Core framework package",
       "packages": {
-        "@donotdev/core": "^0.1.42"
+        "@donotdev/core": "^0.1.43"
       }
     },
     "@donotdev/crud": {
       "description": "CRUD operations package",
       "packages": {
-        "@donotdev/crud": "^0.1.42"
+        "@donotdev/crud": "^0.1.44"
       }
     },
     "@donotdev/firebase": {
       "description": "Firebase provider package",
       "packages": {
-        "@donotdev/firebase": "^0.1.42"
+        "@donotdev/firebase": "^0.1.43"
       }
     },
     "@donotdev/functions": {
       "description": "Firebase Functions package",
       "packages": {
-        "@donotdev/functions": "^0.1.42"
+        "@donotdev/functions": "^0.1.43"
       }
     },
     "@donotdev/oauth": {
       "description": "OAuth package",
       "packages": {
-        "@donotdev/oauth": "^0.1.42"
+        "@donotdev/oauth": "^0.1.43"
       }
     },
     "@donotdev/templates": {
       "description": "Page templates package",
       "packages": {
-        "@donotdev/templates": "^0.1.42"
+        "@donotdev/templates": "^0.1.43"
       }
     },
     "@donotdev/ui": {
       "description": "UI and routing package",
       "packages": {
-        "@donotdev/ui": "^0.1.42"
+        "@donotdev/ui": "^0.1.43"
       }
     },
     "@donotdev/expo": {
       "description": "Expo/React Native components package",
       "packages": {
-        "@donotdev/expo": "^0.1.42"
+        "@donotdev/expo": "^0.1.43"
       }
     },
     "@donotdev/supabase": {
       "description": "Supabase provider package",
       "packages": {
-        "@donotdev/supabase": "^0.1.42"
+        "@donotdev/supabase": "^0.1.43"
       }
     },
     "supabase-js": {
@@ -455,7 +455,7 @@
     "@donotdev/cli": {
       "description": "Cli package",
       "packages": {
-        "@donotdev/cli": "^0.1.42"
+        "@donotdev/cli": "^0.1.43"
       }
     },
     "@donotdev/mcp-server": {
@@ -533,7 +533,7 @@
     "@donotdev/canvas": {
       "description": "Canvas package",
       "packages": {
-        "@donotdev/canvas": "^0.1.42"
+        "@donotdev/canvas": "^0.1.43"
       }
     }
   },

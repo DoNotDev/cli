@@ -7,6 +7,8 @@
  * @author AMBROISE PARK Consulting
  */
 
+import { Suspense } from 'react';
+
 import { NotFoundPage } from '@donotdev/ui';
 
 /**
@@ -16,6 +18,17 @@ import { NotFoundPage } from '@donotdev/ui';
  * - i18n translation support
  * - Dynamic route suggestions
  * - Accessible navigation buttons
+ *
+ * NotFoundPage uses the routing hooks (useLocation/useNavigate), whose Next
+ * adapter calls useSearchParams(). In the App Router that forces a client-side
+ * bailout that throws during static prerender of /_not-found unless wrapped in
+ * a Suspense boundary.
  */
-export default NotFoundPage;
+export default function NotFound() {
+  return (
+    <Suspense fallback={null}>
+      <NotFoundPage />
+    </Suspense>
+  );
+}
 

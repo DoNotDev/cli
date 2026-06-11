@@ -35,9 +35,9 @@ export const appConfig: AppConfig = {
     footer: {
       legalLinks: [
         { path: '#cookie-settings', label: 'footer.legal.cookieSettings' },
+        { path: '/legal/legal-notice', label: 'footer.legal.legalNotice' },
         { path: '/legal/privacy', label: 'footer.legal.privacyPolicy' },
         { path: '/legal/terms', label: 'footer.legal.termsOfService' },
-        // { path: '/legal/notice', label: 'footer.legal.legalNotice' },
       ],
     },
   },
