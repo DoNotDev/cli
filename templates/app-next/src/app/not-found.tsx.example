@@ -11,6 +11,12 @@ import { Suspense } from 'react';
 
 import { NotFoundPage } from '@donotdev/ui';
 
+// Under appConfig.ssr, /_not-found renders dynamically (real SSR at request time).
+// It's a special route (not a generated page.tsx wrapper), so it carries its own
+// flag; generated content routes get this automatically from the framework.
+// Harmless when SSR is off. Remove if you switch this app back to static export.
+export const dynamic = 'force-dynamic';
+
 /**
  * Next.js App Router automatically uses not-found.tsx for 404 errors
  * This file exports the framework's NotFoundPage component which provides:

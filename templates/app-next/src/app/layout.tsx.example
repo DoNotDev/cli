@@ -24,6 +24,14 @@ export async function generateMetadata(): Promise<Metadata> {
   return getMetadataForPath('/');
 }
 
+// SSR (appConfig.ssr): render dynamically at request time. The provider tree is
+// store-driven (theme/layout/i18n/overlay read live during render), so it is
+// inherently dynamic under React 19. Setting it on the root layout covers every
+// route in one place — generated pages, hand-written pages, and /_not-found.
+// Content is still fully server-rendered and crawlable. Remove only if this app
+// opts back out of SSR and returns to static export.
+export const dynamic = 'force-dynamic';
+
 /**
  * Root layout for Next.js App Router
  *
