@@ -1,8 +1,8 @@
 {
   "$schema": "./dependencies-matrix.schema.json",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Centralized dependency versions for DoNotDev framework. Single source of truth for all external dependencies. Third-party optional deps are auto-detected from peerDependenciesMeta via scanInstalledPackageOptionals() — no manual constants update needed.",
-  "lastUpdated": "2026-07-08",
+  "lastUpdated": "2026-09-09",
   "migrationGuides": {
     "0.0→0.1": {
       "path": "docs/migration/v0.0-to-v0.1.md",
@@ -53,25 +53,25 @@
     "@donotdev/components": {
       "description": "UI components package",
       "packages": {
-        "@donotdev/components": "^0.1.44"
+        "@donotdev/components": "^0.1.45"
       }
     },
     "@donotdev/core": {
       "description": "Core framework package",
       "packages": {
-        "@donotdev/core": "^0.1.45"
+        "@donotdev/core": "^0.1.47"
       }
     },
     "@donotdev/crud": {
       "description": "CRUD operations package",
       "packages": {
-        "@donotdev/crud": "^0.1.44"
+        "@donotdev/crud": "^0.1.45"
       }
     },
     "@donotdev/demo": {
       "description": "Zero-backend demo provider package",
       "packages": {
-        "@donotdev/demo": "^0.1.44"
+        "@donotdev/demo": "^0.1.45"
       }
     },
     "@donotdev/firebase": {
@@ -101,7 +101,7 @@
     "@donotdev/ui": {
       "description": "UI and routing package",
       "packages": {
-        "@donotdev/ui": "^0.1.45"
+        "@donotdev/ui": "^0.1.46"
       }
     },
     "@donotdev/expo": {
@@ -423,6 +423,7 @@
         "@vitejs/plugin-react": "^5.1.4",
         "@rollup/plugin-strip": "^3.0.4",
         "@vitejs/plugin-basic-ssl": "^2.1.4",
+        "babel-plugin-react-compiler": "^1.0.0",
         "rollup-plugin-visualizer": "^6.0.5",
         "vite-plugin-pwa": "1.2.0",
         "vite-tsconfig-paths": "^6.1.1"
@@ -461,7 +462,7 @@
     "@donotdev/cli": {
       "description": "Cli package",
       "packages": {
-        "@donotdev/cli": "^0.1.45"
+        "@donotdev/cli": "^0.1.46"
       }
     },
     "@donotdev/mcp-server": {
