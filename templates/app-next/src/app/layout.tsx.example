@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 
 import { getMetadataForPath } from '@donotdev/core/next';
 import { FontPreloadLinks } from '@donotdev/ui/next';
@@ -39,6 +40,23 @@ export const dynamic = 'force-dynamic';
  * Next.js 16 + Turbopack race condition with async layouts.
  * Brief FOUC possible on first load, but prevents build-manifest.json errors.
  */
+/**
+ * Passes the request's Cookie and Accept-Language headers to the providers: the server
+ * render and the hydration pass then show the visitor's language and signed-in state
+ * on the first paint. Async child, so the root layout itself stays synchronous.
+ */
+async function RequestLayout({ children }: { children: React.ReactNode }) {
+  const requestHeaders = await headers();
+  return (
+    <ClientLayout
+      serverCookies={requestHeaders.get('cookie') ?? ''}
+      acceptLanguage={requestHeaders.get('accept-language')}
+    >
+      {children}
+    </ClientLayout>
+  );
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -55,7 +73,7 @@ export default function RootLayout({
         <FontPreloadLinks />
       </head>
       <body className="light">
-        <ClientLayout>{children}</ClientLayout>
+        <RequestLayout>{children}</RequestLayout>
       </body>
     </html>
   );

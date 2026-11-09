@@ -57,3 +57,7 @@ inspector_port = 8083
 enabled = true
 port = 54327
 backend = "postgres"
+
+# Stripe authenticates webhook calls with its signature, not a Supabase JWT
+[functions.stripe-webhook]
+verify_jwt = false

@@ -32,7 +32,17 @@
         ]
       }
     ],
-    "PostToolUse": [],
+    "PostToolUse": [
+      {
+        "matcher": "mcp__donotdev__lookup_symbol",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/record-lookup.sh\""
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",

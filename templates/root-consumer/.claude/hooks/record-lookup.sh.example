@@ -1,0 +1,22 @@
+#!/bin/bash
+# .claude/hooks/record-lookup.sh
+# PostToolUse:mcp__donotdev__lookup_symbol — append the looked-up symbol to
+# .dndev/lookups.json, the ledger guard-write.sh checks @donotdev imports against.
+# Kept outside the MCP server: its protocol state is cached in memory and is
+# not on disk while a session runs.
+
+set -eo pipefail
+
+bun -e "
+  const input = JSON.parse(await Bun.stdin.text());
+  const symbol = input.tool_input?.symbol;
+  if (typeof symbol !== 'string' || symbol === '') process.exit(0);
+  const path = process.env.CLAUDE_PROJECT_DIR + '/.dndev/lookups.json';
+  const file = Bun.file(path);
+  const list = (await file.exists()) ? await file.json() : [];
+  if (!list.includes(symbol)) {
+    list.push(symbol);
+    list.sort();
+    await Bun.write(path, JSON.stringify(list, null, 2) + '\n');
+  }
+"

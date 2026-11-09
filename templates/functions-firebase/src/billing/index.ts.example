@@ -5,6 +5,5 @@
  * @description Exports all billing-related functions for the {{APP_NAME}} app
  */
 
-export { processPaymentSuccess } from './processPaymentSuccess';
 export { refreshSubscriptionStatus } from './refreshSubscriptionStatus';
 export { stripeWebhook } from './handleStripeWebhook';

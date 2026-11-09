@@ -18,6 +18,10 @@ import { appConfig } from '../config/app';
 
 interface ClientLayoutProps {
   children: React.ReactNode;
+  /** Request Cookie header (language cookie, auth session), from the root layout */
+  serverCookies: string;
+  /** Request Accept-Language header, from the root layout */
+  acceptLanguage: string | null;
 }
 
 /**
@@ -31,11 +35,17 @@ interface ClientLayoutProps {
  * 
  * Theme detection happens client-side to avoid Next.js 16 race condition.
  */
-export function ClientLayout({ children }: ClientLayoutProps) {
+export function ClientLayout({
+  children,
+  serverCookies,
+  acceptLanguage,
+}: ClientLayoutProps) {
   return (
     <div id="root">
       <NextJsAppProviders
         config={appConfig}
+        serverCookies={serverCookies}
+        acceptLanguage={acceptLanguage}
         layout={{
           breadcrumbs: 'smart', // 'smart' | 'always' | 'never'
           header: {

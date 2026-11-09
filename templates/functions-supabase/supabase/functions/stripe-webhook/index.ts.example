@@ -1,0 +1,12 @@
+// supabase/functions/stripe-webhook/index.ts
+// Supabase Edge Function — Stripe webhook (subscriptions, payments, orders)
+// Deploy with JWT verification off: Stripe authenticates with its signature.
+// Requires migration 20250101000005_webhook_events.sql
+
+import { createStripeWebhook } from '@donotdev/functions/supabase';
+
+// Import your billing config
+// import { billingConfig } from '../_shared/billingConfig.ts';
+const billingConfig = {}; // TODO: Replace with your StripeBackConfig
+
+Deno.serve(createStripeWebhook(billingConfig));

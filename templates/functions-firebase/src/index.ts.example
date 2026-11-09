@@ -39,7 +39,6 @@ export {
 
 // Export billing functions
 export {
-  processPaymentSuccess,
   refreshSubscriptionStatus,
   stripeWebhook,
 } from './billing';

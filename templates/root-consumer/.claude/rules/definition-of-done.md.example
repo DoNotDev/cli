@@ -18,6 +18,11 @@ Every change is incomplete until ALL applicable items are done.
 4. **Tests** - unit test for new logic, page test for new pages
 5. **Spec compliance** - if a spec exists, verify delivery matches it
 
+## Mandatory for new or changed pages
+
+6. **Visual review** - page rendered in a browser, screenshots at mobile and desktop width looked at, not just typechecked
+7. **Design pass** - page audited for hierarchy, imagery, density and generic-template tells, findings fixed
+
 ## Output format
 
 Every skill output MUST end with:
@@ -29,4 +34,6 @@ Every skill output MUST end with:
 - [x] i18n: <locale files updated, or N/A>
 - [x] Tests: <test file, or N/A>
 - [x] Spec compliance: <verified, or N/A>
+- [x] Visual review: <screenshot paths, or N/A>
+- [x] Design pass: <findings fixed, or N/A>
 ```

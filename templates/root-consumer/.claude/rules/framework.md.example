@@ -14,6 +14,12 @@ The framework's MCP server and component library cover 99% of what you need. Use
 3. Common hallucination traps (these DO NOT exist): `size`, `tone`, `color`, `padding`, `margin`, `spacing`, `columns`, `background`, `fields`.
 4. Import from `@donotdev/<pkg>` top-level only. Never sub-paths.
 
+Hook-enforced: writing a `.ts`/`.tsx` file that imports a `@donotdev` symbol never passed to `lookup_symbol` is blocked (ledger: `.dndev/lookups.json`).
+
+## Templates before pages
+
+Before hand-building a page, run `search_framework("Template")` and use the matching `@donotdev/templates` template (checkout, profile, settings, dashboard, product list, legal, login...) when one exists. Hand-build only what no template covers, and say why.
+
 ## Use framework components, not HTML
 
 `<div>` → Stack | `<button>` → Button | `<input>` → TextInput | `<a>` → Link | `<p>`/`<h1>` → Text | `<table>` → DataTable | `<form>` → Form | `<ul>` → List | `<img>` → Image

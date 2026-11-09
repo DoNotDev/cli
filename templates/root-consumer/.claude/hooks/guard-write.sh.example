@@ -43,6 +43,38 @@ RESULT=$(echo "$INPUT" | bun -e "
     checks.push('BLOCK:Secret scan error: ' + e.message);
   }
 
+  // --- LOOKUP GATE (fail closed) ---
+  // Every symbol imported from @donotdev/* must have been passed to
+  // lookup_symbol first (ledger written by record-lookup.sh).
+  try {
+    if (/\.(ts|tsx)$/.test(fp) && !/\.d\.ts$/.test(fp) && !/\/node_modules\//.test(fp)) {
+      let result = content;
+      if (tn === 'Edit') {
+        const f = Bun.file(fp);
+        const before = (await f.exists()) ? await f.text() : '';
+        const oldS = input.tool_input?.old_string ?? '';
+        const newS = input.tool_input?.new_string ?? '';
+        result = input.tool_input?.replace_all ? before.split(oldS).join(newS) : before.replace(oldS, () => newS);
+      }
+      const imported = new Set();
+      for (const m of result.matchAll(/import\s+(?:type\s+)?\{([^}]+)\}\s+from\s+['\"]@donotdev\/[^'\"]+['\"]/g)) {
+        for (const raw of m[1].split(',')) {
+          const name = raw.trim().replace(/^type\s+/, '').split(/\s+as\s+/)[0].trim();
+          if (name) imported.add(name);
+        }
+      }
+      if (imported.size) {
+        const ledger = Bun.file(process.env.CLAUDE_PROJECT_DIR + '/.dndev/lookups.json');
+        const known = (await ledger.exists()) ? await ledger.json() : [];
+        const missing = [...imported].filter(n => !known.includes(n) && !known.includes(n + 'Props'));
+        if (missing.length)
+          checks.push('BLOCK:lookup_symbol was never called for: ' + missing.join(', ') + '. Call mcp__donotdev__lookup_symbol for each, use only the props it returns, then retry.');
+      }
+    }
+  } catch (e) {
+    checks.push('BLOCK:Lookup gate error: ' + e.message);
+  }
+
   const block = checks.find(c => c.startsWith('BLOCK:'));
   process.stdout.write(block ?? 'OK');
 " 2>/dev/null || echo "OK")

@@ -1,20 +1,18 @@
 // functions/src/api/billing/handleStripeWebhook.ts
 
 /**
- * @fileoverview {{APP_NAME}} Stripe Webhook Wrapper
- * @description Wrapper for framework's handleStripeWebhook with {{APP_NAME}}-specific configuration
+ * @fileoverview {{APP_NAME}} Stripe Webhook
+ * @description Framework Stripe webhook (subscriptions, payments, orders) for {{APP_NAME}}
  */
 
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { handleStripeWebhook as frameworkHandleStripeWebhook } from '@donotdev/functions/vercel';
+import { createStripeWebhook } from '@donotdev/functions/vercel';
 
-/**
- * {{APP_NAME}} Stripe webhook handler
- * Configured with {{APP_NAME}}-specific product types and settings
- */
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  return frameworkHandleStripeWebhook(req, res);
-}
+// Import your billing config
+// import { billingConfig } from '../../config/billingConfig';
+const billingConfig = {}; // TODO: Replace with your StripeBackConfig
+
+// Stripe signs the raw body: disable Next.js body parsing
+export const config = { api: { bodyParser: false } };
+
+// backend: 'firebase' | 'supabase' (token verification, claims, idempotency storage)
+export default createStripeWebhook(billingConfig, { backend: 'firebase' });

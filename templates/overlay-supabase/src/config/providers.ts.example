@@ -4,7 +4,7 @@
 
 import { configureProviders } from '@donotdev/core';
 import {
-  createClient,
+  createBrowserClient,
   SupabaseAuth,
   SupabaseCallableProvider,
   SupabaseCrudAdapter,
@@ -19,7 +19,7 @@ if (!url || !publicKey) {
     '[dndev] Supabase not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLIC_KEY (or VITE_SUPABASE_ANON_KEY) in .env'
   );
 } else {
-  const supabase = createClient(url, publicKey);
+  const supabase = createBrowserClient(url, publicKey);
 
   /**
    * Register Supabase as the backend provider.
