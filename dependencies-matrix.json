@@ -2,7 +2,7 @@
   "$schema": "./dependencies-matrix.schema.json",
   "version": "0.0.8",
   "description": "Centralized dependency versions for DoNotDev framework. Single source of truth for all external dependencies. Third-party optional deps are auto-detected from peerDependenciesMeta via scanInstalledPackageOptionals() — no manual constants update needed.",
-  "lastUpdated": "2026-11-08",
+  "lastUpdated": "2026-11-09",
   "migrationGuides": {
     "0.0→0.1": {
       "path": "docs/migration/v0.0-to-v0.1.md",
@@ -41,7 +41,7 @@
     "@donotdev/auth": {
       "description": "Authentication package",
       "packages": {
-        "@donotdev/auth": "^0.2.0"
+        "@donotdev/auth": "^0.2.1"
       }
     },
     "@donotdev/billing": {
@@ -53,13 +53,13 @@
     "@donotdev/components": {
       "description": "UI components package",
       "packages": {
-        "@donotdev/components": "^0.2.0"
+        "@donotdev/components": "^0.2.1"
       }
     },
     "@donotdev/core": {
       "description": "Core framework package",
       "packages": {
-        "@donotdev/core": "^0.2.0"
+        "@donotdev/core": "^0.2.1"
       }
     },
     "@donotdev/crud": {
@@ -83,7 +83,7 @@
     "@donotdev/functions": {
       "description": "Firebase Functions package",
       "packages": {
-        "@donotdev/functions": "^0.2.0"
+        "@donotdev/functions": "^0.2.1"
       }
     },
     "@donotdev/oauth": {
@@ -101,7 +101,7 @@
     "@donotdev/ui": {
       "description": "UI and routing package",
       "packages": {
-        "@donotdev/ui": "^0.2.0"
+        "@donotdev/ui": "^0.2.1"
       }
     },
     "@donotdev/expo": {
@@ -480,7 +480,7 @@
     "@donotdev/cli": {
       "description": "Cli package",
       "packages": {
-        "@donotdev/cli": "^0.2.0"
+        "@donotdev/cli": "^0.2.1"
       }
     },
     "@donotdev/mcp-server": {

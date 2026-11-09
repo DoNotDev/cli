@@ -1,6 +1,6 @@
 {{#isNextjs}}{
   "framework": "nextjs",
-  "installCommand": "bun install",{{#includeFunctions}}
+  "installCommand": "bun install",{{#includeVercelFunctions}}
   "functions": {
     "functions/src/api/**/*.ts": {
       "runtime": "@vercel/node@3"
@@ -11,7 +11,7 @@
       "source": "/api/(.*)",
       "destination": "/functions/src/api/$1"
     }
-  ],{{/includeFunctions}}
+  ],{{/includeVercelFunctions}}
   "headers": [
     {
       "source": "/(.*)",
@@ -171,7 +171,7 @@
           "value": "application/json; charset=utf-8"
         }
       ]
-    }{{#includeFunctions}},
+    }{{#includeVercelFunctions}},
     {
       "source": "/api/(.*)",
       "headers": [
@@ -196,8 +196,8 @@
           "value": "86400"
         }
       ]
-    }{{/includeFunctions}}
-  ]{{#includeFunctions}},
+    }{{/includeVercelFunctions}}
+  ]{{#includeVercelFunctions}},
   "env": {
     "STRIPE_SECRET_KEY": "@stripe-secret-key",
     "STRIPE_WEBHOOK_SECRET": "@stripe-webhook-secret",
@@ -210,11 +210,11 @@
     "GITHUB_PERSONAL_ACCESS_TOKEN": "@github-token",
     "GITHUB_REPO_OWNER": "@github-repo-owner",
     "GITHUB_REPO_NAME": "@github-repo-name"{{/needsOAuth}}
-  }{{/includeFunctions}}
+  }{{/includeVercelFunctions}}
 }{{/isNextjs}}{{^isNextjs}}{
   "buildCommand": "bun run build",
   "outputDirectory": "dist",
-  "installCommand": "bun install",{{#includeFunctions}}
+  "installCommand": "bun install",{{#includeVercelFunctions}}
   "functions": {
     "functions/src/api/**/*.ts": {
       "runtime": "@vercel/node@3"
@@ -229,13 +229,13 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],{{/includeFunctions}}{{^includeFunctions}}
+  ],{{/includeVercelFunctions}}{{^includeVercelFunctions}}
   "rewrites": [
     {
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],{{/includeFunctions}}
+  ],{{/includeVercelFunctions}}
   "headers": [
     {
       "source": "/(.*)",
@@ -386,7 +386,7 @@
           "value": "application/json; charset=utf-8"
         }
       ]
-    }{{#includeFunctions}},
+    }{{#includeVercelFunctions}},
     {
       "source": "/api/(.*)",
       "headers": [
@@ -411,8 +411,8 @@
           "value": "86400"
         }
       ]
-    }{{/includeFunctions}}
-  ]{{#includeFunctions}},
+    }{{/includeVercelFunctions}}
+  ]{{#includeVercelFunctions}},
   "env": {
     "STRIPE_SECRET_KEY": "@stripe-secret-key",
     "STRIPE_WEBHOOK_SECRET": "@stripe-webhook-secret",
@@ -425,5 +425,5 @@
     "GITHUB_PERSONAL_ACCESS_TOKEN": "@github-token",
     "GITHUB_REPO_OWNER": "@github-repo-owner",
     "GITHUB_REPO_NAME": "@github-repo-name"{{/needsOAuth}}
-  }{{/includeFunctions}}
+  }{{/includeVercelFunctions}}
 }{{/isNextjs}}
