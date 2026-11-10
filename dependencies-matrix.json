@@ -41,31 +41,31 @@
     "@donotdev/auth": {
       "description": "Authentication package",
       "packages": {
-        "@donotdev/auth": "^0.2.1"
+        "@donotdev/auth": "^0.2.2"
       }
     },
     "@donotdev/billing": {
       "description": "Billing package",
       "packages": {
-        "@donotdev/billing": "^0.2.0"
+        "@donotdev/billing": "^0.2.2"
       }
     },
     "@donotdev/components": {
       "description": "UI components package",
       "packages": {
-        "@donotdev/components": "^0.2.1"
+        "@donotdev/components": "^0.2.2"
       }
     },
     "@donotdev/core": {
       "description": "Core framework package",
       "packages": {
-        "@donotdev/core": "^0.2.1"
+        "@donotdev/core": "^0.2.2"
       }
     },
     "@donotdev/crud": {
       "description": "CRUD operations package",
       "packages": {
-        "@donotdev/crud": "^0.2.0"
+        "@donotdev/crud": "^0.2.2"
       }
     },
     "@donotdev/demo": {
@@ -77,13 +77,13 @@
     "@donotdev/firebase": {
       "description": "Firebase provider package",
       "packages": {
-        "@donotdev/firebase": "^0.2.0"
+        "@donotdev/firebase": "^0.2.2"
       }
     },
     "@donotdev/functions": {
       "description": "Firebase Functions package",
       "packages": {
-        "@donotdev/functions": "^0.2.1"
+        "@donotdev/functions": "^0.2.2"
       }
     },
     "@donotdev/oauth": {
@@ -95,19 +95,19 @@
     "@donotdev/templates": {
       "description": "Page templates package",
       "packages": {
-        "@donotdev/templates": "^0.2.0"
+        "@donotdev/templates": "^0.2.2"
       }
     },
     "@donotdev/ui": {
       "description": "UI and routing package",
       "packages": {
-        "@donotdev/ui": "^0.2.1"
+        "@donotdev/ui": "^0.2.2"
       }
     },
     "@donotdev/expo": {
       "description": "Expo/React Native components package",
       "packages": {
-        "@donotdev/expo": "^0.2.0"
+        "@donotdev/expo": "^0.2.2"
       }
     },
     "@donotdev/supabase": {
@@ -480,7 +480,7 @@
     "@donotdev/cli": {
       "description": "Cli package",
       "packages": {
-        "@donotdev/cli": "^0.2.1"
+        "@donotdev/cli": "^0.2.2"
       }
     },
     "@donotdev/mcp-server": {

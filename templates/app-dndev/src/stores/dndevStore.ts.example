@@ -57,9 +57,6 @@ export const COLUMNS: { id: CardColumn; label: string }[] = [
 
 export type TabMode = 'ai-agent' | 'app' | 'shell';
 
-/** @deprecated Use TabMode instead */
-export type TerminalTab = string;
-
 export interface TabConfig {
   id: string;
   label: string;
