@@ -9,7 +9,7 @@
 
 import { Building } from 'lucide-react';
 
-import { type PageMeta } from '@donotdev/core';
+import type { PageMeta } from '@donotdev/core';
 import { LegalNoticeTemplate } from '@donotdev/templates';
 import { PageContainer } from '@donotdev/ui';
 

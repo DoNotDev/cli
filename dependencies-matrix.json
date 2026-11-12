@@ -2,7 +2,7 @@
   "$schema": "./dependencies-matrix.schema.json",
   "version": "0.0.8",
   "description": "Centralized dependency versions for DoNotDev framework. Single source of truth for all external dependencies. Third-party optional deps are auto-detected from peerDependenciesMeta via scanInstalledPackageOptionals() — no manual constants update needed.",
-  "lastUpdated": "2026-11-09",
+  "lastUpdated": "2026-11-12",
   "migrationGuides": {
     "0.0→0.1": {
       "path": "docs/migration/v0.0-to-v0.1.md",
@@ -17,103 +17,103 @@
     "@donotdev/ai": {
       "description": "AI package - provider-agnostic LLM plumbing",
       "packages": {
-        "@donotdev/ai": "^0.2.0"
+        "@donotdev/ai": "^0.2.3"
       }
     },
     "@donotdev/graphql": {
       "description": "GraphQL data provider - opt-in, not scaffolded by default",
       "packages": {
-        "@donotdev/graphql": "^0.2.0"
+        "@donotdev/graphql": "^0.2.3"
       }
     },
     "@donotdev/restcrud": {
       "description": "REST CRUD data provider - opt-in, not scaffolded by default",
       "packages": {
-        "@donotdev/restcrud": "^0.2.0"
+        "@donotdev/restcrud": "^0.2.3"
       }
     },
     "@donotdev/testing": {
       "description": "Testing utilities - opt-in, not scaffolded by default",
       "packages": {
-        "@donotdev/testing": "^0.2.0"
+        "@donotdev/testing": "^0.2.3"
       }
     },
     "@donotdev/auth": {
       "description": "Authentication package",
       "packages": {
-        "@donotdev/auth": "^0.2.2"
+        "@donotdev/auth": "^0.2.3"
       }
     },
     "@donotdev/billing": {
       "description": "Billing package",
       "packages": {
-        "@donotdev/billing": "^0.2.2"
+        "@donotdev/billing": "^0.2.3"
       }
     },
     "@donotdev/components": {
       "description": "UI components package",
       "packages": {
-        "@donotdev/components": "^0.2.2"
+        "@donotdev/components": "^0.2.3"
       }
     },
     "@donotdev/core": {
       "description": "Core framework package",
       "packages": {
-        "@donotdev/core": "^0.2.2"
+        "@donotdev/core": "^0.2.3"
       }
     },
     "@donotdev/crud": {
       "description": "CRUD operations package",
       "packages": {
-        "@donotdev/crud": "^0.2.2"
+        "@donotdev/crud": "^0.2.3"
       }
     },
     "@donotdev/demo": {
       "description": "Zero-backend demo provider package",
       "packages": {
-        "@donotdev/demo": "^0.2.0"
+        "@donotdev/demo": "^0.2.3"
       }
     },
     "@donotdev/firebase": {
       "description": "Firebase provider package",
       "packages": {
-        "@donotdev/firebase": "^0.2.2"
+        "@donotdev/firebase": "^0.2.3"
       }
     },
     "@donotdev/functions": {
       "description": "Firebase Functions package",
       "packages": {
-        "@donotdev/functions": "^0.2.2"
+        "@donotdev/functions": "^0.2.3"
       }
     },
     "@donotdev/oauth": {
       "description": "OAuth package",
       "packages": {
-        "@donotdev/oauth": "^0.2.0"
+        "@donotdev/oauth": "^0.2.3"
       }
     },
     "@donotdev/templates": {
       "description": "Page templates package",
       "packages": {
-        "@donotdev/templates": "^0.2.2"
+        "@donotdev/templates": "^0.2.3"
       }
     },
     "@donotdev/ui": {
       "description": "UI and routing package",
       "packages": {
-        "@donotdev/ui": "^0.2.2"
+        "@donotdev/ui": "^0.2.3"
       }
     },
     "@donotdev/expo": {
       "description": "Expo/React Native components package",
       "packages": {
-        "@donotdev/expo": "^0.2.2"
+        "@donotdev/expo": "^0.2.3"
       }
     },
     "@donotdev/supabase": {
       "description": "Supabase provider package",
       "packages": {
-        "@donotdev/supabase": "^0.2.0"
+        "@donotdev/supabase": "^0.2.3"
       }
     },
     "supabase-js": {
@@ -245,7 +245,7 @@
     },
     "forms": {
       "packages": {
-        "react-hook-form": "^7.91.0"
+        "react-hook-form": "^7.92.0"
       }
     },
     "forms-resolvers": {
@@ -283,7 +283,7 @@
     },
     "firebase": {
       "packages": {
-        "firebase": "^13.2.0"
+        "firebase": "^13.3.0"
       }
     },
     "browser-image-compression": {
@@ -295,21 +295,21 @@
     "ai-sdk": {
       "description": "Vercel AI SDK core (generateText/streamText, UI message stream). Node >= 22, ESM-only.",
       "packages": {
-        "ai": "^7.0.165"
+        "ai": "^7.0.170"
       }
     },
     "ai-sdk-react": {
       "description": "Vercel AI SDK React bindings (useChat). Used by @donotdev/ai.",
       "packages": {
-        "@ai-sdk/react": "^4.0.169"
+        "@ai-sdk/react": "^4.0.174"
       }
     },
     "ai-sdk-providers": {
       "description": "Vercel AI SDK model providers, loaded lazily by the @donotdev/functions AI route.",
       "packages": {
-        "@ai-sdk/anthropic": "^4.0.99",
-        "@ai-sdk/openai": "^4.0.111",
-        "@ai-sdk/google": "^4.0.114"
+        "@ai-sdk/anthropic": "^4.0.102",
+        "@ai-sdk/openai": "^4.0.115",
+        "@ai-sdk/google": "^4.0.118"
       }
     },
     "isomorphic-dompurify": {
@@ -321,10 +321,10 @@
     "tiptap": {
       "description": "Rich text editor - optional peer dependency. Required: @tiptap/react, @tiptap/pm, @tiptap/starter-kit. Optional: @tiptap/extension-placeholder for placeholder text.",
       "packages": {
-        "@tiptap/react": "^3.33.0",
-        "@tiptap/pm": "^3.33.0",
-        "@tiptap/starter-kit": "^3.33.0",
-        "@tiptap/extension-placeholder": "^3.33.0"
+        "@tiptap/react": "^3.33.1",
+        "@tiptap/pm": "^3.33.1",
+        "@tiptap/starter-kit": "^3.33.1",
+        "@tiptap/extension-placeholder": "^3.33.1"
       }
     },
     "stripe": {
@@ -334,7 +334,7 @@
     },
     "firebase-admin": {
       "packages": {
-        "firebase-admin": "^14.5.0"
+        "firebase-admin": "^14.5.1"
       }
     },
     "firebase-functions": {
@@ -344,7 +344,7 @@
     },
     "vercel-deps": {
       "packages": {
-        "next": "^16.4.5",
+        "next": "^16.4.6",
         "vercel": "^65.12.1"
       }
     },
@@ -367,7 +367,7 @@
     "cli-prompts": {
       "description": "CLI prompts - used by core config for logging",
       "packages": {
-        "@clack/prompts": "^1.8.1"
+        "@clack/prompts": "^1.9.0"
       }
     },
     "cli-commander": {
@@ -389,7 +389,7 @@
     },
     "next": {
       "packages": {
-        "next": "^16.4.5"
+        "next": "^16.4.6"
       }
     },
     "expo": {
@@ -397,7 +397,8 @@
       "packages": {
         "expo": "^55.0.32",
         "expo-router": "^55.0.18",
-        "expo-audio": "^1.1.1",
+        "expo-audio": "~55.0.18",
+        "expo-video": "~55.0.21",
         "expo-clipboard": "^55.0.17",
         "expo-document-picker": "^55.0.17",
         "@expo/vector-icons": "^15.1.1",
@@ -480,13 +481,13 @@
     "@donotdev/cli": {
       "description": "Cli package",
       "packages": {
-        "@donotdev/cli": "^0.2.2"
+        "@donotdev/cli": "^0.2.3"
       }
     },
     "@donotdev/mcp-server": {
       "description": "MCP server for component type lookups",
       "packages": {
-        "@donotdev/mcp-server": "^0.2.0"
+        "@donotdev/mcp-server": "^0.2.3"
       }
     },
     "mcp-sdk": {
@@ -512,7 +513,7 @@
     "@donotdev/security": {
       "description": "Security package",
       "packages": {
-        "@donotdev/security": "^0.2.0"
+        "@donotdev/security": "^0.2.3"
       }
     },
     "xterm": {
@@ -558,7 +559,7 @@
     "@donotdev/canvas": {
       "description": "Canvas package",
       "packages": {
-        "@donotdev/canvas": "^0.2.0"
+        "@donotdev/canvas": "^0.2.3"
       }
     }
   },

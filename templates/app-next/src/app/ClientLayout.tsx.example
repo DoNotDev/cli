@@ -18,9 +18,13 @@ import { appConfig } from '../config/app';
 
 interface ClientLayoutProps {
   children: React.ReactNode;
-  /** Request Cookie header (language cookie, auth session), from the root layout */
+  /**
+   * Request Cookie header (auth session): `""` in the generated src/app/(site) layout
+   * (cached pages, no request data), the request's in src/app/dndev-session
+   * (per-request pages of visitors with an auth cookie)
+   */
   serverCookies: string;
-  /** Request Accept-Language header, from the root layout */
+  /** Request Accept-Language header (`null` on cached pages) */
   acceptLanguage: string | null;
 }
 

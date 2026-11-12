@@ -91,3 +91,9 @@ temp/
 # Testing
 /cypress/videos/
 /cypress/screenshots/
+
+# Deploy / CLI local state (build output, linked project, local branch pointer)
+.vercel/
+**/supabase/functions/.build/
+**/supabase/.branches/
+**/supabase/.temp/

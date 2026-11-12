@@ -146,6 +146,7 @@ const ACTION_OVERRIDES = {
 
   'sync-secrets': async (options) => {
     if (options.project) options.projectId = options.project;
+    if (options.vercelProject) options.vercelProjectId = options.vercelProject;
     const { main } = await import('./commands/sync-secrets.js');
     process.exitCode = await main(options);
   },

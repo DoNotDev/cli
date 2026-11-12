@@ -46,8 +46,12 @@ RESULT=$(echo "$INPUT" | bun -e "
   // --- LOOKUP GATE (fail closed) ---
   // Every symbol imported from @donotdev/* must have been passed to
   // lookup_symbol first (ledger written by record-lookup.sh).
+  // Project files only: a file outside this project (e.g. the framework source
+  // itself) defines @donotdev symbols rather than consuming them.
+  const projectDir = (process.env.CLAUDE_PROJECT_DIR ?? '').replace(/\/+$/, '');
+  const inProject = projectDir !== '' && fp.startsWith(projectDir + '/');
   try {
-    if (/\.(ts|tsx)$/.test(fp) && !/\.d\.ts$/.test(fp) && !/\/node_modules\//.test(fp)) {
+    if (inProject && /\.(ts|tsx)$/.test(fp) && !/\.d\.ts$/.test(fp) && !/\/node_modules\//.test(fp)) {
       let result = content;
       if (tn === 'Edit') {
         const f = Bun.file(fp);

@@ -1,0 +1,57 @@
+import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
+
+import { FontPreloadLinks } from '@donotdev/ui/next';
+
+import '../globals.css';
+
+/**
+ * Framework fonts are loaded via CSS @font-face rules in dndev.css (bundled).
+ * Font preload links are injected at build time; FontPreloadLinks reads the manifest for SSR.
+ */
+
+/**
+ * Site-level metadata only. Page title, description, canonical, Open Graph and JSON-LD
+ * come from the framework's AutoMetaTags (PageMeta + i18n) and from <Seo> on pages
+ * that render a record. Do not set `title` or `description` here: they would ship as
+ * a second <title>/<meta name="description"> in every page's HTML.
+ */
+const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+export const metadata: Metadata = {
+  ...(appUrl ? { metadataBase: new URL(appUrl) } : {}),
+};
+
+/**
+ * The app's HTML document: <html>, <head> links and <body>.
+ *
+ * The framework generates the root layout and renders this document with the page's
+ * language (`lang`): the URL's language with 2+ languages (src/app/[lang]/layout),
+ * the app's language with one. Every page's HTML, cached pages included, carries its
+ * own <html lang>. It also renders the providers (./ClientLayout) below: src/app/(site)
+ * renders every page without request data, so pages are static and served from the
+ * cache (revalidated hourly) to guests and crawlers; with a cookie session (Supabase),
+ * src/app/dndev-session renders the same pages per request with the visitor's cookies.
+ * Reading request headers or cookies here, or exporting `dynamic`, would make every
+ * page per request: the build refuses it.
+ */
+export function AppDocument({
+  lang,
+  children,
+}: {
+  lang: string;
+  children: ReactNode;
+}) {
+  return (
+    <html
+      lang={lang}
+      className="dndev-design-tokens light"
+      suppressHydrationWarning
+    >
+      <head>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <FontPreloadLinks />
+      </head>
+      <body className="light">{children}</body>
+    </html>
+  );
+}
