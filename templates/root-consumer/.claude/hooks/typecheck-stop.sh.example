@@ -1,6 +1,6 @@
 #!/bin/bash
 # .claude/hooks/typecheck-stop.sh
-# Stop hook: run dndev tc before declaring done.
+# Stop hook: run dn tc before declaring done.
 # Ensures type safety before any work is considered complete.
 
 set -euo pipefail
@@ -10,7 +10,7 @@ DIRTY=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
 [ "$DIRTY" -eq 0 ] && exit 0
 
 echo "Running typecheck before completion..." >&2
-if ! dndev tc 2>&1; then
+if ! dn tc 2>&1; then
   echo '{"decision":"block","reason":"Typecheck failed. Fix type errors before completing."}'
   exit 0
 fi

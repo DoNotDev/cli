@@ -42,4 +42,4 @@ No `.css`, `.scss`, `.less`, `.module.css` files. No Tailwind utility classes. S
 - **i18n-first.** All user-facing strings via `t('key')`. No hardcoded text.
 - **Import order.** React, vendors, @donotdev, relative.
 - **No fallbacks.** Fail loud. Never `|| default`.
-- **Typecheck.** `dndev tc` only. Never `bunx tsc`, `npx tsc`, or raw `tsc`.
+- **Typecheck.** `dn tc` only. Never `bunx tsc`, `npx tsc`, or raw `tsc`.

@@ -13,7 +13,7 @@
   <!-- ✅ DnDev: Asset manifest injection point -->
   <!-- window.__DNDEV_ASSETS__ and __DNDEV_ASSET_MANIFEST__ injected here -->
   
-  <!-- Fonts: Inter, Space Grotesk, Playfair, Roboto loaded via @donotdev/ui/dndev.css (bundled). -->
+  <!-- Fonts: the theme's framework fonts, bundled from @donotdev/ui/dndev.css (others dropped at build). -->
   <!-- DNDEV_FONT_PRELOADS -->
   
   <!-- ✅ PERFORMANCE: Preconnect to external domains (OAuth providers) -->

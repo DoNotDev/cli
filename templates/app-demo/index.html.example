@@ -9,7 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DoNotDev Demo</title>
 
-  <!-- Fonts: Inter, Space Grotesk, Playfair, Roboto from @donotdev/ui/dndev.css (bundled). -->
+  <!-- Fonts: the theme's framework fonts, bundled from @donotdev/ui/dndev.css (others dropped at build). -->
 
   <!-- ✅ CRITICAL CSS: ECG waveform loader -->
   <style>

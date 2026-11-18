@@ -5,6 +5,6 @@
 
 /**
  * Font choices (--font-family, --font-sans, etc.) belong in themes.css.
- * Fonts are served from public/fonts/ (auto-copied by framework discovery).
+ * The framework fonts they name are served from public/fonts/ (copied by discovery); own fonts ship none.
  * dndev-next.css = font-stripped variant — use this for Next.js, NOT dndev.css.
  */ 

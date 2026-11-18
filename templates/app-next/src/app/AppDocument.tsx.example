@@ -6,8 +6,9 @@ import { FontPreloadLinks } from '@donotdev/ui/next';
 import '../globals.css';
 
 /**
- * Framework fonts are loaded via CSS @font-face rules in dndev.css (bundled).
- * Font preload links are injected at build time; FontPreloadLinks reads the manifest for SSR.
+ * Framework fonts: only the catalogue families themes.css renders text in, copied to
+ * public/ at build. FontPreloadLinks links their stylesheet (renders nothing when the
+ * theme uses only the app's own fonts).
  */
 
 /**

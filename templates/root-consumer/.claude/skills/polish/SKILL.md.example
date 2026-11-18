@@ -62,7 +62,7 @@ Create `.github/workflows/ci.yml`: type-check → test → build → deploy.
 ## Step 6 — Validate
 
 ```bash
-dndev tc        # Type-check
+dn tc        # Type-check
 bun test        # All tests pass
 ```
 

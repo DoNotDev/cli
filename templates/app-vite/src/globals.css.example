@@ -5,5 +5,5 @@
 
 /**
  * Font choices (--font-family, --font-sans, etc.) belong in themes.css.
- * Fonts (Inter, Space Grotesk, Playfair, Roboto) are bundled via @donotdev/ui; no external fetch, no public/fonts required.
+ * Self-hosted: the build keeps only the @donotdev/ui catalogue fonts (Inter, Playfair Display, Space Grotesk, Roboto, Press Start 2P) they name; no external fetch, no public/fonts required.
  */ 

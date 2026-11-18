@@ -12,13 +12,13 @@ COMMAND=$(echo "$INPUT" | bun -e "process.stdout.write(JSON.parse(await Bun.stdi
 
 # --- HARD BLOCKS (exit 2) ---
 
-# Block raw TypeScript compiler (must use dndev tc)
+# Block raw TypeScript compiler (must use dn tc)
 if echo "$COMMAND" | grep -qE '(^|\s|;|&&|\|)(bunx|npx|pnpx)\s+tsc(\s|$)'; then
-  echo "BLOCKED: Use 'dndev tc' for type-checking, never bunx/npx tsc." >&2
+  echo "BLOCKED: Use 'dn tc' for type-checking, never bunx/npx tsc." >&2
   exit 2
 fi
 if echo "$COMMAND" | grep -qE '(^|\s|;|&&|\|)tsc(\s|$)'; then
-  echo "BLOCKED: Use 'dndev tc' for type-checking, never raw tsc." >&2
+  echo "BLOCKED: Use 'dn tc' for type-checking, never raw tsc." >&2
   exit 2
 fi
 

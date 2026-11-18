@@ -49,7 +49,7 @@ dndev staging                # Deploy to staging environment
 dndev sync-secrets           # Push functions/.env secrets to Firebase Secret Manager
 
 # Quality
-dndev tc                     # Type-check (preferred)
+dn tc                        # Type-check (preferred)
 bun test                     # Run tests
 dndev build                  # Production build (or bun run build per app)
 ```

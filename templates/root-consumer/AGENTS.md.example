@@ -2,6 +2,8 @@
 
 > **You are building a DoNotDev app.** This file is the single source of truth for how to work here.
 
+**Also load your global agent instructions** (e.g. `~/.claude/CLAUDE.md`, `~/.claude/AGENTS.md`, or your tool's global instructions file). This file adds the framework's rules on top of them.
+
 ## Golden path (do this first)
 
 1. **Enable MCP** — project includes `.mcp.json` / `.cursor/mcp.json`. If tools fail, run **`get_guideline("AGENT_START_HERE")`** for IDE-specific steps.
@@ -13,7 +15,7 @@ Architecture and API contracts: **`get_guideline(...)`** and **`lookup_symbol(..
 
 ## The 5 phases
 
-Work inside an active phase: **`start_phase(N)`** before work, **`complete_phase({ files })`** before moving on, **`dndev tc`** before completing a phase when you changed code.
+Work inside an active phase: **`start_phase(N)`** before work, **`complete_phase({ files })`** before moving on, **`dn tc`** before completing a phase when you changed code.
 
 | Phase | Name | Skill (slash) | Focus |
 |-------|------|---------------|--------|
@@ -36,6 +38,13 @@ Work inside an active phase: **`start_phase(N)`** before work, **`complete_phase
 
 Last resort: after **`lookup_symbol`** + **`search_framework`**. If you must add one, put it under `src/components/` and document the gap (e.g. JSDoc `@custom-component`). Do not block the user on tooling — deliver working UI.
 
+## Database credentials
+
+- The project-root `.dndev.secrets` contains the privileged ("god mode") CLI token. Check it before reporting that live database access is blocked or asking the user for credentials.
+- If database MCP authentication fails, use the CLI with the credentials in `.dndev.secrets`; do not assume the public keys in app `.env` files are the only available credentials.
+- Never print token values or copy secrets into documentation, logs, chat, or committed files.
+- Credentials do not authorize extra changes: preserve the user's scope and any required preview/approval before live writes.
+
 ## CLI essentials
 
 `dndev` is the project CLI (global or `bunx dndev`). Common commands:
@@ -43,11 +52,19 @@ Last resort: after **`lookup_symbol`** + **`search_framework`**. If you must add
 | Command | Purpose |
 |---------|---------|
 | `dndev dev` / `dndev dev:app` | Dev server |
-| `dndev tc` / `dndev tc:app` | Type-check (use after code changes) |
+| `dn tc` / `dn tc --package <name>` | Type-check (use after code changes) |
 | `dndev build` | Production build |
 | `dndev coach` / `dndev setup` / `dndev doctor` | Env and health |
 
 Run **`dndev --help`** for the full list. **`dndev create-app`** is interactive (no `--preset`).
+
+## Dev & test flow
+
+- **No local database.** The app runs locally against the live Supabase database. Never `--local`, never `supabase start` / `supabase db reset`.
+- **Live data:** reads OK. Live writes and migrations only on the owner's order.
+- **Framework changes** arrive via `dn pack --install` run from the framework repo (unpublished build). A `bun install` reverts them: re-run `dn pack`.
+- **Test** by running the app locally on the live database. Typecheck with `dn tc`.
+- **Deploy** only on the owner's order.
 
 ## Docs and markdown
 
@@ -61,3 +78,9 @@ Run **`dndev --help`** for the full list. **`dndev create-app`** is interactive 
 ## MCP tools (quick reference)
 
 `start_phase` · `complete_phase` · `approve_phase` · `get_phase_status` · `lookup_symbol` · `get_guideline` · `search_framework` · `setup_coach` · `list_features` · `run_typecheck` · `record_lesson`
+
+## Project-specific rules
+
+`dndev bump` regenerates everything above the marker below from the framework template; do not edit it. Rules that apply to this project only go below the marker: `dndev bump` keeps them as they are.
+
+<!-- dndev:project-specific -->

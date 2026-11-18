@@ -31,7 +31,7 @@ Rules:
 ## Step 2 - Validate
 
 ```bash
-dndev tc
+dn tc
 ```
 
 Type-check must pass before completion.
