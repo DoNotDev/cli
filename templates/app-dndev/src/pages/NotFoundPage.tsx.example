@@ -28,6 +28,7 @@ export const meta: PageMeta = {
   namespace: NAMESPACE,
   route: '/404',
   hideFromMenu: true,
+  seo: { noindex: true },
 };
 
 export { NotFoundPage as default } from '@donotdev/ui';

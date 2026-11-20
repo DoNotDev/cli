@@ -62,6 +62,8 @@ Desktop.ini
 *.generated.ts
 *.generated.log
 apps/*/public/route-manifest.json
+# Rewritten by `next dev` / `next build` (differs between them): never committed
+next-env.d.ts
 
 # Cache
 .cache/

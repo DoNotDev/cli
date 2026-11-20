@@ -2,7 +2,7 @@
   "$schema": "./dependencies-matrix.schema.json",
   "version": "0.0.8",
   "description": "Centralized dependency versions for DoNotDev framework. Single source of truth for all external dependencies. Third-party optional deps are auto-detected from peerDependenciesMeta via scanInstalledPackageOptionals() — no manual constants update needed.",
-  "lastUpdated": "2026-11-17",
+  "lastUpdated": "2026-11-20",
   "migrationGuides": {
     "0.0→0.1": {
       "path": "docs/migration/v0.0-to-v0.1.md",
@@ -17,103 +17,103 @@
     "@donotdev/ai": {
       "description": "AI package - provider-agnostic LLM plumbing",
       "packages": {
-        "@donotdev/ai": "^0.3.0"
+        "@donotdev/ai": "^0.3.1"
       }
     },
     "@donotdev/graphql": {
       "description": "GraphQL data provider - opt-in, not scaffolded by default",
       "packages": {
-        "@donotdev/graphql": "^0.3.0"
+        "@donotdev/graphql": "^0.3.1"
       }
     },
     "@donotdev/restcrud": {
       "description": "REST CRUD data provider - opt-in, not scaffolded by default",
       "packages": {
-        "@donotdev/restcrud": "^0.3.0"
+        "@donotdev/restcrud": "^0.3.1"
       }
     },
     "@donotdev/testing": {
       "description": "Testing utilities - opt-in, not scaffolded by default",
       "packages": {
-        "@donotdev/testing": "^0.3.0"
+        "@donotdev/testing": "^0.3.1"
       }
     },
     "@donotdev/auth": {
       "description": "Authentication package",
       "packages": {
-        "@donotdev/auth": "^0.3.0"
+        "@donotdev/auth": "^0.3.1"
       }
     },
     "@donotdev/billing": {
       "description": "Billing package",
       "packages": {
-        "@donotdev/billing": "^0.3.0"
+        "@donotdev/billing": "^0.3.1"
       }
     },
     "@donotdev/components": {
       "description": "UI components package",
       "packages": {
-        "@donotdev/components": "^0.3.0"
+        "@donotdev/components": "^0.3.2"
       }
     },
     "@donotdev/core": {
       "description": "Core framework package",
       "packages": {
-        "@donotdev/core": "^0.3.0"
+        "@donotdev/core": "^0.3.1"
       }
     },
     "@donotdev/crud": {
       "description": "CRUD operations package",
       "packages": {
-        "@donotdev/crud": "^0.3.0"
+        "@donotdev/crud": "^0.3.1"
       }
     },
     "@donotdev/demo": {
       "description": "Zero-backend demo provider package",
       "packages": {
-        "@donotdev/demo": "^0.3.0"
+        "@donotdev/demo": "^0.3.1"
       }
     },
     "@donotdev/firebase": {
       "description": "Firebase provider package",
       "packages": {
-        "@donotdev/firebase": "^0.3.0"
+        "@donotdev/firebase": "^0.3.1"
       }
     },
     "@donotdev/functions": {
       "description": "Firebase Functions package",
       "packages": {
-        "@donotdev/functions": "^0.3.0"
+        "@donotdev/functions": "^0.3.1"
       }
     },
     "@donotdev/oauth": {
       "description": "OAuth package",
       "packages": {
-        "@donotdev/oauth": "^0.3.0"
+        "@donotdev/oauth": "^0.3.1"
       }
     },
     "@donotdev/templates": {
       "description": "Page templates package",
       "packages": {
-        "@donotdev/templates": "^0.3.0"
+        "@donotdev/templates": "^0.3.1"
       }
     },
     "@donotdev/ui": {
       "description": "UI and routing package",
       "packages": {
-        "@donotdev/ui": "^0.3.0"
+        "@donotdev/ui": "^0.3.2"
       }
     },
     "@donotdev/expo": {
       "description": "Expo/React Native components package",
       "packages": {
-        "@donotdev/expo": "^0.3.0"
+        "@donotdev/expo": "^0.3.1"
       }
     },
     "@donotdev/supabase": {
       "description": "Supabase provider package",
       "packages": {
-        "@donotdev/supabase": "^0.3.0"
+        "@donotdev/supabase": "^0.3.1"
       }
     },
     "supabase-js": {
@@ -482,13 +482,13 @@
     "@donotdev/cli": {
       "description": "Cli package",
       "packages": {
-        "@donotdev/cli": "^0.3.0"
+        "@donotdev/cli": "^0.3.1"
       }
     },
     "@donotdev/mcp-server": {
       "description": "MCP server for component type lookups",
       "packages": {
-        "@donotdev/mcp-server": "^0.3.0"
+        "@donotdev/mcp-server": "^0.3.1"
       }
     },
     "mcp-sdk": {
@@ -514,7 +514,7 @@
     "@donotdev/security": {
       "description": "Security package",
       "packages": {
-        "@donotdev/security": "^0.3.0"
+        "@donotdev/security": "^0.3.1"
       }
     },
     "xterm": {
@@ -560,7 +560,7 @@
     "@donotdev/canvas": {
       "description": "Canvas package",
       "packages": {
-        "@donotdev/canvas": "^0.3.0"
+        "@donotdev/canvas": "^0.3.1"
       }
     }
   },
