@@ -35,6 +35,9 @@ export const meta: PageMeta = {
   icon: <Package />,
   route: '/products/:id',
   hideFromMenu: true,
+  // Hardcoded demo product: no record entity behind this route yet. When you
+  // back it with an entity, declare `entity: productEntity` and drop noindex.
+  seo: { noindex: true },
 };
 
 const product = {
@@ -72,7 +75,7 @@ export default function ProductPage() {
   const accordionItems = [
     {
       value: 'description',
-      title: t('product.accordion.description', 'Description'),
+      trigger: t('product.accordion.description', 'Description'),
       content: (
         <Text level="body">
           {t(
@@ -84,7 +87,7 @@ export default function ProductPage() {
     },
     {
       value: 'specs',
-      title: t('product.accordion.specifications', 'Specifications'),
+      trigger: t('product.accordion.specifications', 'Specifications'),
       content: (
         <Stack gap="tight">
           <Text level="small">Driver size: 40mm</Text>
@@ -98,7 +101,7 @@ export default function ProductPage() {
     },
     {
       value: 'shipping',
-      title: t('product.accordion.shipping', 'Shipping Info'),
+      trigger: t('product.accordion.shipping', 'Shipping Info'),
       content: (
         <Stack gap="tight">
           <Text level="small">{t('product.shipping.standard', 'Standard delivery: 3-5 business days (free over 50 EUR)')}</Text>
@@ -109,7 +112,7 @@ export default function ProductPage() {
     },
     {
       value: 'reviews',
-      title: t('product.accordion.reviews', 'Reviews (128)'),
+      trigger: t('product.accordion.reviews', 'Reviews (128)'),
       content: (
         <Stack gap="medium">
           <Stack gap="tight">

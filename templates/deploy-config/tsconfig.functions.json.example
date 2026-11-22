@@ -5,11 +5,6 @@
     "moduleResolution": "NodeNext",
     "lib": ["ES2022"],
     "types": ["node"],
-    "noEmit": false,
-    "outDir": "./functions/lib",
-    "rootDir": "./functions/src"
-  },
-  "include": ["functions/src/**/*", "entities/**/*"],
-  "exclude": ["node_modules", "**/node_modules", "**/dist", "**/.next", "**/lib"]
+    "noEmit": true
+  }
 }
-

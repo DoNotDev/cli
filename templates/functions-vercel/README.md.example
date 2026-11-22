@@ -7,23 +7,26 @@ This directory contains the Vercel Functions for the {{APP_NAME}} app, generated
 ```
 functions/
 ├── src/
-│   └── api/
+│   └── api/                         # One file = one function, served at /api/<path>
 │       ├── auth/                    # Authentication functions
-│       ├── oauth/                   # OAuth functions
-│       └── billing/                 # Billing functions
+│       ├── crud/                    # CRUD functions
+{{#needsOAuth}}│       ├── oauth/                   # OAuth functions
+{{/needsOAuth}}{{#needsBilling}}│       └── billing/                 # Billing functions
+{{/needsBilling}}├── build.mjs                       # Bundles src/api/** into .vercel/output/functions
 ├── package.json                    # Dependencies and scripts
 ├── tsconfig.json                   # TypeScript configuration
-├── vercel.json                     # Vercel configuration
 ├── .env.example                    # Environment variables template
 └── README.md                       # This file
 ```
 
+`src/api/auth/getCustomClaims.ts` answers `/api/auth/getCustomClaims`. Files named `_*` are shared code, not functions.
+
 ## Features
 
 - **Authentication Management**: User custom claims and auth status
-- **OAuth Integration**: GitHub access management
-- **Billing Processing**: Stripe checkout and webhook handling
-- **Secure API Layer**: Professional frontend-backend communication
+{{#needsOAuth}}- **OAuth Integration**: GitHub access management
+{{/needsOAuth}}{{#needsBilling}}- **Billing Processing**: Stripe checkout and webhook handling
+{{/needsBilling}}- **Secure API Layer**: Professional frontend-backend communication
 - **Error Handling**: Comprehensive error handling and logging
 
 ## Environment Variables
@@ -67,26 +70,13 @@ GITHUB_REPO_NAME=your-repo
    - Set environment variables in Vercel dashboard
    - Update webhook URL in Stripe dashboard
 
-## Deployment
+## Build and Deployment
 
-Use the unified deployment command from workspace root:
+`bun run build` (or `dndev build <app>:func` from the workspace root) bundles each `src/api/<path>.ts`, its dependencies included, into the Vercel [Build Output API](https://vercel.com/docs/build-output-api) function `.vercel/output/functions/api/<path>.func` (`index.mjs` + `.vc-config.json`, Node.js 22).
 
-```bash
-# Deploy everything (interactive)
-dndev deploy
+`dndev deploy <app-name>` uploads those functions with the frontend as one Vercel deployment (Vercel-hosted app), or alone to the app's Vercel project (`VERCEL_PROJECT_ID` in the app `.env`) when the frontend is hosted elsewhere. Vercel builds nothing: what `bun run build` produced is what runs.
 
-# Deploy specific app
-dndev deploy <app-name>
-```
-
-## Development
-
-```bash
-# Start Vercel development server
-bun run dev
-```
-
-## API Endpoints
+{{#needsBilling}}## API Endpoints
 
 ### Stripe Webhook
 
@@ -99,7 +89,7 @@ bun run dev
 - **Integration**: Direct Stripe calls (no API needed)
 - **Purpose**: Creates Stripe checkout sessions for purchases
 
-## Security
+{{/needsBilling}}## Security
 
 - All functions require authentication
 - Webhook signature verification

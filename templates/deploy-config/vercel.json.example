@@ -1,66 +1,15 @@
 {{#isNextjs}}{
   "framework": "nextjs",
-  "installCommand": "bun install"{{#includeVercelFunctions}},
-  "functions": {
-    "functions/src/api/**/*.ts": {
-      "runtime": "@vercel/node@3"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/functions/src/api/$1"
-    }
-  ]{{/includeVercelFunctions}}{{#includeVercelFunctions}},
-  "env": {
-    "STRIPE_SECRET_KEY": "@stripe-secret-key",
-    "STRIPE_WEBHOOK_SECRET": "@stripe-webhook-secret",
-    "STRIPE_PUBLISHABLE_KEY": "@stripe-publishable-key"{{#isFirebase}},
-    "FIREBASE_ADMIN_PRIVATE_KEY": "@firebase-admin-private-key",
-    "FIREBASE_PROJECT_ID": "@firebase-project-id",
-    "FIREBASE_CLIENT_EMAIL": "@firebase-client-email"{{/isFirebase}}{{#isSupabase}},
-    "SUPABASE_URL": "@supabase-url",
-    "SUPABASE_SERVICE_ROLE_KEY": "@supabase-service-role-key"{{/isSupabase}}{{#needsOAuth}},
-    "GITHUB_PERSONAL_ACCESS_TOKEN": "@github-token",
-    "GITHUB_REPO_OWNER": "@github-repo-owner",
-    "GITHUB_REPO_NAME": "@github-repo-name"{{/needsOAuth}}
-  }{{/includeVercelFunctions}}
+  "installCommand": "bun install"
 }{{/isNextjs}}{{^isNextjs}}{
   "buildCommand": "bun run build",
   "outputDirectory": "dist",
-  "installCommand": "bun install",{{#includeVercelFunctions}}
-  "functions": {
-    "functions/src/api/**/*.ts": {
-      "runtime": "@vercel/node@3"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/functions/src/api/$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]{{/includeVercelFunctions}}{{^includeVercelFunctions}}
+  "installCommand": "bun install",
+  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/_shell"
     }
-  ]{{/includeVercelFunctions}}{{#includeVercelFunctions}},
-  "env": {
-    "STRIPE_SECRET_KEY": "@stripe-secret-key",
-    "STRIPE_WEBHOOK_SECRET": "@stripe-webhook-secret",
-    "STRIPE_PUBLISHABLE_KEY": "@stripe-publishable-key"{{#isFirebase}},
-    "FIREBASE_ADMIN_PRIVATE_KEY": "@firebase-admin-private-key",
-    "FIREBASE_PROJECT_ID": "@firebase-project-id",
-    "FIREBASE_CLIENT_EMAIL": "@firebase-client-email"{{/isFirebase}}{{#isSupabase}},
-    "SUPABASE_URL": "@supabase-url",
-    "SUPABASE_SERVICE_ROLE_KEY": "@supabase-service-role-key"{{/isSupabase}}{{#needsOAuth}},
-    "GITHUB_PERSONAL_ACCESS_TOKEN": "@github-token",
-    "GITHUB_REPO_OWNER": "@github-repo-owner",
-    "GITHUB_REPO_NAME": "@github-repo-name"{{/needsOAuth}}
-  }{{/includeVercelFunctions}}
+  ]
 }{{/isNextjs}}

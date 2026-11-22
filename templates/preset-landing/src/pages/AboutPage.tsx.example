@@ -23,6 +23,7 @@ import {
   Stack,
   Text,
   CallToAction,
+  Button,
   SplitReveal,
 } from '@donotdev/components';
 import type { PageMeta } from '@donotdev/core';
@@ -108,7 +109,6 @@ export default function AboutPage() {
             </Stack>
           }
           useStatCards
-          stagger
         />
       </Section>
 
@@ -222,14 +222,16 @@ export default function AboutPage() {
             'We are always looking for talented people who care deeply about developer experience. Check our open positions or reach out directly.'
           )}
           tone="primary"
-          primaryAction={{
-            label: t('cta.primary', 'View Open Positions'),
-            icon: <Sparkles />,
-          }}
-          secondaryAction={{
-            label: t('cta.secondary', 'Get in Touch'),
-            icon: <Mail />,
-          }}
+          primaryAction={
+            <Button variant="primary" icon={Sparkles}>
+              {t('cta.primary', 'View Open Positions')}
+            </Button>
+          }
+          secondaryAction={
+            <Button variant="outline" icon={Mail}>
+              {t('cta.secondary', 'Get in Touch')}
+            </Button>
+          }
         />
       </Section>
     </PageContainer>

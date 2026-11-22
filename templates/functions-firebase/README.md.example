@@ -33,9 +33,9 @@ import { handleError } from '@donotdev/core';
 functions/
 ├── src/
 │   ├── auth/                    # Authentication functions
-│   ├── oauth/                   # OAuth functions
-│   ├── billing/                 # Billing functions
-│   └── index.ts                # Main functions entry point
+{{#needsOAuth}}│   ├── oauth/                   # OAuth functions
+{{/needsOAuth}}{{#needsBilling}}│   ├── billing/                 # Billing functions
+{{/needsBilling}}│   └── index.ts                # Main functions entry point
 ├── package.json                # Dependencies and scripts
 ├── tsconfig.json              # TypeScript configuration
 ├── functions.yaml             # Firebase function manifest (manually maintained - must match functions exported from src/index.ts)
@@ -47,9 +47,9 @@ functions/
 ## Features
 
 - **Authentication Management**: User custom claims and auth status
-- **OAuth Integration**: GitHub access management
-- **Billing Processing**: Stripe checkout and webhook handling
-- **Secure API Layer**: Professional frontend-backend communication
+{{#needsOAuth}}- **OAuth Integration**: GitHub access management
+{{/needsOAuth}}{{#needsBilling}}- **Billing Processing**: Stripe checkout and webhook handling
+{{/needsBilling}}- **Secure API Layer**: Professional frontend-backend communication
 - **Error Handling**: Comprehensive error handling and logging
 
 ## Environment Variables
@@ -124,7 +124,7 @@ bun run serve
 bun run dev
 ```
 
-## API Endpoints
+{{#needsBilling}}## API Endpoints
 
 ### Stripe Webhook
 
@@ -137,7 +137,7 @@ bun run dev
 - **Integration**: Direct Stripe calls (no function needed)
 - **Purpose**: Creates Stripe checkout sessions for purchases
 
-## Security
+{{/needsBilling}}## Security
 
 - All functions require authentication
 - Webhook signature verification

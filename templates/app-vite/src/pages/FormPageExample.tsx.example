@@ -133,7 +133,7 @@ export default function ProductPage() {
             entity={productEntity}
             operation="edit"
             onSubmit={handleSubmit}
-            defaultValues={formData} // Loaded data
+            defaultValues={formData ?? undefined} // Loaded data
             submitText={t('update')}
             // Cancel automatically navigates to /products (or cancelPath if provided)
             cancelPath="/products"

@@ -20,14 +20,14 @@ export {
   removeCustomClaims,
   getUserAuthStatus,
 } from './auth';
-
+{{#needsOAuth}}
 // Export OAuth functions
 export {
   grantGitHubAccess,
   revokeGitHubAccess,
   checkGitHubAccess,
 } from './oauth';
-
+{{/needsOAuth}}
 // Export CRUD functions
 export {
   createEntity,
@@ -36,9 +36,10 @@ export {
   getEntity,
   listEntities,
 } from './crud';
-
+{{#needsBilling}}
 // Export billing functions
 export {
   refreshSubscriptionStatus,
   stripeWebhook,
 } from './billing';
+{{/needsBilling}}

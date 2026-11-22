@@ -50,7 +50,7 @@ export default function ConditionalFormPage() {
                     }}
                     submitText="Get Quote"
                     cancelText={null}
-                    warnOnUnsavedChanges={false}
+                    successPath={null}
                     hideVisibilityInfo
                   />
                 </Card>
@@ -74,7 +74,7 @@ export default function ConditionalFormPage() {
                     }}
                     submitText="Book Now"
                     cancelText={null}
-                    warnOnUnsavedChanges={false}
+                    successPath={null}
                     hideVisibilityInfo
                   />
                 </Card>

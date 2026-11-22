@@ -130,7 +130,7 @@ function SecurityTab() {
     <Stack gap="large">
       <Section title={t('authentication')}>
         <Stack gap="medium">
-          <Stack direction="row" align="center" justify="space-between">
+          <Stack direction="row" align="center" justify="between">
             <Stack gap="none">
               <Text level="body" weight="bold">{t('twoFactorAuth')}</Text>
               <Text level="small" variant="muted">{t('twoFactorDescription')}</Text>
@@ -152,17 +152,17 @@ function SecurityTab() {
 
       <Section title={t('passwordPolicy')}>
         <Stack gap="medium">
-          <Stack direction="row" align="center" justify="space-between">
+          <Stack direction="row" align="center" justify="between">
             <Text level="body">{t('requireUppercase')}</Text>
             <Switch checked={enforceUppercase} onCheckedChange={setEnforceUppercase} />
           </Stack>
 
-          <Stack direction="row" align="center" justify="space-between">
+          <Stack direction="row" align="center" justify="between">
             <Text level="body">{t('requireNumbers')}</Text>
             <Switch checked={enforceNumbers} onCheckedChange={setEnforceNumbers} />
           </Stack>
 
-          <Stack direction="row" align="center" justify="space-between">
+          <Stack direction="row" align="center" justify="between">
             <Text level="body">{t('requireSpecialChars')}</Text>
             <Switch checked={enforceSpecial} onCheckedChange={setEnforceSpecial} />
           </Stack>
@@ -212,7 +212,7 @@ function IntegrationsTab() {
           subtitle={integration.description}
           elevated
           content={
-            <Stack direction="row" align="center" justify="space-between">
+            <Stack direction="row" align="center" justify="between">
               <Badge
                 variant={integration.status === 'connected' ? 'success' : 'secondary'}
               >

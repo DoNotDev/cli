@@ -1,10 +1,27 @@
-module.exports = function (api) {
+// Learn more https://docs.expo.dev/versions/latest/config/babel/
+// ESM: the app package.json is "type": "module". Keep the name babel.config.js:
+// Expo only detects that name and otherwise adds its default preset a second time.
+import { createRequire } from 'node:module';
+import path from 'node:path';
+
+const require = createRequire(import.meta.url);
+
+// The preset Expo itself uses, resolved through `expo` (its dependency): the app needs
+// no babel-preset-expo dependency, isolated installs do not hoist it.
+const babelPresetExpo = require.resolve('babel-preset-expo', {
+  paths: [path.dirname(require.resolve('expo/package.json'))],
+});
+
+export default function (api) {
   api.cache(true);
   return {
-    presets: ['babel-preset-expo'],
-    plugins: [
-      // Required for expo-router
-      'expo-router/babel',
+    presets: [
+      [
+        babelPresetExpo,
+        // @donotdev packages read import.meta.env (Vite/Next builds). Hermes has no
+        // import.meta: the preset polyfills it on native too.
+        { unstable_transformImportMeta: true },
+      ],
     ],
   };
-};
+}

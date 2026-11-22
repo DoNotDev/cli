@@ -46,7 +46,7 @@ dndev emu start              # Start Firebase emulators (Auth, Firestore, Functi
 # Deployment
 dndev deploy                 # Deploy to Firebase (hosting + functions + rules)
 dndev staging                # Deploy to staging environment
-dndev sync-secrets           # Push functions/.env secrets to Firebase Secret Manager
+dndev sync-secrets           # Push .dndev.secrets values to Firebase Secret Manager
 
 # Quality
 dn tc                        # Type-check (preferred)

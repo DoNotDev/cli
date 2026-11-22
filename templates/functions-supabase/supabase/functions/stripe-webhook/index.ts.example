@@ -5,8 +5,7 @@
 
 import { createStripeWebhook } from '@donotdev/functions/supabase';
 
-// Import your billing config
-// import { billingConfig } from '../_shared/billingConfig.ts';
-const billingConfig = {}; // TODO: Replace with your StripeBackConfig
+// TODO: replace with your StripeBackConfig (define it inline or in a shared module you create)
+const billingConfig = {};
 
 Deno.serve(createStripeWebhook(billingConfig));

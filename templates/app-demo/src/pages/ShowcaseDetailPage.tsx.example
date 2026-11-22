@@ -18,6 +18,7 @@ export const meta: PageMeta = {
   route: '/showcase/:id',
   hideFromMenu: true,
   preset: 'admin',
+  seo: { noindex: true },
 };
 
 export default function ShowcaseDetailPage() {

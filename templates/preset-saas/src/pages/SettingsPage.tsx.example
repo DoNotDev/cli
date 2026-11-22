@@ -146,7 +146,7 @@ function NotificationsTab() {
         content={
           <Stack gap="medium">
             {emailPreferences.map((pref) => (
-              <Stack key={pref.label} direction="row" justify="space-between" align="center" gap="medium">
+              <Stack key={pref.label} direction="row" justify="between" align="center" gap="medium">
                 <Stack gap="none">
                   <Text level="body" weight="medium">{pref.label}</Text>
                   <Text level="small" variant="muted">{pref.description}</Text>
@@ -165,7 +165,7 @@ function NotificationsTab() {
         content={
           <Stack gap="medium">
             {pushPreferences.map((pref) => (
-              <Stack key={pref.label} direction="row" justify="space-between" align="center" gap="medium">
+              <Stack key={pref.label} direction="row" justify="between" align="center" gap="medium">
                 <Stack gap="none">
                   <Text level="body" weight="medium">{pref.label}</Text>
                   <Text level="small" variant="muted">{pref.description}</Text>
@@ -228,7 +228,7 @@ function SecurityTab() {
               title={t('settings.security.twoFactorInfo', '2FA is currently disabled')}
               description={t('settings.security.twoFactorInfoDesc', 'Enable two-factor authentication for enhanced account security. You will need an authenticator app like Google Authenticator or Authy.')}
             />
-            <Stack direction="row" justify="space-between" align="center">
+            <Stack direction="row" justify="between" align="center">
               <Stack gap="none">
                 <Text level="body" weight="medium">
                   {t('settings.security.enable2FA', 'Enable 2FA')}

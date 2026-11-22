@@ -49,9 +49,9 @@ import {
 } from '@donotdev/tooling/src/cli/command-registry.ts';
 import {
   baseName,
-  extractCommonOptions,
   registerCommand,
 } from '@donotdev/tooling/src/cli/entry-helpers.ts';
+import { extractCommonOptions } from '@donotdev/tooling/src/utils/cli-args.ts';
 
 // ============================================================================
 // PROGRAM SETUP

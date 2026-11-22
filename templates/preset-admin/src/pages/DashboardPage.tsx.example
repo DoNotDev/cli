@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 
 import { Section, Card, Grid, Stack, Text, Badge, List } from '@donotdev/components';
+import type { BadgeVariant } from '@donotdev/components';
 import { useTranslation } from '@donotdev/core';
 import type { PageMeta } from '@donotdev/core';
 import { useAuth } from '@donotdev/auth';
@@ -95,7 +96,7 @@ const quickActions = [
 // ============================================================================
 
 function statusBadge(status: string) {
-  const variants: Record<string, string> = {
+  const variants: Record<string, BadgeVariant> = {
     success: 'success',
     error: 'destructive',
     warning: 'warning',
@@ -143,7 +144,7 @@ export default function DashboardPage() {
             <Card
               key={index}
               content={
-                <Stack direction="row" align="center" justify="space-between">
+                <Stack direction="row" align="center" justify="between">
                   <Stack direction="row" align="center" gap="medium">
                     {statusBadge(activity.status)}
                     <Text level="body">{activity.text}</Text>

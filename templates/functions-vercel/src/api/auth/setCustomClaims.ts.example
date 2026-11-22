@@ -1,20 +1,15 @@
 // functions/src/api/auth/setCustomClaims.ts
 
 /**
- * @fileoverview {{APP_NAME}} Set Custom Claims Wrapper
- * @description Wrapper for framework's setCustomClaims with {{APP_NAME}}-specific configuration
+ * @fileoverview {{APP_NAME}} Set Custom Claims
+ * @description Framework handler letting a signed-in user set their own custom claims
  */
 
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { setCustomClaims as frameworkSetCustomClaims } from '@donotdev/functions/vercel';
+import { createSetCustomClaimsHandler } from '@donotdev/functions/vercel';
 
 /**
  * {{APP_NAME}} custom claims setting
- * Wraps the framework function with {{APP_NAME}}-specific configuration
+ * Only the claim keys listed here are self-assignable (privilege keys such as
+ * `role` or `admin` are always refused). Empty: every key is refused.
  */
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  return frameworkSetCustomClaims(req, res);
-}
+export default createSetCustomClaimsHandler({ allowedClaimKeys: [] });

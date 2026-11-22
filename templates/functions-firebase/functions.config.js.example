@@ -6,7 +6,8 @@
  * @type {import('@donotdev/types').FunctionsConfig}
  *
  * Static functions are AUTO-DETECTED from src/index.ts exports.
- * Secrets are AUTO-DETECTED from .env (non-config keys).
+ * Secrets are bound per function from its declaration in code
+ * (`secrets: [defineSecret('X')]`); values go in .dndev.secrets at the project root.
  * You only need to list CRUD entities and set defaults.
  *
  * Use the `functions` object ONLY for overrides (e.g., HTTP triggers for webhooks).

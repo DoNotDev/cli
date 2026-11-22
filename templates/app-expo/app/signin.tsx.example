@@ -9,7 +9,7 @@
 
 import { View, StyleSheet } from 'react-native';
 import { Text, Card, Stack, Button } from '@donotdev/expo';
-import { MultipleAuthProviders } from '@donotdev/expo';
+import { MultipleAuthProviders } from '@donotdev/expo/features';
 import { useNavigate } from '@donotdev/expo';
 
 /**
@@ -20,7 +20,7 @@ export default function SignInPage() {
 
   return (
     <View style={styles.container}>
-      <Stack spacing={24} style={styles.content}>
+      <Stack gap={24} style={styles.content}>
         <Text level="h1">Sign In</Text>
         
         <Card title="Welcome Back">

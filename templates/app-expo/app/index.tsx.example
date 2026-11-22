@@ -17,11 +17,11 @@ import { useAuth } from '@donotdev/auth';
  */
 export default function HomePage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const user = useAuth('user');
 
   return (
     <View style={styles.container}>
-      <Stack spacing={24} style={styles.content}>
+      <Stack gap={24} style={styles.content}>
         <Text level="h1">Welcome to {{appName}}</Text>
         
         <Card title="Getting Started">
@@ -29,7 +29,7 @@ export default function HomePage() {
             Your Expo app is running! Follow these steps to get started:
           </Text>
           
-          <Stack spacing={16} style={styles.steps}>
+          <Stack gap={16} style={styles.steps}>
             <View>
               <Text level="h3">1. Backend Setup</Text>
               <Text level="small">

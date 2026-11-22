@@ -34,7 +34,7 @@ Rules:
 dn tc
 ```
 
-Type-check must pass before completion.
+Type-check must pass before commit / deploy. Run it once at the end of the work batch (before commit / deploy), never after each change or feature: skip this step when more work follows in the batch.
 
 ## Step 3 - Complete Phase
 

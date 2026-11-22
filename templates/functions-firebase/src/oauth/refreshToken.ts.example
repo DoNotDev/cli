@@ -1,14 +1,16 @@
 // functions/src/oauth/refreshToken.ts
 
 /**
- * @fileoverview {{APP_NAME}} Refresh Token Wrapper
- * @description Wrapper for framework's refreshToken with {{APP_NAME}}-specific configuration
+ * @fileoverview {{APP_NAME}} Refresh Token
+ * @description Framework OAuth token refresh for the providers {{APP_NAME}} uses
  */
 
-import { refreshToken as frameworkRefreshToken } from '@donotdev/functions/firebase';
+import { createRefreshToken } from '@donotdev/functions/firebase';
 
 /**
- * {{APP_NAME}} OAuth token refresh
- * Wraps the framework function with {{APP_NAME}}-specific configuration
+ * {{APP_NAME}} OAuth token refresh.
+ * Same provider list as exchangeToken: each one's `{PROVIDER}_CLIENT_SECRET`
+ * is declared (bound at deploy, value in .dndev.secrets) and any other provider
+ * is rejected. `{PROVIDER}_CLIENT_ID` goes in functions/.env.
  */
-export const refreshToken = frameworkRefreshToken;
+export const refreshToken = createRefreshToken(['github']);

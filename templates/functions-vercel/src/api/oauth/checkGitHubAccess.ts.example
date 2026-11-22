@@ -1,20 +1,14 @@
 // functions/src/api/oauth/checkGitHubAccess.ts
 
 /**
- * @fileoverview {{APP_NAME}} GitHub Access Check Wrapper
- * @description Wrapper for framework's checkGitHubAccess with {{APP_NAME}}-specific configuration
+ * @fileoverview {{APP_NAME}} GitHub Access Check
+ * @description Framework route checking the user's access to the GitHub repository
  */
 
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { checkGitHubAccess as frameworkCheckGitHubAccess } from '@donotdev/functions/vercel';
+import { checkGitHubAccess } from '@donotdev/functions/vercel';
 
 /**
  * {{APP_NAME}} GitHub access checking
- * Wraps the framework function with {{APP_NAME}}-specific configuration
+ * Pass a Valibot schema to replace the default request schema.
  */
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  return frameworkCheckGitHubAccess(req, res);
-}
+export default checkGitHubAccess();

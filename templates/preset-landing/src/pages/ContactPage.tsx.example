@@ -25,6 +25,7 @@ import {
   Button,
   Input,
   Textarea,
+  Label,
   Alert,
 } from '@donotdev/components';
 import type { PageMeta } from '@donotdev/core';
@@ -97,13 +98,18 @@ export default function ContactPage() {
                     label={t('form.subject.label', 'Subject')}
                     placeholder={t('form.subject.placeholder', 'How can we help?')}
                   />
-                  <Textarea
-                    label={t('form.message.label', 'Message')}
-                    placeholder={t(
-                      'form.message.placeholder',
-                      'Tell us about your project or question...'
-                    )}
-                  />
+                  <Stack gap="tight">
+                    <Label htmlFor="contact-message">
+                      {t('form.message.label', 'Message')}
+                    </Label>
+                    <Textarea
+                      id="contact-message"
+                      placeholder={t(
+                        'form.message.placeholder',
+                        'Tell us about your project or question...'
+                      )}
+                    />
+                  </Stack>
                   <Button
                     variant="primary"
                     icon={<Send />}

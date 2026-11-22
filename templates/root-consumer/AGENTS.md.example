@@ -15,7 +15,7 @@ Architecture and API contracts: **`get_guideline(...)`** and **`lookup_symbol(..
 
 ## The 5 phases
 
-Work inside an active phase: **`start_phase(N)`** before work, **`complete_phase({ files })`** before moving on, **`dn tc`** before completing a phase when you changed code.
+Work inside an active phase: **`start_phase(N)`** before work, **`complete_phase({ files })`** before moving on, **`dn tc`** once at the end of the work batch (before commit / deploy), never after each change or feature.
 
 | Phase | Name | Skill (slash) | Focus |
 |-------|------|---------------|--------|
@@ -52,7 +52,7 @@ Last resort: after **`lookup_symbol`** + **`search_framework`**. If you must add
 | Command | Purpose |
 |---------|---------|
 | `dndev dev` / `dndev dev:app` | Dev server |
-| `dn tc` / `dn tc --package <name>` | Type-check (use after code changes) |
+| `dn tc` / `dn tc --package <name>` | Type-check, once at the end of the work batch (before commit / deploy), never after each change or feature |
 | `dndev build` | Production build |
 | `dndev coach` / `dndev setup` / `dndev doctor` | Env and health |
 
@@ -63,7 +63,7 @@ Run **`dndev --help`** for the full list. **`dndev create-app`** is interactive 
 - **No local database.** The app runs locally against the live Supabase database. Never `--local`, never `supabase start` / `supabase db reset`.
 - **Live data:** reads OK. Live writes and migrations only on the owner's order.
 - **Framework changes** arrive via `dn pack --install` run from the framework repo (unpublished build). A `bun install` reverts them: re-run `dn pack`.
-- **Test** by running the app locally on the live database. Typecheck with `dn tc`.
+- **Test** by running the app locally on the live database. Typecheck with `dn tc` once at the end of the work batch (before commit / deploy), never after each change or feature.
 - **Deploy** only on the owner's order.
 
 ## Docs and markdown

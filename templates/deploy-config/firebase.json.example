@@ -2,6 +2,7 @@
   "hosting": {
     "public": "dist",
     "site": "{{YOUR_FIREBASE_PROJECT_ID}}",
+    "cleanUrls": true,
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -18,7 +19,7 @@
       },
       {
         "source": "**",
-        "destination": "/index.html"
+        "destination": "/_shell.html"
       }
     ],
     "headers": [
@@ -300,7 +301,7 @@
         ]
       }
     ]
-  }{{#includeFunctions}},
+  }{{#includeFirebaseFunctions}},
   "functions": [
     {
       "source": "functions",
@@ -316,7 +317,7 @@
       ],
       "runtime": "nodejs22"
     }
-  ],
+  ]{{/includeFirebaseFunctions}}{{#includeFunctions}},
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
@@ -327,10 +328,10 @@
   "emulators": {
     "auth": {
       "port": 9099
-    }{{#includeFunctions}},
+    }{{#includeFirebaseFunctions}},
     "functions": {
       "port": 5001
-    },
+    }{{/includeFirebaseFunctions}}{{#includeFunctions}},
     "firestore": {
       "port": 8080
     },

@@ -16,7 +16,7 @@ import { useAuth } from '@donotdev/auth';
  * Inner layout — rendered inside ExpoAppProviders so useAuth() has context.
  */
 function AppStack() {
-  const { user } = useAuth();
+  const user = useAuth('user');
 
   return (
     <Stack

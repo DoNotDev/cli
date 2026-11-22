@@ -22,7 +22,7 @@ Before hand-building a page, run `search_framework("Template")` and use the matc
 
 ## Use framework components, not HTML
 
-`<div>` → Stack | `<button>` → Button | `<input>` → TextInput | `<a>` → Link | `<p>`/`<h1>` → Text | `<table>` → DataTable | `<form>` → Form | `<ul>` → List | `<img>` → Image
+`<div>` → Stack | `<button>` → Button | `<input>` → Input | `<a>` → Link | `<p>`/`<h1>` → Text | `<table>` → DataTable | `<form>` → Form | `<ul>` → List | `<img>` → ResponsiveImg (takes the `image` full/thumb pair)
 
 Hook-enforced. Native HTML in source files is blocked.
 

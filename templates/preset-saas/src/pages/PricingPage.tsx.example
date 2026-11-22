@@ -167,9 +167,9 @@ export default function PricingPage() {
                   </Stack>
                   <List
                     items={plan.features}
-                    icon={Check}
+                    icon={<Check />}
                     gap="tight"
-                    density="compact"
+                    density="dense"
                   />
                 </Stack>
               }
@@ -188,7 +188,8 @@ export default function PricingPage() {
       <Section title={t('pricing.faq.title', 'Frequently Asked Questions')} tone="muted">
         <Accordion
           items={faqItems.map((item) => ({
-            title: t(`pricing.faq.${item.title}`, item.title),
+            value: item.title,
+            trigger: t(`pricing.faq.${item.title}`, item.title),
             content: (
               <Text level="body" variant="muted">
                 {t(`pricing.faq.${item.title}.answer`, item.content)}

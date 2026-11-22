@@ -125,7 +125,7 @@ export default function CatalogPage() {
     <PageContainer>
       <Section title={t('catalog.title', 'Product Catalog')}>
         <Stack gap="large">
-          <Stack direction="row" gap="medium" wrap align="end">
+          <Stack direction="row" gap="medium" wrap="wrap" align="end">
             <Select
               label={t('catalog.filters.category', 'Category')}
               options={categoryOptions}
@@ -162,9 +162,6 @@ export default function CatalogPage() {
                       icon={<ShoppingCart />}
                       fullWidth
                       loading={!product.available}
-                      display={product.available
-                        ? t('catalog.addToCart', 'Add to Cart')
-                        : t('catalog.outOfStock', 'Out of Stock')}
                     >
                       {product.available
                         ? t('catalog.addToCart', 'Add to Cart')

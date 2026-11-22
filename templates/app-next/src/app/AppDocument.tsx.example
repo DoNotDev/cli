@@ -13,8 +13,8 @@ import '../globals.css';
 
 /**
  * Site-level metadata only. Page title, description, canonical, Open Graph and JSON-LD
- * come from the framework's AutoMetaTags (PageMeta + i18n) and from <Seo> on pages
- * that render a record. Do not set `title` or `description` here: they would ship as
+ * come from the framework's AutoMetaTags (PageMeta + i18n), and on entity pages from
+ * the generated page's server metadata. Do not set `title` or `description` here: they would ship as
  * a second <title>/<meta name="description"> in every page's HTML.
  */
 const appUrl = process.env.NEXT_PUBLIC_APP_URL;
@@ -49,7 +49,6 @@ export function AppDocument({
       suppressHydrationWarning
     >
       <head>
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <FontPreloadLinks />
       </head>
       <body className="light">{children}</body>

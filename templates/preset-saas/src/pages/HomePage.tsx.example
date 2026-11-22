@@ -28,10 +28,11 @@ import {
   Stack,
   Text,
 } from '@donotdev/components';
+import type { RoadmapStep } from '@donotdev/components';
 import { useTranslation } from '@donotdev/core';
 import { FeatureCard, Link, PageContainer } from '@donotdev/ui';
 
-import type { PageMeta, RoadmapStep } from '@donotdev/core';
+import type { PageMeta } from '@donotdev/core';
 
 export const NAMESPACE = 'home';
 
@@ -183,7 +184,7 @@ export default function HomePage() {
       </Section>
 
       <Section title={t('home.pricing.title', 'Simple, Transparent Pricing')} tone="muted">
-        <Stack gap="medium" direction="row" wrap justify="center">
+        <Stack gap="medium" direction="row" wrap="wrap" justify="center">
           {pricingTiers.map((tier) => (
             <Card
               key={tier.name}

@@ -32,7 +32,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # Using Node 22 LTS
+          node-version: '26' # Node policy: nodePolicy.ci in dependencies-matrix.json
           
       # Step 5: Setup Bun
       - name: Install Bun

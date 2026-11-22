@@ -2,6 +2,7 @@
 # .claude/hooks/guard-bash.sh
 # PreToolUse hook for Bash commands.
 # Blocks dangerous/wrong commands. Exit 2 = block, exit 0 = allow.
+# tsc / install checks look at command words only (not heredocs, quotes, comments).
 # Uses bun -e for JSON parsing (bun-first project).
 
 set -euo pipefail
@@ -12,20 +13,110 @@ COMMAND=$(echo "$INPUT" | bun -e "process.stdout.write(JSON.parse(await Bun.stdi
 
 # --- HARD BLOCKS (exit 2) ---
 
+# Command-word analysis (tsc / package-manager install).
+# Splits the command into simple commands (on ; & | ( ) and newlines), ignoring quoted strings,
+# comments and heredoc bodies, then looks only at each command's leading words.
+# Prints "tsc" or "install" for the first offending simple command, nothing otherwise.
+ANALYZER=$(cat <<'JS'
+const src = await Bun.stdin.text();
+const cmds = [];
+let words = [];
+let cur = '';
+let inWord = false;
+const heredocs = [];
+const endWord = () => {
+  if (inWord) { words.push(cur); cur = ''; inWord = false; }
+};
+const endCmd = () => {
+  endWord();
+  if (words.length) { cmds.push(words); words = []; }
+};
+let i = 0;
+while (i < src.length) {
+  const c = src[i];
+  if (c === '\\') { cur += src[i + 1] ?? ''; inWord = true; i += 2; continue; }
+  if (c === "'") {
+    const j = src.indexOf("'", i + 1);
+    const e = j < 0 ? src.length : j;
+    cur += src.slice(i + 1, e); inWord = true; i = e + 1; continue;
+  }
+  if (c === '"') {
+    let j = i + 1;
+    while (j < src.length && src[j] !== '"') { if (src[j] === '\\') j++; j++; }
+    cur += src.slice(i + 1, j); inWord = true; i = j + 1; continue;
+  }
+  if (c === '#' && !inWord) {
+    while (i < src.length && src[i] !== '\n') i++;
+    continue;
+  }
+  if (c === '<' && src[i + 1] === '<' && src[i + 2] !== '<') {
+    endWord();
+    i += 2;
+    const strip = src[i] === '-';
+    if (strip) i++;
+    while (src[i] === ' ' || src[i] === '\t') i++;
+    let delim = '';
+    while (i < src.length && !/[\s;&|()<>]/.test(src[i])) {
+      if (src[i] !== "'" && src[i] !== '"' && src[i] !== '\\') delim += src[i];
+      i++;
+    }
+    heredocs.push({ delim, strip });
+    continue;
+  }
+  if (c === '\n') {
+    endCmd();
+    i++;
+    for (const h of heredocs) {
+      while (i < src.length) {
+        let e = src.indexOf('\n', i);
+        if (e < 0) e = src.length;
+        const line = src.slice(i, e);
+        i = e + 1;
+        if ((h.strip ? line.replace(/^\t+/, '') : line) === h.delim) break;
+      }
+    }
+    heredocs.length = 0;
+    continue;
+  }
+  if (c === ';' || c === '&' || c === '|' || c === '(' || c === ')') { endCmd(); i++; continue; }
+  if (c === ' ' || c === '\t' || c === '\r') { endWord(); i++; continue; }
+  cur += c; inWord = true; i++;
+}
+endCmd();
+
+const base = (w) => w.slice(w.lastIndexOf('/') + 1);
+const PM = ['bun', 'npm', 'yarn', 'pnpm'];
+let verdict = '';
+for (const w0 of cmds) {
+  let w = w0;
+  while (w.length && (/^[A-Za-z_][A-Za-z0-9_]*=/.test(w[0]) || ['time', 'exec', 'command'].includes(w[0]))) w = w.slice(1);
+  if (!w.length) continue;
+  const head = base(w[0]);
+  let rest = w.slice(1);
+  let runner = ['bunx', 'npx', 'pnpx'].includes(head);
+  if ((head === 'pnpm' && ['dlx', 'exec'].includes(rest[0])) || (head === 'bun' && rest[0] === 'x')) {
+    runner = true;
+    rest = rest.slice(1);
+  }
+  if (head === 'tsc') { verdict = 'tsc'; break; }
+  if (runner && rest.find((a) => !a.startsWith('-')) === 'tsc') { verdict = 'tsc'; break; }
+  if (PM.includes(head) && (rest[0] === 'install' || rest[0] === 'i') && !verdict) verdict = 'install';
+}
+process.stdout.write(verdict);
+JS
+)
+VERDICT=$(printf '%s' "$COMMAND" | bun -e "$ANALYZER")
+
 # Block raw TypeScript compiler (must use dn tc)
-if echo "$COMMAND" | grep -qE '(^|\s|;|&&|\|)(bunx|npx|pnpx)\s+tsc(\s|$)'; then
-  echo "BLOCKED: Use 'dn tc' for type-checking, never bunx/npx tsc." >&2
-  exit 2
-fi
-if echo "$COMMAND" | grep -qE '(^|\s|;|&&|\|)tsc(\s|$)'; then
-  echo "BLOCKED: Use 'dn tc' for type-checking, never raw tsc." >&2
+if [ "$VERDICT" = "tsc" ]; then
+  echo "BLOCKED: Use 'dn tc' for type-checking, never raw tsc / bunx tsc / npx tsc." >&2
   exit 2
 fi
 
-# Block full reinstall (deps are managed by the workspace)
+# Block reinstall once dependencies are installed (the first install of a fresh scaffold is allowed)
 # bun add IS allowed — consumer projects may need additional packages
-if echo "$COMMAND" | grep -qE '(^|\s|;|&&|\|)(bun|npm|yarn|pnpm)\s+install(\s|$)'; then
-  echo "BLOCKED: Use 'bun add <pkg>' to add specific packages. Full reinstall is not needed." >&2
+if [ "$VERDICT" = "install" ] && [ -d "${CLAUDE_PROJECT_DIR:-.}/node_modules" ]; then
+  echo "BLOCKED: Dependencies are already installed. Use 'bun add <pkg>' to add a package; a full reinstall is not needed." >&2
   exit 2
 fi
 
@@ -52,7 +143,7 @@ if echo "$COMMAND" | grep -qE 'rm\s+-rf\s+(/|\.|\*|src|apps|packages|node_module
 fi
 
 # Block skip hooks
-if echo "$COMMAND" | grep -qE '--no-verify'; then
+if echo "$COMMAND" | grep -qE -- '--no-verify'; then
   echo "BLOCKED: --no-verify skips safety hooks. Fix the root cause instead." >&2
   exit 2
 fi

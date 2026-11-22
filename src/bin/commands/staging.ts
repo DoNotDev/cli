@@ -10,7 +10,11 @@
  *   dndev staging <app>       — deploy specific app to staging
  *   dndev uat                 — alternative command alias
  *   dndev staging --project <id> — override staging project ID
- *   dndev staging --skip-build — skip build step (deploy existing)
+ *   dndev staging --skip-build — reuse existing builds (default: build)
+ *   dndev staging <app> --scope <target> --yes — unattended
+ *   dndev staging --dry-run   — validate and print every command/request; change nothing
+ *   dndev staging --force     — delete deployed functions missing locally (default: off)
+ *   Same flags as dndev deploy (see commands/deploy.ts).
  *
  * @version 0.1.0
  * @since 0.0.6

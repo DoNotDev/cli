@@ -136,9 +136,9 @@ export default function HomePage() {
             title="Secrets (Stripe, OAuth, etc.)"
             subtitle="Server-side API keys for Cloud Functions"
             content={[
-              'Add secrets to functions/.env (not the app .env)',
+              'Add secrets to .dndev.secrets at the project root (not the app .env)',
               'Run: dndev sync-secrets to push to Firebase Secret Manager',
-              'Secrets are auto-loaded by Cloud Functions at runtime',
+              'Each function gets the secrets it declares (defineSecret)',
               'Never put server secrets in VITE_ variables',
             ]}
           />
@@ -149,7 +149,7 @@ export default function HomePage() {
             content={[
               'Go to dashboard.stripe.com → create account',
               'Get API keys from Developers → API Keys',
-              'Add to functions/.env: STRIPE_SECRET_KEY=sk_test_...',
+              'Add to .dndev.secrets: STRIPE_SECRET_KEY=sk_test_...',
               'Add to .env: VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...',
               'Set up webhook: Developers → Webhooks → Add endpoint',
               'Webhook URL: https://<your-functions-url>/stripeWebhook',

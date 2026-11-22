@@ -136,7 +136,7 @@ export default function DashboardPage() {
             content={
               <Stack gap="tight">
                 {recentActivity.map((item, i) => (
-                  <Stack key={i} direction="row" justify="space-between" align="center" gap="medium">
+                  <Stack key={i} direction="row" justify="between" align="center" gap="medium">
                     <Stack direction="row" align="center" gap="tight">
                       <Activity
                         style={{

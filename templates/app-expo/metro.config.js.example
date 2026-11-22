@@ -1,20 +1,10 @@
 // Learn more https://docs.expo.dev/guides/customizing-metro
-const { getDefaultConfig } = require('expo/metro-config');
-const path = require('path');
+// ESM: the app package.json is "type": "module".
+// Expo configures Metro for monorepos itself (SDK 52+): do not set watchFolders or
+// node_modules paths here, they replace Expo's and hide the workspace node_modules.
+import { getDefaultConfig } from 'expo/metro-config.js';
 
-const projectRoot = __dirname;
-const workspaceRoot = path.resolve(projectRoot, '../..');
+/** @type {import('expo/metro-config.js').MetroConfig} */
+const config = getDefaultConfig(import.meta.dirname);
 
-/** @type {import('expo/metro-config').MetroConfig} */
-const config = getDefaultConfig(projectRoot);
-
-// Watch workspace packages (not the entire root — avoids churning on unrelated changes)
-config.watchFolders = [path.resolve(workspaceRoot, 'packages')];
-
-// Let Metro resolve from both the app's own node_modules and the workspace root
-config.resolver.nodeModulesDirs = [
-  path.resolve(projectRoot, 'node_modules'),
-  path.resolve(workspaceRoot, 'node_modules'),
-];
-
-module.exports = config;
+export default config;

@@ -5,10 +5,8 @@
   
   <!-- ✅ CORE: Performance-critical meta tags first -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="color-scheme" content="light dark" />
   
-  <!-- ✅ DnDev: Framework will inject FaviconHead here -->
-  <!-- All favicon links will be added by FaviconHead component -->
+  <!-- ✅ DnDev: the build adds the favicon tags (icons, theme-color, color-scheme) to <head> -->
   
   <!-- ✅ DnDev: Asset manifest injection point -->
   <!-- window.__DNDEV_ASSETS__ and __DNDEV_ASSET_MANIFEST__ injected here -->

@@ -16,7 +16,8 @@ import { useNavigate } from '@donotdev/expo';
  * Profile page component
  */
 export default function ProfilePage() {
-  const { user, signOut } = useAuth();
+  const user = useAuth('user');
+  const signOut = useAuth('signOut');
   const navigate = useNavigate();
 
   if (!user) {
@@ -31,11 +32,11 @@ export default function ProfilePage() {
 
   return (
     <View style={styles.container}>
-      <Stack spacing={24} style={styles.content}>
+      <Stack gap={24} style={styles.content}>
         <Text level="h1">Profile</Text>
         
         <Card title="Account Information">
-          <Stack spacing={12}>
+          <Stack gap={12}>
             <View>
               <Text level="small" style={styles.label}>Email</Text>
               <Text level="body">{user.email}</Text>

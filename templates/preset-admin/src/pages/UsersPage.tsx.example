@@ -8,6 +8,7 @@
 import { Users } from 'lucide-react';
 
 import { Section, DataTable, Badge } from '@donotdev/components';
+import type { BadgeVariant, TableColumn } from '@donotdev/components';
 import { useTranslation } from '@donotdev/core';
 import type { PageMeta } from '@donotdev/core';
 import { PageContainer } from '@donotdev/ui';
@@ -46,48 +47,48 @@ const users = [
 // COLUMN DEFINITIONS
 // ============================================================================
 
-const roleBadgeVariant: Record<string, string> = {
+const roleBadgeVariant: Record<string, BadgeVariant> = {
   admin: 'destructive',
   editor: 'default',
   viewer: 'secondary',
 };
 
-const statusBadgeVariant: Record<string, string> = {
+const statusBadgeVariant: Record<string, BadgeVariant> = {
   active: 'success',
   inactive: 'secondary',
   pending: 'warning',
 };
 
-const columns = [
+const columns: TableColumn<(typeof users)[number]>[] = [
   {
     key: 'name',
-    header: 'Name',
+    title: 'Name',
     sortable: true,
   },
   {
     key: 'email',
-    header: 'Email',
+    title: 'Email',
     sortable: true,
   },
   {
     key: 'role',
-    header: 'Role',
+    title: 'Role',
     sortable: true,
-    render: (value: string) => (
-      <Badge variant={roleBadgeVariant[value] || 'default'}>{value}</Badge>
+    render: (_value, user) => (
+      <Badge variant={roleBadgeVariant[user.role] || 'default'}>{user.role}</Badge>
     ),
   },
   {
     key: 'status',
-    header: 'Status',
+    title: 'Status',
     sortable: true,
-    render: (value: string) => (
-      <Badge variant={statusBadgeVariant[value] || 'default'}>{value}</Badge>
+    render: (_value, user) => (
+      <Badge variant={statusBadgeVariant[user.status] || 'default'}>{user.status}</Badge>
     ),
   },
   {
     key: 'joined',
-    header: 'Joined',
+    title: 'Joined',
     sortable: true,
   },
 ];

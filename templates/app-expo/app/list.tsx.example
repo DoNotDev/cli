@@ -19,11 +19,11 @@ const productEntity = null as any; // replace with your entity
  * List page component — shows all records for an entity
  */
 export default function ListPage() {
-  const { user } = useAuth();
+  const user = useAuth('user');
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Stack spacing={16} style={{ flex: 1, padding: 16 }}>
+      <Stack gap={16} style={{ flex: 1, padding: 16 }}>
         <Text level="h2">Products</Text>
         <EntityCardList entity={productEntity} userRole={user?.role} />
       </Stack>

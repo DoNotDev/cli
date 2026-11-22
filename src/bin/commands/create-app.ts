@@ -10,6 +10,7 @@
  *   dndev create-app <name>   — create app with name (interactive)
  *   dndev create-app <name> --builder vite --functions
  *   dndev create-app <name> --builder next --host vercel --backend supabase
+ *   dndev create-app <name> --functions firebase --backend firebase --billing --oauth
  *
  * @version 0.1.0
  * @since 0.0.1

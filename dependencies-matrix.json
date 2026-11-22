@@ -2,7 +2,7 @@
   "$schema": "./dependencies-matrix.schema.json",
   "version": "0.0.8",
   "description": "Centralized dependency versions for DoNotDev framework. Single source of truth for all external dependencies. Third-party optional deps are auto-detected from peerDependenciesMeta via scanInstalledPackageOptionals() — no manual constants update needed.",
-  "lastUpdated": "2026-11-20",
+  "lastUpdated": "2026-11-21",
   "migrationGuides": {
     "0.0→0.1": {
       "path": "docs/migration/v0.0-to-v0.1.md",
@@ -13,107 +13,112 @@
       "breakingChanges": []
     }
   },
+  "nodePolicy": {
+    "description": "Node.js version policy, single source of truth: ci = version generated CI workflows run on (current Active LTS), enginesMin = minimum supported (engines.node range). Firebase/Vercel functions runtimes are separate (Cloud Functions runtime list).",
+    "ci": "26",
+    "enginesMin": ">=24"
+  },
   "groups": {
     "@donotdev/ai": {
       "description": "AI package - provider-agnostic LLM plumbing",
       "packages": {
-        "@donotdev/ai": "^0.3.1"
+        "@donotdev/ai": "^0.3.2"
       }
     },
     "@donotdev/graphql": {
       "description": "GraphQL data provider - opt-in, not scaffolded by default",
       "packages": {
-        "@donotdev/graphql": "^0.3.1"
+        "@donotdev/graphql": "^0.3.2"
       }
     },
     "@donotdev/restcrud": {
       "description": "REST CRUD data provider - opt-in, not scaffolded by default",
       "packages": {
-        "@donotdev/restcrud": "^0.3.1"
+        "@donotdev/restcrud": "^0.3.2"
       }
     },
     "@donotdev/testing": {
       "description": "Testing utilities - opt-in, not scaffolded by default",
       "packages": {
-        "@donotdev/testing": "^0.3.1"
+        "@donotdev/testing": "^0.3.2"
       }
     },
     "@donotdev/auth": {
       "description": "Authentication package",
       "packages": {
-        "@donotdev/auth": "^0.3.1"
+        "@donotdev/auth": "^0.3.2"
       }
     },
     "@donotdev/billing": {
       "description": "Billing package",
       "packages": {
-        "@donotdev/billing": "^0.3.1"
+        "@donotdev/billing": "^0.3.2"
       }
     },
     "@donotdev/components": {
       "description": "UI components package",
       "packages": {
-        "@donotdev/components": "^0.3.2"
+        "@donotdev/components": "^0.3.3"
       }
     },
     "@donotdev/core": {
       "description": "Core framework package",
       "packages": {
-        "@donotdev/core": "^0.3.1"
+        "@donotdev/core": "^0.3.2"
       }
     },
     "@donotdev/crud": {
       "description": "CRUD operations package",
       "packages": {
-        "@donotdev/crud": "^0.3.1"
+        "@donotdev/crud": "^0.3.2"
       }
     },
     "@donotdev/demo": {
       "description": "Zero-backend demo provider package",
       "packages": {
-        "@donotdev/demo": "^0.3.1"
+        "@donotdev/demo": "^0.3.2"
       }
     },
     "@donotdev/firebase": {
       "description": "Firebase provider package",
       "packages": {
-        "@donotdev/firebase": "^0.3.1"
+        "@donotdev/firebase": "^0.3.2"
       }
     },
     "@donotdev/functions": {
       "description": "Firebase Functions package",
       "packages": {
-        "@donotdev/functions": "^0.3.1"
+        "@donotdev/functions": "^0.3.2"
       }
     },
     "@donotdev/oauth": {
       "description": "OAuth package",
       "packages": {
-        "@donotdev/oauth": "^0.3.1"
+        "@donotdev/oauth": "^0.3.2"
       }
     },
     "@donotdev/templates": {
       "description": "Page templates package",
       "packages": {
-        "@donotdev/templates": "^0.3.1"
+        "@donotdev/templates": "^0.3.2"
       }
     },
     "@donotdev/ui": {
       "description": "UI and routing package",
       "packages": {
-        "@donotdev/ui": "^0.3.2"
+        "@donotdev/ui": "^0.3.3"
       }
     },
     "@donotdev/expo": {
       "description": "Expo/React Native components package",
       "packages": {
-        "@donotdev/expo": "^0.3.1"
+        "@donotdev/expo": "^0.3.2"
       }
     },
     "@donotdev/supabase": {
       "description": "Supabase provider package",
       "packages": {
-        "@donotdev/supabase": "^0.3.1"
+        "@donotdev/supabase": "^0.3.2"
       }
     },
     "supabase-js": {
@@ -312,6 +317,14 @@
         "@ai-sdk/google": "^4.0.118"
       }
     },
+    "upstash": {
+      "description": "Upstash rate limiting (Redis), loaded lazily by the @donotdev/functions AI route. Scaffolded Vercel functions declare it; in this repo only packages/functions installs it (rootExclude).",
+      "rootExclude": true,
+      "packages": {
+        "@upstash/ratelimit": "^2.2.0",
+        "@upstash/redis": "^1.41.0"
+      }
+    },
     "html-sanitizer": {
       "description": "HTML sanitization: DOMPurify in the browser, DOMPurify + jsdom on the server (SSR). jsdom stays on 26.x: later releases require an ESM-only package that Vercel's function runtime cannot load. Pulled in by @donotdev/components; consumer apps never add it.",
       "packages": {
@@ -469,7 +482,6 @@
     },
     "root-consumer-tooling": {
       "packages": {
-        "@donotdev/cli": "latest",
         "turbo": "^2.11.10",
         "sharp": "^0.35.5"
       }
@@ -482,13 +494,13 @@
     "@donotdev/cli": {
       "description": "Cli package",
       "packages": {
-        "@donotdev/cli": "^0.3.1"
+        "@donotdev/cli": "^0.3.2"
       }
     },
     "@donotdev/mcp-server": {
       "description": "MCP server for component type lookups",
       "packages": {
-        "@donotdev/mcp-server": "^0.3.1"
+        "@donotdev/mcp-server": "^0.3.2"
       }
     },
     "mcp-sdk": {
@@ -514,7 +526,7 @@
     "@donotdev/security": {
       "description": "Security package",
       "packages": {
-        "@donotdev/security": "^0.3.1"
+        "@donotdev/security": "^0.3.2"
       }
     },
     "xterm": {
@@ -560,7 +572,7 @@
     "@donotdev/canvas": {
       "description": "Canvas package",
       "packages": {
-        "@donotdev/canvas": "^0.3.1"
+        "@donotdev/canvas": "^0.3.2"
       }
     }
   },
@@ -748,7 +760,15 @@
         "browser-image-compression",
         "firebase",
         "firebase-admin"
-      ]
+      ],
+      "peerDependencies": [
+        "stripe"
+      ],
+      "peerDependenciesMeta": {
+        "stripe": {
+          "optional": true
+        }
+      }
     },
     "@donotdev/supabase": {
       "dependencies": [
@@ -1173,14 +1193,18 @@
       ]
     },
     "functions-vercel": {
-      "description": "Vercel Functions app",
+      "description": "Vercel Functions app: what the bundle imports. @donotdev/functions/vercel loads the Firebase (@donotdev/firebase) and Supabase (@supabase/supabase-js) admin clients and the AI route (ai, model providers, Upstash) itself; next is for the handler types.",
       "dependencies": [
         "@donotdev/functions",
+        "@donotdev/firebase",
+        "supabase-js",
         "next",
-        "firebase-functions",
         "validation",
         "monitoring-node",
-        "stripe"
+        "stripe",
+        "ai-sdk",
+        "ai-sdk-providers",
+        "upstash"
       ],
       "devDependencies": [
         "vercel"

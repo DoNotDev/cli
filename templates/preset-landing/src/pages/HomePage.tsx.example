@@ -26,6 +26,7 @@ import {
   Stack,
   Text,
   CallToAction,
+  Button,
   Accordion,
   Marquee,
   SplitReveal,
@@ -45,6 +46,17 @@ export const meta: PageMeta = {
   icon: <Home />,
   route: '/',
 };
+
+const TRUSTED_COMPANIES = [
+  { name: 'Acme Corp' },
+  { name: 'Globex' },
+  { name: 'Initech' },
+  { name: 'Umbrella' },
+  { name: 'Cyberdyne' },
+  { name: 'Stark Industries' },
+  { name: 'Wayne Enterprises' },
+  { name: 'Oscorp' },
+];
 
 export default function HomePage() {
   const { t } = useTranslation(NAMESPACE);
@@ -75,22 +87,13 @@ export default function HomePage() {
             {t('trusted.label', 'Trusted by forward-thinking teams worldwide')}
           </Text>
           <Marquee
-            items={[
-              { name: 'Acme Corp' },
-              { name: 'Globex' },
-              { name: 'Initech' },
-              { name: 'Umbrella' },
-              { name: 'Cyberdyne' },
-              { name: 'Stark Industries' },
-              { name: 'Wayne Enterprises' },
-              { name: 'Oscorp' },
-            ]}
-            renderItem={(item) => (
-              <Badge variant="outline" tooltip={item.name}>
+            items={TRUSTED_COMPANIES}
+            renderItem={(company) => (
+              <Badge variant="outline" tooltip={company.name}>
                 <Stack direction="row" align="center" gap="tight">
                   <Building2 />
                   <Text level="body" weight="bold">
-                    {item.name}
+                    {company.name}
                   </Text>
                 </Stack>
               </Badge>
@@ -208,7 +211,6 @@ export default function HomePage() {
             </Stack>
           }
           useStatCards
-          stagger
         />
       </Section>
 
@@ -224,29 +226,37 @@ export default function HomePage() {
         <Roadmap
           steps={[
             {
+              phase: t('roadmap.step1.phase', 'Step 1'),
+              icon: Zap,
               title: t('roadmap.step1.title', 'Initialize'),
-              description: t(
+              subtitle: t(
                 'roadmap.step1.desc',
                 'Run a single command to scaffold your project with the right structure, tooling, and configuration.'
               ),
             },
             {
+              phase: t('roadmap.step2.phase', 'Step 2'),
+              icon: Layers,
               title: t('roadmap.step2.title', 'Model'),
-              description: t(
+              subtitle: t(
                 'roadmap.step2.desc',
                 'Define your data entities, relationships, and business rules. The framework generates types, validation, and API endpoints.'
               ),
             },
             {
+              phase: t('roadmap.step3.phase', 'Step 3'),
+              icon: Sparkles,
               title: t('roadmap.step3.title', 'Compose'),
-              description: t(
+              subtitle: t(
                 'roadmap.step3.desc',
                 'Build your UI by assembling production-grade components. Responsive, accessible, and themed by default.'
               ),
             },
             {
+              phase: t('roadmap.step4.phase', 'Step 4'),
+              icon: Rocket,
               title: t('roadmap.step4.title', 'Ship'),
-              description: t(
+              subtitle: t(
                 'roadmap.step4.desc',
                 'Deploy to production with one command. CI/CD, monitoring, and scaling are handled automatically.'
               ),
@@ -327,42 +337,48 @@ export default function HomePage() {
           collapsible
           items={[
             {
-              title: t('faq.q1.title', 'Is {{appShortName}} free to use?'),
+              value: 'q1',
+              trigger: t('faq.q1.title', 'Is {{appShortName}} free to use?'),
               content: t(
                 'faq.q1.answer',
                 'Yes. The core framework is open-source under the MIT license. We offer premium support and managed hosting for teams that need it.'
               ),
             },
             {
-              title: t('faq.q2.title', 'What backends are supported?'),
+              value: 'q2',
+              trigger: t('faq.q2.title', 'What backends are supported?'),
               content: t(
                 'faq.q2.answer',
                 'Firebase, Supabase, and Vercel are supported out of the box. The architecture is provider-agnostic, so adding a custom backend is straightforward.'
               ),
             },
             {
-              title: t('faq.q3.title', 'Can I use it for an existing project?'),
+              value: 'q3',
+              trigger: t('faq.q3.title', 'Can I use it for an existing project?'),
               content: t(
                 'faq.q3.answer',
                 'Absolutely. Each package is independent and can be adopted incrementally. Start with the component library or the CRUD module and expand from there.'
               ),
             },
             {
-              title: t('faq.q4.title', 'How does it handle scaling?'),
+              value: 'q4',
+              trigger: t('faq.q4.title', 'How does it handle scaling?'),
               content: t(
                 'faq.q4.answer',
                 'The framework is designed for serverless-first architecture. Functions scale to zero when idle and auto-scale under load. No infrastructure management required.'
               ),
             },
             {
-              title: t('faq.q5.title', 'Is there a component library?'),
+              value: 'q5',
+              trigger: t('faq.q5.title', 'Is there a component library?'),
               content: t(
                 'faq.q5.answer',
                 'Yes. Over 60 production-ready components with full accessibility, theming, responsive behavior, and RTL support. All documented with live examples.'
               ),
             },
             {
-              title: t('faq.q6.title', 'What about mobile?'),
+              value: 'q6',
+              trigger: t('faq.q6.title', 'What about mobile?'),
               content: t(
                 'faq.q6.answer',
                 'Web apps are fully responsive by default. For native mobile, we provide an Expo template with shared business logic and consistent design tokens.'
@@ -384,14 +400,16 @@ export default function HomePage() {
             'Join thousands of developers who ship faster with {{appName}}. Get started in under two minutes.'
           )}
           tone="primary"
-          primaryAction={{
-            label: t('cta.primary', 'Get Started Free'),
-            icon: <Sparkles />,
-          }}
-          secondaryAction={{
-            label: t('cta.secondary', 'View Documentation'),
-            icon: <Layers />,
-          }}
+          primaryAction={
+            <Button variant="primary" icon={Sparkles}>
+              {t('cta.primary', 'Get Started Free')}
+            </Button>
+          }
+          secondaryAction={
+            <Button variant="outline" icon={Layers}>
+              {t('cta.secondary', 'View Documentation')}
+            </Button>
+          }
         />
       </Section>
     </PageContainer>

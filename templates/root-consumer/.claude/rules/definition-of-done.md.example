@@ -10,7 +10,7 @@ Every change is incomplete until ALL applicable items are done.
 ## Mandatory (every change)
 
 1. **Code** - simple, follows existing patterns, robust, secure
-2. **Typecheck** - `dn tc` passes
+2. **Typecheck** - `dn tc` passes, run once at the end of the work batch (before commit / deploy), never after each change or feature
 3. **i18n** - all user-facing strings via `t('key')`. Locale files updated.
 
 ## Mandatory for new features
@@ -30,7 +30,7 @@ Every skill output MUST end with:
 ```
 ## Definition of Done
 - [x] Code: <files changed>
-- [x] Typecheck: dn tc - PASS
+- [x] Typecheck: dn tc - PASS, or deferred (more work follows in the batch)
 - [x] i18n: <locale files updated, or N/A>
 - [x] Tests: <test file, or N/A>
 - [x] Spec compliance: <verified, or N/A>

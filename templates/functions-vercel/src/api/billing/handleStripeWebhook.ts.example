@@ -11,8 +11,7 @@ import { createStripeWebhook } from '@donotdev/functions/vercel';
 // import { billingConfig } from '../../config/billingConfig';
 const billingConfig = {}; // TODO: Replace with your StripeBackConfig
 
-// Stripe signs the raw body: disable Next.js body parsing
-export const config = { api: { bodyParser: false } };
+// Stripe signs the raw body: the handler reads the request stream, never the parsed `req.body`
 
 // backend: 'firebase' | 'supabase' (token verification, claims, idempotency storage)
-export default createStripeWebhook(billingConfig, { backend: 'firebase' });
+export default createStripeWebhook(billingConfig, { backend: '{{#isSupabase}}supabase{{/isSupabase}}{{^isSupabase}}firebase{{/isSupabase}}' });

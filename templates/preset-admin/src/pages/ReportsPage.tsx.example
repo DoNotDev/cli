@@ -27,6 +27,7 @@ import {
   DataTable,
   Badge,
 } from '@donotdev/components';
+import type { BadgeVariant, TableColumn } from '@donotdev/components';
 import { useTranslation } from '@donotdev/core';
 import type { PageMeta } from '@donotdev/core';
 import { PageContainer } from '@donotdev/ui';
@@ -100,24 +101,24 @@ const recentExports = [
   { id: '6', name: 'Customer Segments', format: 'XLSX', status: 'failed', date: '2026-03-09', size: '-' },
 ];
 
-const exportColumns = [
-  { key: 'name', header: 'Report Name', sortable: true },
-  { key: 'format', header: 'Format', sortable: true },
+const exportColumns: TableColumn<(typeof recentExports)[number]>[] = [
+  { key: 'name', title: 'Report Name', sortable: true },
+  { key: 'format', title: 'Format', sortable: true },
   {
     key: 'status',
-    header: 'Status',
+    title: 'Status',
     sortable: true,
-    render: (value: string) => {
-      const variants: Record<string, string> = {
+    render: (_value, report) => {
+      const variants: Record<string, BadgeVariant> = {
         completed: 'success',
         processing: 'warning',
         failed: 'destructive',
       };
-      return <Badge variant={variants[value] || 'default'}>{value}</Badge>;
+      return <Badge variant={variants[report.status] || 'default'}>{report.status}</Badge>;
     },
   },
-  { key: 'date', header: 'Date', sortable: true },
-  { key: 'size', header: 'Size', sortable: true },
+  { key: 'date', title: 'Date', sortable: true },
+  { key: 'size', title: 'Size', sortable: true },
 ];
 
 // ============================================================================
@@ -132,7 +133,7 @@ export default function ReportsPage() {
     <PageContainer>
       {/* Date Range Selector */}
       <Section title={t('reportsAnalytics')}>
-        <Stack direction="row" align="center" justify="space-between">
+        <Stack direction="row" align="center" justify="between">
           <Text level="body" variant="muted">
             {t('selectPeriod')}
           </Text>
@@ -156,12 +157,12 @@ export default function ReportsPage() {
               elevated
               content={
                 <Stack gap="tight">
-                  <Text level="heading" weight="bold">{stat.value}</Text>
+                  <Text level="h3" weight="bold">{stat.value}</Text>
                   <Stack direction="row" align="center" gap="tight">
                     {stat.positive ? <TrendingUp /> : <TrendingDown />}
                     <Text
                       level="small"
-                      variant={stat.positive ? 'success' : 'error'}
+                      variant={stat.positive ? 'success' : 'destructive'}
                     >
                       {stat.trend}
                     </Text>

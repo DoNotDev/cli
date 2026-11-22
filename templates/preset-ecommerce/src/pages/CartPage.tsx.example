@@ -71,7 +71,7 @@ export default function CartPage() {
               <Card key={item.id}>
                 <Stack
                   direction="row"
-                  justify="space-between"
+                  justify="between"
                   align="center"
                   gap="medium"
                   style={{ padding: 'var(--gap-md)' }}
@@ -121,11 +121,11 @@ export default function CartPage() {
           >
             <Stack gap="medium" style={{ padding: 'var(--gap-md)' }}>
               <Stack gap="tight">
-                <Stack direction="row" justify="space-between">
+                <Stack direction="row" justify="between">
                   <Text level="small">{t('cart.summary.subtotal', 'Subtotal')}</Text>
                   <Text level="small">{subtotal.toFixed(2)} EUR</Text>
                 </Stack>
-                <Stack direction="row" justify="space-between">
+                <Stack direction="row" justify="between">
                   <Text level="small">{t('cart.summary.shipping', 'Shipping')}</Text>
                   <Text level="small" variant={shipping === 0 ? 'success' : 'default'}>
                     {shipping === 0
@@ -133,7 +133,7 @@ export default function CartPage() {
                       : `${shipping.toFixed(2)} EUR`}
                   </Text>
                 </Stack>
-                <Stack direction="row" justify="space-between">
+                <Stack direction="row" justify="between">
                   <Text level="small">{t('cart.summary.tax', 'Tax (20%)')}</Text>
                   <Text level="small">{tax.toFixed(2)} EUR</Text>
                 </Stack>
@@ -141,7 +141,7 @@ export default function CartPage() {
 
               <Separator />
 
-              <Stack direction="row" justify="space-between">
+              <Stack direction="row" justify="between">
                 <Text level="body" weight="semibold">{t('cart.summary.total', 'Total')}</Text>
                 <Text level="body" weight="semibold">{total.toFixed(2)} EUR</Text>
               </Stack>

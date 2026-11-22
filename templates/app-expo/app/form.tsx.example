@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { EntityFormRenderer, Stack, Text } from '@donotdev/expo';
-import { useCrud } from '@donotdev/crud';
+import { useCrud, useCrudDoc } from '@donotdev/crud';
 
 // import { productEntity } from '../entities/Product';
 const productEntity = null as any; // replace with your entity
@@ -26,6 +26,8 @@ export default function FormPage() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { add, update } = useCrud(productEntity);
+  // Existing record (edit mode): read through the CRUD cache
+  const { data: record } = useCrudDoc(productEntity, id ?? null);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (data: unknown) => {
@@ -43,9 +45,14 @@ export default function FormPage() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Stack spacing={16} style={{ flex: 1, padding: 16 }}>
+      <Stack gap={16} style={{ flex: 1, padding: 16 }}>
         <Text level="h2">{id ? 'Edit' : 'Create'}</Text>
-        <EntityFormRenderer entity={productEntity} entityId={id} onSubmit={handleSubmit} />
+        <EntityFormRenderer
+          entity={productEntity}
+          operation={id ? 'edit' : 'create'}
+          defaultValues={record ?? undefined}
+          onSubmit={handleSubmit}
+        />
       </Stack>
     </SafeAreaView>
   );
