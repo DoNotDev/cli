@@ -101,7 +101,7 @@
 
   /* 6. Typography - Monospace for body, Space Grotesk 700 for headings */
   --font-family: var(--font-mono);
-  --font-headline: 'Space Grotesk', var(--font-sans);
+  --font-headline: 'Space Grotesk', 'Space Grotesk Fallback', var(--font-sans);
   --font-weight-semibold: 700;
   --font-weight-bold: 700;
 
@@ -204,7 +204,7 @@
 
   /* 6. Typography — lighter weights, serif headlines */
   --font-family: var(--font-sans);
-  --font-headline: 'Playfair Display', var(--font-serif);
+  --font-headline: 'Playfair Display', 'Playfair Display Fallback', var(--font-serif);
   --font-weight-normal: 300;
   --font-weight-medium: 400;
   --font-weight-semibold: 500;
@@ -268,8 +268,8 @@
   --radius-floating: 0;
 
   /* 6. Typography - Press Start 2P (pixel font, 400 only) */
-  --font-family: 'Press Start 2P', var(--font-mono);
-  --font-headline: 'Press Start 2P', var(--font-mono);
+  --font-family: 'Press Start 2P', 'Press Start 2P Fallback', var(--font-mono);
+  --font-headline: 'Press Start 2P', 'Press Start 2P Fallback', var(--font-mono);
   --font-weight-normal: 400;
   --font-weight-medium: 400;
   --font-weight-semibold: 400;

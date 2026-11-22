@@ -1,6 +1,6 @@
 /**
  * PostCSS config for Next.js
- * Uses framework resolver with CSS alias support (dndev.css → dndev-next.css)
+ * Uses the framework resolver (workspace-aware resolution of @donotdev CSS imports)
  */
 import { definePostCSSConfig } from '@donotdev/core/next';
 

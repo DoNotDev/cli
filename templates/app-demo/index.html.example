@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DoNotDev Demo</title>
 
-  <!-- Fonts: the theme's framework fonts, bundled from @donotdev/ui/dndev.css (others dropped at build). -->
+  <!-- Fonts: the build adds the theme's font preloads and inline @font-face to <head> (no font link here). -->
 
   <!-- ✅ CRITICAL CSS: ECG waveform loader -->
   <style>

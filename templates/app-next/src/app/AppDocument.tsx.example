@@ -1,14 +1,12 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
-import { FontPreloadLinks } from '@donotdev/ui/next';
-
 import '../globals.css';
 
 /**
- * Framework fonts: only the catalogue families themes.css renders text in, copied to
- * public/ at build. FontPreloadLinks links their stylesheet (renders nothing when the
- * theme uses only the app's own fonts).
+ * Fonts: the framework ships the families src/themes.css names (font preloads and inline
+ * @font-face in the server HTML, rendered by the generated root layout). Nothing to add
+ * here: no next/font, no @fontsource import, no <link> to a font stylesheet.
  */
 
 /**
@@ -48,9 +46,7 @@ export function AppDocument({
       className="dndev-design-tokens light"
       suppressHydrationWarning
     >
-      <head>
-        <FontPreloadLinks />
-      </head>
+      <head />
       <body className="light">{children}</body>
     </html>
   );

@@ -1,10 +1,10 @@
 /* Next.js app globals.css */
-@import '@donotdev/ui/dndev-next.css';
+@import '@donotdev/ui/dndev.css';
 
 @import './themes.css';
 
 /**
- * Font choices (--font-family, --font-sans, etc.) belong in themes.css.
- * The framework fonts they name are served from public/fonts/ (copied by discovery); own fonts ship none.
- * dndev-next.css = font-stripped variant — use this for Next.js, NOT dndev.css.
+ * Font choices (--font-family, --font-sans, etc.) belong in themes.css. The framework
+ * ships the families they name (preloads + inline @font-face, files in public/fonts/):
+ * no @font-face or @fontsource import here.
  */ 

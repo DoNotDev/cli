@@ -11,8 +11,7 @@
   <!-- ✅ DnDev: Asset manifest injection point -->
   <!-- window.__DNDEV_ASSETS__ and __DNDEV_ASSET_MANIFEST__ injected here -->
   
-  <!-- Fonts: the theme's framework fonts, bundled from @donotdev/ui/dndev.css (others dropped at build). -->
-  <!-- DNDEV_FONT_PRELOADS -->
+  <!-- Fonts: the build adds the theme's font preloads and inline @font-face to <head> (no font link here). -->
   
   <!-- ✅ PERFORMANCE: Preconnect to external domains (OAuth providers) -->
   <!-- GitHub OAuth -->

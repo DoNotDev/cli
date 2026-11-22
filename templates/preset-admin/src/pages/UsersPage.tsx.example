@@ -1,8 +1,10 @@
 /**
  * @fileoverview User Management - DataTable with search, sort, pagination, export.
  *
- * Replace mock data with useCrudList for live user data.
- * Column definitions should match your user entity fields.
+ * Replace mock data with live accounts: `const { users, loading, error } = useAuthUsers()`
+ * from '@donotdev/auth' (every auth account: email, confirmation, sign-in dates; needs the
+ * admin-only `listAuthUsers` server function deployed). Use useCrudList(userEntity) for
+ * your own user table. Column definitions should match the fields you show.
  */
 
 import { Users } from 'lucide-react';
@@ -27,7 +29,7 @@ export const meta: PageMeta = {
 };
 
 // ============================================================================
-// MOCK DATA - Replace with useCrudList(userEntity)
+// MOCK DATA - Replace with useAuthUsers() (auth accounts) or useCrudList(userEntity)
 // ============================================================================
 
 const users = [
