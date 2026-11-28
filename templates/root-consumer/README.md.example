@@ -24,8 +24,7 @@ Open the app and follow the setup steps on the homepage (Git, Firebase, Stripe, 
 │   └── my-app/
 │       ├── .env              ← Vite reads THIS one
 │       ├── .env.local         ← Overrides .env (gitignored)
-│       ├── .env.production    ← Production overrides
-│       └── .env.staging       ← Staging overrides (used by dndev staging)
+│       └── .env.production    ← Production overrides
 └── functions/
     └── .env                   ← Server-side secrets (Stripe, OAuth, etc.)
 ```
@@ -45,7 +44,6 @@ dndev emu start              # Start Firebase emulators (Auth, Firestore, Functi
 
 # Deployment
 dndev deploy                 # Deploy to Firebase (hosting + functions + rules)
-dndev staging                # Deploy to staging environment
 dndev sync-secrets           # Push .dndev.secrets values to Firebase Secret Manager
 
 # Quality

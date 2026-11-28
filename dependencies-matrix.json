@@ -2,7 +2,7 @@
   "$schema": "./dependencies-matrix.schema.json",
   "version": "0.0.8",
   "description": "Centralized dependency versions for DoNotDev framework. Single source of truth for all external dependencies. Third-party optional deps are auto-detected from peerDependenciesMeta via scanInstalledPackageOptionals() — no manual constants update needed.",
-  "lastUpdated": "2026-11-25",
+  "lastUpdated": "2026-11-27",
   "migrationGuides": {
     "0.0→0.1": {
       "path": "docs/migration/v0.0-to-v0.1.md",
@@ -46,7 +46,7 @@
     "@donotdev/auth": {
       "description": "Authentication package",
       "packages": {
-        "@donotdev/auth": "^0.3.7"
+        "@donotdev/auth": "^0.3.8"
       }
     },
     "@donotdev/billing": {
@@ -58,19 +58,19 @@
     "@donotdev/components": {
       "description": "UI components package",
       "packages": {
-        "@donotdev/components": "^0.3.8"
+        "@donotdev/components": "^0.3.11"
       }
     },
     "@donotdev/core": {
       "description": "Core framework package",
       "packages": {
-        "@donotdev/core": "^0.3.7"
+        "@donotdev/core": "^0.3.10"
       }
     },
     "@donotdev/crud": {
       "description": "CRUD operations package",
       "packages": {
-        "@donotdev/crud": "^0.3.7"
+        "@donotdev/crud": "^0.3.9"
       }
     },
     "@donotdev/demo": {
@@ -82,7 +82,7 @@
     "@donotdev/firebase": {
       "description": "Firebase provider package",
       "packages": {
-        "@donotdev/firebase": "^0.3.5"
+        "@donotdev/firebase": "^0.3.6"
       }
     },
     "@donotdev/functions": {
@@ -100,19 +100,19 @@
     "@donotdev/templates": {
       "description": "Page templates package",
       "packages": {
-        "@donotdev/templates": "^0.3.4"
+        "@donotdev/templates": "^0.3.5"
       }
     },
     "@donotdev/ui": {
       "description": "UI and routing package",
       "packages": {
-        "@donotdev/ui": "^0.3.8"
+        "@donotdev/ui": "^0.3.11"
       }
     },
     "@donotdev/expo": {
       "description": "Expo/React Native components package",
       "packages": {
-        "@donotdev/expo": "^0.3.5"
+        "@donotdev/expo": "^0.3.6"
       }
     },
     "@donotdev/supabase": {
@@ -494,13 +494,13 @@
     "@donotdev/cli": {
       "description": "Cli package",
       "packages": {
-        "@donotdev/cli": "^0.3.6"
+        "@donotdev/cli": "^0.3.7"
       }
     },
     "@donotdev/mcp-server": {
       "description": "MCP server for component type lookups",
       "packages": {
-        "@donotdev/mcp-server": "^0.3.2"
+        "@donotdev/mcp-server": "^0.3.3"
       }
     },
     "mcp-sdk": {

@@ -121,18 +121,6 @@ export default function HomePage() {
           />
 
           <Card
-            title="Staging Environment"
-            subtitle="Separate Firebase project for testing"
-            content={[
-              'Create a second Firebase project (e.g. my-app-staging)',
-              'Add to .firebaserc: { "projects": { "staging": "my-app-staging" } }',
-              'Create .env.staging with staging Firebase config',
-              'Create service-account-key.staging.json',
-              'Deploy with: dndev staging',
-            ]}
-          />
-
-          <Card
             title="Secrets (Stripe, OAuth, etc.)"
             subtitle="Server-side API keys for Cloud Functions"
             content={[

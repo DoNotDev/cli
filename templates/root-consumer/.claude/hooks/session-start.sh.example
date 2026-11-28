@@ -1,50 +1,41 @@
 #!/bin/bash
-# .claude/hooks/session-start.sh
-# Injects context at session start so the agent doesn't fly blind.
-# Cross-platform: bun-first, no grep -P.
+# .claude/hooks/session-start.sh [subagent]
+# SessionStart (startup, /clear, compaction): active phase + project lessons, plain text.
+# SubagentStart (arg "subagent"): project lessons as additionalContext JSON, so every
+# subagent gets them without a brief carrying them. Explore gets nothing (read-only search);
+# Plan starts without CLAUDE.md, so it is told to read AGENTS.md and the rules.
+# Lessons: .dndev/LESSONS.md bullets, deprecated and anti-pattern ones left out, score suffix stripped.
 
 set -euo pipefail
 
-echo "=== SESSION CONTEXT ==="
+cd "$CLAUDE_PROJECT_DIR"
 
-# Git branch
-BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
-echo "Branch: $BRANCH"
+bun -e '
+const mode = process.argv[1] ?? "session";
+const read = async (p) => ((await Bun.file(p).exists()) ? Bun.file(p).text() : "");
 
-# Dirty files count
-DIRTY=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
-if [ "$DIRTY" -gt 0 ]; then
-  echo "Dirty files: $DIRTY"
-  git status --porcelain 2>/dev/null | head -10
-  [ "$DIRTY" -gt 10 ] && echo "  ... and $((DIRTY - 10)) more"
-fi
+const lessons = (await read(".dndev/LESSONS.md"))
+  .split("\n")
+  .filter((l) => l.startsWith("- [") && !/status:(deprecated|anti-pattern)/.test(l))
+  .map((l) => l.replace(/\s*\{helpful:\d+,harmful:\d+,lastSeen:[^}]+\}$/, ""));
+const lessonsBlock = lessons.length
+  ? "Project lessons (owner rules learned the hard way; they override your defaults):\n" + lessons.join("\n")
+  : "";
 
-# WAI-WAY phase status (if dndev is available)
-if command -v dndev &>/dev/null; then
-  PHASE_FILE=".dndev/implementation.md"
-  if [ -f "$PHASE_FILE" ]; then
-    CURRENT=$(bun -e "
-      const text = await Bun.file('$PHASE_FILE').text();
-      const m = text.match(/Current Phase:\\s*(.+)/);
-      process.stdout.write(m ? m[1].trim() : 'none');
-    " 2>/dev/null || echo "none")
-    echo "WAI-WAY Phase: $CURRENT"
-  else
-    echo "WAI-WAY Phase: not started - call start_phase(0)"
-  fi
-fi
+if (mode === "subagent") {
+  const { agent_type } = JSON.parse(await Bun.stdin.text());
+  if (agent_type === "Explore") process.exit(0);
+  const parts = [lessonsBlock];
+  if (agent_type === "Plan") parts.unshift("Read AGENTS.md and every .claude/rules/*.md file before you plan: they are the project rules.");
+  const context = parts.filter(Boolean).join("\n\n");
+  if (context) process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: "SubagentStart", additionalContext: context } }));
+  process.exit(0);
+}
 
-# Recent lessons (last 3)
-LESSONS_FILE=".dndev/LESSONS.md"
-if [ -f "$LESSONS_FILE" ]; then
-  LESSON_COUNT=$(grep -c '^## ' "$LESSONS_FILE" 2>/dev/null || echo "0")
-  if [ "$LESSON_COUNT" -gt 0 ]; then
-    echo ""
-    echo "Recent lessons ($LESSON_COUNT total):"
-    grep '^## ' "$LESSONS_FILE" | tail -3 | sed 's/^/  /'
-  fi
-fi
-
-echo ""
-echo "REMINDER: Root instructions are in AGENTS.md. Use lookup_symbol before @donotdev imports."
-echo "=== END CONTEXT ==="
+const protocolText = await read(".dndev/protocol.json");
+const protocol = protocolText ? JSON.parse(protocolText) : {};
+const phaseLine = Number.isInteger(protocol.currentPhase)
+  ? `DoNotDev phase: ${protocol.currentPhase} ${protocol.phaseName}. Call start_phase(${protocol.currentPhase}) before any work; if it fails, stop and report the exact error.`
+  : "DoNotDev phase: none started. Call start_phase(0) before any work; if it fails, stop and report the exact error.";
+process.stdout.write([phaseLine, lessonsBlock].filter(Boolean).join("\n\n") + "\n");
+' "${1:-session}"

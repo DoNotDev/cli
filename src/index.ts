@@ -19,5 +19,5 @@ export {
   cacheout,
   syncSecrets,
   deploy,
-  staging,
+  uat,
 } from '@donotdev/tooling';

@@ -8,7 +8,6 @@
  * Usage:
  *   dndev setup-cicd          — interactive CI/CD setup for your app
  *   dndev setup-cicd <app>    — set up CI/CD for specific app
- *   dndev setup-cicd --staging — include staging environment workflows
  *   dndev setup-cicd --dry-run — show plan without modifying GitHub
  *
  * @version 0.1.0

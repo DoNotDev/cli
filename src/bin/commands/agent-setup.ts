@@ -2,8 +2,9 @@
 /**
  * @fileoverview Agent Setup Command
  * @description Configure MCP servers for DoNotDev across different AI agents.
- * Sets up .mcp.json (Claude Code), .cursor/mcp.json (Cursor), .gemini/settings.json (Gemini),
- * and Claude Desktop configuration. Auto-detects platform for global config paths.
+ * Runs the AI harness step of `dndev bump` (our MCP server in .mcp.json, .cursor/mcp.json,
+ * .gemini/settings.json; removed instead under DNDEV_HARNESS=global), then merges the same
+ * server into Claude Desktop's global config (macOS / Windows).
  *
  * Usage:
  *   dndev agent-setup         — configure all available AI agents

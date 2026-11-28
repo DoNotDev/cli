@@ -2,7 +2,7 @@
 # .claude/hooks/guard-bash.sh
 # PreToolUse hook for Bash commands.
 # Blocks dangerous/wrong commands. Exit 2 = block, exit 0 = allow.
-# tsc / install checks look at command words only (not heredocs, quotes, comments).
+# tsc / install / test-runner checks look at command words only (not heredocs, quotes, comments).
 # Uses bun -e for JSON parsing (bun-first project).
 
 set -euo pipefail
@@ -16,7 +16,7 @@ COMMAND=$(echo "$INPUT" | bun -e "process.stdout.write(JSON.parse(await Bun.stdi
 # Command-word analysis (tsc / package-manager install).
 # Splits the command into simple commands (on ; & | ( ) and newlines), ignoring quoted strings,
 # comments and heredoc bodies, then looks only at each command's leading words.
-# Prints "tsc" or "install" for the first offending simple command, nothing otherwise.
+# Prints "tsc", "test" or "install" for the first offending simple command, nothing otherwise.
 ANALYZER=$(cat <<'JS'
 const src = await Bun.stdin.text();
 const cmds = [];
@@ -86,6 +86,7 @@ endCmd();
 
 const base = (w) => w.slice(w.lastIndexOf('/') + 1);
 const PM = ['bun', 'npm', 'yarn', 'pnpm'];
+const TEST_RUNNERS = ['vitest', 'jest', 'playwright'];
 let verdict = '';
 for (const w0 of cmds) {
   let w = w0;
@@ -100,6 +101,8 @@ for (const w0 of cmds) {
   }
   if (head === 'tsc') { verdict = 'tsc'; break; }
   if (runner && rest.find((a) => !a.startsWith('-')) === 'tsc') { verdict = 'tsc'; break; }
+  if (PM.includes(head) && (rest[0] === 'test' || (rest[0] === 'run' && /^test(:|$)/.test(rest[1] ?? '')))) { verdict = 'test'; break; }
+  if (TEST_RUNNERS.includes(head) || (runner && TEST_RUNNERS.includes(rest.find((a) => !a.startsWith('-')) ?? ''))) { verdict = 'test'; break; }
   if (PM.includes(head) && (rest[0] === 'install' || rest[0] === 'i') && !verdict) verdict = 'install';
 }
 process.stdout.write(verdict);
@@ -110,6 +113,12 @@ VERDICT=$(printf '%s' "$COMMAND" | bun -e "$ANALYZER")
 # Block raw TypeScript compiler (must use dn tc)
 if [ "$VERDICT" = "tsc" ]; then
   echo "BLOCKED: Use 'dn tc' for type-checking, never raw tsc / bunx tsc / npx tsc." >&2
+  exit 2
+fi
+
+# Block raw test runners (must use dn test: raw runners pick up the Playwright e2e specs)
+if [ "$VERDICT" = "test" ]; then
+  echo "BLOCKED: Run tests with 'dn test --app <app>' (UAT: 'dn test:uat'), never raw bun test / vitest / playwright: they pick up the e2e specs and report false failures." >&2
   exit 2
 fi
 

@@ -134,9 +134,25 @@ const ACTION_OVERRIDES = {
     process.exitCode = await main(options);
   },
 
-  'staging': async (options, app) => {
-    const { main } = await import('./commands/deploy.js');
-    await main({ ...options, app, staging: true });
+  // Every parsed flag goes through (not only the common ones): uat.ts maps each
+  // uat flag explicitly and sets uat: true itself, never from a flag.
+  'uat': async (options, app) => {
+    try {
+      const { main } = await import('./commands/uat.js');
+      await main({ ...options, app });
+    } catch (error) {
+      // --refresh-data throws before the deploy runs: report it, exit non-zero.
+      console.error(`Command failed: ${error.message}`);
+      process.exitCode = error.context?.exitCode || 1;
+    }
+  },
+
+  // dev: --uat on top of the common options (runAppCommand passes those only).
+  'dev': async (options, app) => {
+    await runAppCommand('./commands/dev.js', app, {
+      ...extractCommonOptions(options),
+      uat: options.uat,
+    });
   },
 
   'deploy': async (options, app) => {

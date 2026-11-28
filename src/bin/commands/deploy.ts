@@ -1,14 +1,13 @@
 // packages/cli/src/bin/commands/deploy.ts
 /**
  * @fileoverview Deploy Command
- * @description Deploy your application to Firebase or Vercel.
- * Automatically detects the provider and app configuration. Supports staging
- * deployments and project-specific overrides.
+ * @description Deploy your application to production (Firebase, Supabase or Vercel).
+ * Automatically detects the provider and app configuration. Supports
+ * project-specific overrides. UAT deploys are `dndev uat <app>` (commands/uat.ts).
  *
  * Usage:
  *   dndev deploy              — interactive app and target selection
  *   dndev deploy <app>        — deploy specific app
- *   dndev deploy --staging    — deploy using staging environment
  *   dndev deploy --project <id> — override Firebase project ID
  *   dndev deploy --scope <frontend|functions|rules|both|all> — what to deploy (implies --yes)
  *   dndev deploy --yes        — non-interactive: never prompt, fail naming the missing flag
